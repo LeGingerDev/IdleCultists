@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2b3e2d49bcd8fb049b56a2b800835fd4
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 308259
+  packageName: Pixel Craft VFX - URP
+  packageVersion: 1.0.02
+  assetPath: Assets/Vefects/Pixel Craft VFX URP/VFX/Teleport/Particles/VFX_Teleport_01_Color_Flip_Static.prefab
+  uploadId: 771196

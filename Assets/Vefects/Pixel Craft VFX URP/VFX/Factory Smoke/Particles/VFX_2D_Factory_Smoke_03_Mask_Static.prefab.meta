@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 639c31d1a1d25924c8981ca200a4bd6c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 308259
+  packageName: Pixel Craft VFX - URP
+  packageVersion: 1.0.02
+  assetPath: Assets/Vefects/Pixel Craft VFX URP/VFX/Factory Smoke/Particles/VFX_Factory_Smoke_03_Mask_Static.prefab
+  uploadId: 771196

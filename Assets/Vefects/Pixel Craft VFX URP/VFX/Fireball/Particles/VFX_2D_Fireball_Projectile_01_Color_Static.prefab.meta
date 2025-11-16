@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f49a92f98b72cca4bad071d2a6426dd2
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 308259
+  packageName: Pixel Craft VFX - URP
+  packageVersion: 1.0.02
+  assetPath: Assets/Vefects/Pixel Craft VFX URP/VFX/Fireball/Particles/VFX_Fireball_Projectile_01_Color_Static.prefab
+  uploadId: 771196

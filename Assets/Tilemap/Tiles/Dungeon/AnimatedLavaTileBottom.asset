@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: AnimatedLavaTileBottom
+  m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.Tilemaps.AnimatedTile
+  m_AnimatedSprites:
+  - {fileID: 3493097, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: 1384171129, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: 1552534594, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: -123824684, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: 2092413877, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: -645781202, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: 2058256305, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: -48881158, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  - {fileID: -1893464134, guid: 5a363900d1113e647a0c0b5e6ee495f7, type: 3}
+  m_MinSpeed: 8
+  m_MaxSpeed: 8
+  m_AnimationStartTime: -3.28
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0
+  m_TileAnimationFlags: 0

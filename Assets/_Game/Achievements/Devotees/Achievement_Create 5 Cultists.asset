@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90fa76dafeca37d449cfaa225bc4f2ab, type: 3}
+  m_Name: Achievement_Create 5 Cultists
+  m_EditorClassIdentifier: Assembly-CSharp::AchievementData
+  id: create-five-cultists
+  title: Create 5 Cultists
+  description: A small group got together for a party
+  icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
+  requiredAchievements:
+  - {fileID: 11400000, guid: 639da2e38bfbad14aa248d1f9d9933aa, type: 2}
+  trackingType: 1
+  trackingMetric: 2
+  trackedResource: {fileID: 0}
+  goal:
+    coefficient: 5
+    magnitude: 0
+  rewards: []
+  hexColor: {r: 1, g: 1, b: 1, a: 1}

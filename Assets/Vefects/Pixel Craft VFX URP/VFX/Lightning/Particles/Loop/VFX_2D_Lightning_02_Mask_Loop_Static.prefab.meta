@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0c0af422301b9124d8ad5ef5243fb46b
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 308259
+  packageName: Pixel Craft VFX - URP
+  packageVersion: 1.0.02
+  assetPath: Assets/Vefects/Pixel Craft VFX URP/VFX/Lightning/Particles/Loop/VFX_Lightning_02_Mask_Loop_Static.prefab
+  uploadId: 771196

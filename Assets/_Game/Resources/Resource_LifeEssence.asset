@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af416b25070f9ee42a59e9d2f003de72, type: 3}
+  m_Name: Resource_LifeEssence
+  m_EditorClassIdentifier: Assembly-CSharp::LGD.ResourceSystem.Models.Resource
+  id: life-essence
+  displayName: Life Essence
+  description: Pure essence of the still-breathing. Best served chilled, guilt served
+    separately.
+  icon: {fileID: 21300000, guid: 47a7655157228c54f915de42962542b5, type: 3}
+  colorAssociation: {r: 1, g: 1, b: 1, a: 1}
+  physicalResourceAssociation: {fileID: 2455745395000518532, guid: 8143b0af8b17eb048a5701a40acef415, type: 3}

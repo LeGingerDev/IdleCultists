@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fb43c40d74538a4192930ce817d2827, type: 3}
+  m_Name: UpgradeBlueprint_Stronger Devotion
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeBlueprint
+  upgradeId: stronger-devotion
+  displayName: Stronger Devotion
+  description: Your Devotion Grows Stronger
+  icon: {fileID: 4331717724481516534, guid: 5ebfa8574343e414ab75b1a0a99397fc, type: 3}
+  upgradeType: 2
+  maxTier: 3
+  costScaling:
+    costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
+    baseCost: 1500
+    growthType: 1
+    growthRate: 1.7
+  modifierScaling:
+  - statType: 1
+    modifierType: 1
+    baseValue: 0.2
+    growthPerLevel: 0.2

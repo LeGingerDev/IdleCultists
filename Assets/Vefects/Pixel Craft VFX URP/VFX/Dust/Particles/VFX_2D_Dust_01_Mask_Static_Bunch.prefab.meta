@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0a51701a2547ce34baeb85d37cd895d8
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 308259
+  packageName: Pixel Craft VFX - URP
+  packageVersion: 1.0.02
+  assetPath: Assets/Vefects/Pixel Craft VFX URP/VFX/Dust/Particles/VFX_Dust_01_Mask_Static_Bunch.prefab
+  uploadId: 771196

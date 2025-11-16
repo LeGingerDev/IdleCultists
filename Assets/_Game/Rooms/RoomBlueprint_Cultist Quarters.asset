@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b0e2099be4eb2143a5882c2385144e0, type: 3}
+  m_Name: RoomBlueprint_Cultist Quarters
+  m_EditorClassIdentifier: Assembly-CSharp::RoomBlueprint
+  roomId: cultist-quarters
+  displayName: Cultist Quarters
+  description: A cozy place for your cultists to chill
+  icon: {fileID: 0}
+  unlockCost:
+    costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
+    baseCost: 4500
+    growthType: 0
+    growthRate: 0
+  prerequisiteRooms: []
+  purchaseRequirements: []
+  unlockOrder: 1
+  largeNumber:
+    coefficient: 0
+    magnitude: 0

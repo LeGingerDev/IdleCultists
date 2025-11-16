@@ -77,7 +77,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private void DisplayPurchasableInfo(BasePurchasable blueprint)
     {
-        int currentPurchaseCount = UnifiedPurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId);
+        int currentPurchaseCount = PurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId);
         int nextPurchase = currentPurchaseCount + 1;
 
         _titleText.text = blueprint.displayName;
@@ -106,7 +106,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private void PurchasePurchasable()
     {
-        int nextPurchase = UnifiedPurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId) + 1;
+        int nextPurchase = PurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId) + 1;
         ResourceAmountPair cost = _currentPurchasable.GetCostWithResourceForPurchase(nextPurchase);
 
         if (!ResourceManager.Instance.CanSpend(cost))
@@ -116,7 +116,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         }
 
         ResourceManager.Instance.RemoveResource(cost);
-        bool success = UnifiedPurchasableManager.Instance.ExecutePurchase(_currentPurchasable.purchasableId);
+        bool success = PurchasableManager.Instance.ExecutePurchase(_currentPurchasable.purchasableId);
 
         if (success)
         {
@@ -141,7 +141,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
         if (_currentPurchasable != null)
         {
-            int currentPurchaseCount = UnifiedPurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId);
+            int currentPurchaseCount = PurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId);
             canPurchase = CanPurchasePurchasable(_currentPurchasable, currentPurchaseCount);
             buttonText = GetPurchasableButtonText(_currentPurchasable, currentPurchaseCount, canPurchase);
         }

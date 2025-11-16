@@ -2,12 +2,37 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PurchasableRegistry : RegistryProviderBase<PurchasableBlueprint>
+/// <summary>
+/// Registry for all purchasables (both StatPurchasables and EventPurchasables)
+/// </summary>
+public class PurchasableRegistry : RegistryProviderBase<BasePurchasable>
 {
-    public override PurchasableBlueprint GetItemById(string id)
+    public override BasePurchasable GetItemById(string id)
     {
         return _items.Find(item => item.purchasableId == id);
     }
 
-    public List<PurchasableBlueprint> GetAllPurchasablesByType(PurchasableType type) => _items.Where(i => i.purchaseType == type).ToList(); 
+    /// <summary>
+    /// Get all purchasables of a specific purchase type (OneTime, Capped, Infinite)
+    /// </summary>
+    public List<BasePurchasable> GetAllPurchasablesByPurchaseType(PurchaseType type)
+    {
+        return _items.Where(i => i.purchaseType == type).ToList();
+    }
+
+    /// <summary>
+    /// Get all StatPurchasables (provides stat modifiers)
+    /// </summary>
+    public List<StatPurchasable> GetAllStatPurchasables()
+    {
+        return _items.OfType<StatPurchasable>().ToList();
+    }
+
+    /// <summary>
+    /// Get all EventPurchasables (triggers custom behaviors)
+    /// </summary>
+    public List<EventPurchasable> GetAllEventPurchasables()
+    {
+        return _items.OfType<EventPurchasable>().ToList();
+    }
 }

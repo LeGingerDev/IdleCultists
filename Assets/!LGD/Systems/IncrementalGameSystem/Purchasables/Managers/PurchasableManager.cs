@@ -7,11 +7,10 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// Unified manager for all purchasables (both StatPurchasables and EventPurchasables)
-/// Replaces both UpgradeManager and PurchaseManager
+/// Manager for all purchasables (both StatPurchasables and EventPurchasables)
 /// Handles purchasing, runtime data tracking, and provides stat modifiers for StatPurchasables
 /// </summary>
-public class UnifiedPurchasableManager : MonoSingleton<UnifiedPurchasableManager>, IStatProvider
+public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvider
 {
     [SerializeField, ReadOnly, FoldoutGroup("Debug")]
     private List<BasePurchasableRuntimeData> _runtimeData = new List<BasePurchasableRuntimeData>();
@@ -40,18 +39,18 @@ public class UnifiedPurchasableManager : MonoSingleton<UnifiedPurchasableManager
             yield return _saveProvider.Load();
 
             // Sync with registry to add any new purchasables that were added after the save file was created
-            UnifiedPurchasableSaveProvider purchasableProvider = _saveProvider as UnifiedPurchasableSaveProvider;
+            PurchasableSaveProvider purchasableProvider = _saveProvider as PurchasableSaveProvider;
             if (purchasableProvider != null)
             {
                 yield return purchasableProvider.SyncWithRegistry();
             }
 
             _runtimeData = _saveProvider.GetData();
-            DebugManager.Log($"[IncrementalGame] <color=cyan>Unified Purchasable Manager initialized:</color> {_runtimeData.Count} purchasables loaded");
+            DebugManager.Log($"[IncrementalGame] <color=cyan>Purchasable Manager initialized:</color> {_runtimeData.Count} purchasables loaded");
         }
         else
         {
-            DebugManager.Error("[IncrementalGame] Purchasable save provider not found! Make sure UnifiedPurchasableSaveProvider is in the scene.");
+            DebugManager.Error("[IncrementalGame] Purchasable save provider not found! Make sure PurchasableSaveProvider is in the scene.");
         }
 
         _isInitialized = true;

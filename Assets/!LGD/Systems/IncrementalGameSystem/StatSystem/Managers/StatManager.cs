@@ -47,10 +47,10 @@ public class StatManager : MonoSingleton<StatManager>
 
     private void RegisterStaticProviders()
     {
-        // Register unified purchasable manager (provides stat modifiers from StatPurchasables)
-        if (UnifiedPurchasableManager.Instance != null)
+        // Register purchasable manager (provides stat modifiers from StatPurchasables)
+        if (PurchasableManager.Instance != null)
         {
-            RegisterStatProvider(UnifiedPurchasableManager.Instance);
+            RegisterStatProvider(PurchasableManager.Instance);
         }
 
         // NOTE: EntityManager is NOT registered - it doesn't provide stats anymore!

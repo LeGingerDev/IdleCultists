@@ -26,24 +26,27 @@ public abstract class RegistryProviderBase<T> : MonoBehaviour, IRegistry where T
     {
         _items.Clear();
 
-        // Search for all ScriptableObjects of type T recursively in Assets/_Game
-        string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { "Assets/_Game" });
+        // Search for all ScriptableObjects in Assets/_Game
+        // Note: Unity's FindAssets "t:TypeName" only finds exact matches, not derived types
+        // So we search for all ScriptableObjects and filter by type
+        string[] guids = AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets/_Game" });
 
         foreach (string guid in guids)
         {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            ScriptableObject asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
 
-            if (asset != null)
+            // Check if this ScriptableObject is assignable to type T (includes derived types)
+            if (asset != null && asset is T typedAsset)
             {
-                _items.Add(asset);
+                _items.Add(typedAsset);
             }
         }
 
         // Mark the component as dirty so Unity saves the changes
         EditorUtility.SetDirty(this);
 
-        DebugManager.Log($"[IncrementalGame] <color=green>Registry Populated:</color> Found {_items.Count} {typeof(T).Name}(s) in {gameObject.name}");
+        DebugManager.Log($"[IncrementalGame] <color=green>Registry Populated:</color> Found {_items.Count} {typeof(T).Name}(s) and derived types in {gameObject.name}");
     }
 #else
     public void PopulateRegistry() { }

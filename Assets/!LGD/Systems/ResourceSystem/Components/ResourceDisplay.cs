@@ -60,8 +60,8 @@ namespace LGD.ResourceSystem.Components
 
             _currentAmount = amount;
 
-            // Use AlphabeticNotation's ToString() for automatic formatting ("1.5K", "23.4M", etc.)
-            _resourceAmount.text = amount.FormatWithDecimals(2);
+            // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
+            _resourceAmount.text = amount.FormatWithDecimals();
         }
 
         public void CheckToShow()

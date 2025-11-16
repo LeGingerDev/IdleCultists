@@ -77,7 +77,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private void DisplayPurchasableInfo(BasePurchasable blueprint)
     {
-        int currentPurchaseCount = PurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId);
+        int currentPurchaseCount = blueprint.GetPurchaseCount(); // Use extension method
         int nextPurchase = currentPurchaseCount + 1;
 
         _titleText.text = blueprint.displayName;
@@ -85,8 +85,8 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         _levelText.text = GetPurchaseLevelText(blueprint, currentPurchaseCount);
         _bonusesText.text = GetPurchaseBonusText(blueprint, currentPurchaseCount, nextPurchase);
 
-        // Cost display
-        ResourceAmountPair cost = blueprint.GetCostWithResourceForPurchase(nextPurchase);
+        // Cost display using extension method
+        ResourceAmountPair cost = blueprint.GetCostForNextPurchase();
         _costText.text = GetCostDisplayText(cost);
     }
 
@@ -106,22 +106,17 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private void PurchasePurchasable()
     {
-        int nextPurchase = PurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId) + 1;
-        ResourceAmountPair cost = _currentPurchasable.GetCostWithResourceForPurchase(nextPurchase);
-
-        if (!ResourceManager.Instance.CanSpend(cost))
-        {
-            Debug.LogWarning($"Cannot afford {_currentPurchasable.displayName}");
-            return;
-        }
-
-        ResourceManager.Instance.RemoveResource(cost);
-        bool success = PurchasableManager.Instance.ExecutePurchase(_currentPurchasable.purchasableId);
+        // Use extension method which handles cost check, removal, and execution
+        bool success = _currentPurchasable.ExecutePurchase();
 
         if (success)
         {
             Publish(LifeCrystalEventIds.ON_LIFE_CRYSTAL_PURCHASE_COMPLETED);
             DisplayPurchasableInfo(_currentPurchasable); // Refresh display
+        }
+        else
+        {
+            Debug.LogWarning($"Cannot afford or execute purchase for {_currentPurchasable.displayName}");
         }
     }
 
@@ -141,7 +136,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
         if (_currentPurchasable != null)
         {
-            int currentPurchaseCount = PurchasableManager.Instance.GetPurchaseCount(_currentPurchasable.purchasableId);
+            int currentPurchaseCount = _currentPurchasable.GetPurchaseCount(); // Use extension method
             canPurchase = CanPurchasePurchasable(_currentPurchasable, currentPurchaseCount);
             buttonText = GetPurchasableButtonText(_currentPurchasable, currentPurchaseCount, canPurchase);
         }
@@ -152,22 +147,12 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private bool CanPurchasePurchasable(BasePurchasable blueprint, int currentPurchaseCount)
     {
-        // Check if maxed out
-        if (blueprint.purchaseType != PurchaseType.Infinite)
-        {
-            if (blueprint.purchaseType == PurchaseType.OneTime && currentPurchaseCount >= 1)
-                return false;
+        // Use extension method to check if maxed out
+        if (blueprint.IsMaxedOut())
+            return false;
 
-            if (blueprint.purchaseType == PurchaseType.Capped &&
-                blueprint.maxPurchases != -1 &&
-                currentPurchaseCount >= blueprint.maxPurchases)
-                return false;
-        }
-
-        // Check if can afford
-        int nextPurchase = currentPurchaseCount + 1;
-        ResourceAmountPair cost = blueprint.GetCostWithResourceForPurchase(nextPurchase);
-        return ResourceManager.Instance.CanSpend(cost);
+        // Use extension method to check if can afford
+        return blueprint.CanAfford();
     }
 
     public void StartPurchaseLoop()
@@ -248,7 +233,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
                 else
                 {
                     AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentPurchaseCount);
-                    sb.AppendLine($"{modifierScaling.statType}: +{currentValue}");
+                    sb.AppendLine($"{modifierScaling.statType}: +{currentValue.FormatWithDecimals()}");
                 }
             }
             else
@@ -265,7 +250,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
                     else
                     {
                         AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextPurchase);
-                        sb.AppendLine($"{modifierScaling.statType}: +{nextValue}");
+                        sb.AppendLine($"{modifierScaling.statType}: +{nextValue.FormatWithDecimals()}");
                     }
                 }
                 else
@@ -281,7 +266,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
                     {
                         AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentPurchaseCount);
                         AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextPurchase);
-                        sb.AppendLine($"{modifierScaling.statType}: +{currentValue} → +{nextValue}");
+                        sb.AppendLine($"{modifierScaling.statType}: +{currentValue.FormatWithDecimals()} → +{nextValue.FormatWithDecimals()}");
                     }
                 }
             }
@@ -297,7 +282,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
         AlphabeticNotation currentAmount = ResourceManager.Instance.GetResourceAmount(cost.resource);
 
-        return $"{currentAmount}/{cost.amount} - {cost.resource.displayName}";
+        return $"{currentAmount.FormatWithDecimals()}/{cost.amount.FormatWithDecimals()} - {cost.resource.displayName}";
     }
 
     private string GetPurchasableButtonText(BasePurchasable blueprint, int currentPurchaseCount, bool canAfford)

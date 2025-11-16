@@ -61,7 +61,7 @@ public class CostScaling
             AlphabeticNotation cost = CalculateCost(tier);
             totalCost += cost;
 
-            sb.AppendLine($"Tier {tier,2}: {cost.ToString(),15}  (Total: {totalCost.ToString()})");
+            sb.AppendLine($"Tier {tier,2}: {cost.FormatWithDecimals(),15}  (Total: {totalCost.FormatWithDecimals()})");
         }
 
         _costPreview = sb.ToString();

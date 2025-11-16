@@ -561,8 +561,8 @@ namespace LargeNumbers
                         returnCoefficient -= ( b.coefficient / _powers [ absmagnitudeDifference ] );
                 }
             }
-            // If values less than 1.0 (e.g. 0.9) aren't wanted, then uncomment the call to Fix.
-            //return Fix ( ref returnCoefficient, ref returnMagnitude );
+            // Fix the result to normalize the magnitude (prevents 0.9K issue)
+            Fix ( ref returnCoefficient, ref returnMagnitude );
             return new AlphabeticNotation ( returnCoefficient, returnMagnitude );
         }
 
@@ -602,7 +602,8 @@ namespace LargeNumbers
                         returnCoefficient += ( b.coefficient / _powers [ absmagnitudeDifference ] );
                 }
             }
-            //return Fix ( returnCoefficient, returnMagnitude );
+            // Fix the result to normalize the magnitude
+            Fix ( ref returnCoefficient, ref returnMagnitude );
             return new AlphabeticNotation ( returnCoefficient, returnMagnitude );
         }
 

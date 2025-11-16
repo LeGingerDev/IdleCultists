@@ -9,10 +9,37 @@ namespace LGD.Extensions
         private static StringBuilder _stringBuilder = new StringBuilder(16);
 
         /// <summary>
-        /// Formats AlphabeticNotation with custom decimal places
-        /// Example: FormatWithDecimals(2) -> "1.23K"
+        /// Formats AlphabeticNotation with automatic decimal places:
+        /// - Under 1K (magnitude 0): 2 decimal places (e.g., "123.45", "99.99")
+        /// - At K or higher (magnitude >= 1): 1 decimal place (e.g., "1.5K", "23.4M")
+        /// This is the default formatting for the game and should be used everywhere.
         /// </summary>
-        public static string FormatWithDecimals(this AlphabeticNotation value, int decimalPlaces = 2)
+        public static string FormatWithDecimals(this AlphabeticNotation value)
+        {
+            _stringBuilder.Clear();
+
+            if (value.isZero)
+                return "0";
+
+            // Decide decimal places based on magnitude
+            int decimalPlaces = value.magnitude == 0 ? 2 : 1;
+            string coefficientStr = value.coefficient.ToString($"F{decimalPlaces}");
+            _stringBuilder.Append(coefficientStr);
+
+            if (value.magnitude > 0)
+            {
+                string magnitudeName = AlphabeticNotation.GetAlphabeticMagnitudeName(value.magnitude);
+                _stringBuilder.Append(magnitudeName);
+            }
+
+            return _stringBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Formats AlphabeticNotation with explicit custom decimal places
+        /// Example: FormatWithDecimals(3) -> "1.234K"
+        /// </summary>
+        public static string FormatWithDecimals(this AlphabeticNotation value, int decimalPlaces)
         {
             _stringBuilder.Clear();
 
@@ -41,12 +68,12 @@ namespace LGD.Extensions
         }
 
         /// <summary>
-        /// Shorthand format with always 1 decimal place (common in idle games)
-        /// Example: "1.5K", "99.9M", "1.0aa"
+        /// Shorthand format with automatic decimal places (2 under 1K, 1 at K+)
+        /// Example: "123.45", "1.5K", "99.9M", "1.0aa"
         /// </summary>
         public static string ToShortString(this AlphabeticNotation value)
         {
-            return value.FormatWithDecimals(1);
+            return value.FormatWithDecimals();
         }
 
         /// <summary>

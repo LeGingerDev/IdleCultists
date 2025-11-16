@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SummonPurchasable_[NAME]", menuName = "LGD/Idle Cultist/Purchasable/Summon Entity")]
-public class SummonPurchasableBlueprint : PurchasableBlueprint
+public class SummonPurchasableBlueprint : EventPurchasable
 {
     [FoldoutGroup("Summon Data")]
     public EntityBlueprint entityToSummon;
@@ -15,7 +15,7 @@ public class SummonPurchasableBlueprint : PurchasableBlueprint
     [FoldoutGroup("Full Preview"), ShowInInspector, HideLabel, TextArea(15, 30), ReadOnly]
     private string _fullPreview = "Click 'Preview Purchasable' to see cost breakdown";
 
-    public override void HandlePurchase(PurchasableRuntimeData runtimeData)
+    public override void HandlePurchase(BasePurchasableRuntimeData runtimeData)
     {
         // TODO: Replace with Topic System
         ServiceBus.Publish(PurchasableEventIds.ON_SUMMON_ENTITY_PURCHASED, this, entityToSummon, runtimeData);

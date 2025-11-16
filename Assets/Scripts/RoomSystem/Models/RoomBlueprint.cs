@@ -29,7 +29,7 @@ public class RoomBlueprint : ScriptableObject
 
     [FoldoutGroup("Unlock Requirements")]
     [Tooltip("Purchasables that must be bought before unlocking (prestige, skills, etc.)")]
-    public List<PurchasableBlueprint> purchaseRequirements = new List<PurchasableBlueprint>();
+    public List<BasePurchasable> purchaseRequirements = new List<BasePurchasable>();
 
     [FoldoutGroup("Unlock Requirements")]
     [Tooltip("Sequential unlock order (0 = starting room, 1 = first unlock, etc.)")]
@@ -63,9 +63,9 @@ public class RoomBlueprint : ScriptableObject
         return true;
     }
 
-    private bool HasPurchasedRequirement(PurchasableBlueprint purchasable)
+    private bool HasPurchasedRequirement(BasePurchasable purchasable)
     {
-        return purchasable != null && purchasable.GetTimesPurchased() > 0;
+        return purchasable != null && purchasable.GetPurchaseCount() > 0;
     }
 
     public bool CanAfford() =>

@@ -124,7 +124,7 @@ public class TomeOfSummoningPanel : SlidePanel
     }
 
     [Topic(PurchasableEventIds.ON_SUMMON_ENTITY_PURCHASED)]
-    public void OnEntityPurchaseExecuted(object sender, EntityBlueprint blueprint, PurchasableRuntimeData runtimeData)
+    public void OnEntityPurchaseExecuted(object sender, EntityBlueprint blueprint, BasePurchasableRuntimeData runtimeData)
     {
         SummonPurchasableBlueprint summonBlueprint = (SummonPurchasableBlueprint)sender;
 

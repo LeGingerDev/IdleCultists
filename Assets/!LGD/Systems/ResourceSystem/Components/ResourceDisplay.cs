@@ -34,7 +34,7 @@ namespace LGD.ResourceSystem.Components
 
         private void Start()
         {
-            AlphabeticNotation amount = ResourceManager.Instance.GetResourceAmount(_resource);
+            AlphabeticNotation amount = _resource.GetTotalAmount(); // Use extension method
             ChangeToNewAmount(amount);
             CheckToShow();
         }
@@ -73,7 +73,7 @@ namespace LGD.ResourceSystem.Components
                 return;
             }
 
-            if (ResourceManager.Instance.HasAnyOfResource(_resource))
+            if (_resource.HasAny()) // Use extension method
                 _fadeGroup.DOFade(1, 0.5f).OnStart(() => _layoutElement.ignoreLayout = false);
             else
                 _fadeGroup.DOFade(0, 0).OnComplete(() => _layoutElement.ignoreLayout = true);

@@ -27,7 +27,7 @@ public class PlayerRuntimeDataStartup : MonoSingleton<PlayerRuntimeDataStartup>,
     public void InitializePlayerIfNeeded()
     {
         // Check if player runtime data already exists (would be loaded from save)
-        EntityRuntimeData existingData = EntityManager.Instance.GetEntityRuntimeDataById("player");
+        EntityRuntimeData existingData = EntityExtensions.GetEntityById("player");
 
         if (existingData != null && !_forceReinitialize)
         {
@@ -104,7 +104,7 @@ public class PlayerRuntimeDataStartup : MonoSingleton<PlayerRuntimeDataStartup>,
     private void DebugResetPlayerData()
     {
         // Remove existing if present
-        EntityRuntimeData existing = EntityManager.Instance.GetEntityRuntimeDataById("player");
+        EntityRuntimeData existing = EntityExtensions.GetEntityById("player");
         if (existing != null)
         {
             EntityManager.Instance.UnregisterEntityRuntimeData(existing);

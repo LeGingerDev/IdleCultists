@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class PurchasableDisplay : BaseBehaviour
 {
     [SerializeField, FoldoutGroup("Identity")]
-    private PurchasableBlueprint _purchasableBlueprint;
+    private BasePurchasable _purchasableBlueprint;
 
     [SerializeField, FoldoutGroup("UI References")]
     private Image _iconImage;
@@ -189,7 +189,7 @@ public class PurchasableDisplay : BaseBehaviour
 
     public int GetTimesPurchased()
     {
-        return _purchasableBlueprint != null ? _purchasableBlueprint.GetTimesPurchased() : 0;
+        return _purchasableBlueprint != null ? _purchasableBlueprint.GetPurchaseCount() : 0;
     }
 
     #endregion

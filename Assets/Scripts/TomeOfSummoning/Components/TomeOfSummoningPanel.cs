@@ -112,7 +112,7 @@ public class TomeOfSummoningPanel : SlidePanel
 
     private void OnPurchase(SummonPurchasableBlueprint blueprint)
     {
-        // Execute purchase via extension (will remove cost and call PurchaseManager)
+        // Execute purchase via extension (will remove cost and call PurchasableManager)
         blueprint.ExecutePurchase();
     }
 

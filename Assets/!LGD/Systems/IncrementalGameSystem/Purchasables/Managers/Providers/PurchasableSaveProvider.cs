@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PurchasableSaveProvider : SaveLoadProviderBase<PurchasableRuntimeData>
+/// <summary>
+/// Save provider for all purchasables (both StatPurchasables and EventPurchasables)
+/// </summary>
+public class PurchasableSaveProvider : SaveLoadProviderBase<BasePurchasableRuntimeData>
 {
     protected override string GetSaveFileName()
     {
@@ -13,18 +16,18 @@ public class PurchasableSaveProvider : SaveLoadProviderBase<PurchasableRuntimeDa
     {
         _data.Clear();
 
-        RegistryProviderBase<PurchasableBlueprint> registry = RegistryManager.Instance.GetRegistry<PurchasableBlueprint>();
+        RegistryProviderBase<BasePurchasable> registry = RegistryManager.Instance.GetRegistry<BasePurchasable>();
 
         if (registry != null)
         {
-            List<PurchasableBlueprint> allPurchasables = registry.GetAllItems();
+            List<BasePurchasable> allPurchasables = registry.GetAllItems();
 
-            foreach (PurchasableBlueprint purchasable in allPurchasables)
+            foreach (BasePurchasable purchasable in allPurchasables)
             {
                 if (purchasable != null)
                 {
-                    // Create default runtime data: timesPurchased = 0
-                    PurchasableRuntimeData runtimeData = new PurchasableRuntimeData(purchasable.purchasableId);
+                    // Create default runtime data: purchaseCount = 0, inactive
+                    BasePurchasableRuntimeData runtimeData = new BasePurchasableRuntimeData(purchasable.purchasableId);
                     _data.Add(runtimeData);
                 }
             }
@@ -45,14 +48,14 @@ public class PurchasableSaveProvider : SaveLoadProviderBase<PurchasableRuntimeDa
     /// </summary>
     public IEnumerator SyncWithRegistry()
     {
-        RegistryProviderBase<PurchasableBlueprint> registry = RegistryManager.Instance.GetRegistry<PurchasableBlueprint>();
+        RegistryProviderBase<BasePurchasable> registry = RegistryManager.Instance.GetRegistry<BasePurchasable>();
 
         if (registry != null)
         {
-            List<PurchasableBlueprint> allPurchasables = registry.GetAllItems();
+            List<BasePurchasable> allPurchasables = registry.GetAllItems();
             int addedCount = 0;
 
-            foreach (PurchasableBlueprint purchasable in allPurchasables)
+            foreach (BasePurchasable purchasable in allPurchasables)
             {
                 if (purchasable == null) continue;
 
@@ -62,7 +65,7 @@ public class PurchasableSaveProvider : SaveLoadProviderBase<PurchasableRuntimeDa
                 if (!exists)
                 {
                     // New purchasable detected - add it with default values
-                    PurchasableRuntimeData runtimeData = new PurchasableRuntimeData(purchasable.purchasableId);
+                    BasePurchasableRuntimeData runtimeData = new BasePurchasableRuntimeData(purchasable.purchasableId);
                     _data.Add(runtimeData);
                     addedCount++;
                     DebugManager.Log($"[IncrementalGame] <color=yellow>New purchasable detected:</color> {purchasable.purchasableId}");

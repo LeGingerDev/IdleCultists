@@ -3,10 +3,12 @@ using LGD.UIelements.Panels;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Updated to use unified LifeCrystalItemDisplay for all purchasables
+/// </summary>
 public class LifeCrystalUIPanel : SlidePanel
 {
-    private List<LifeCrystalUpgradeDisplay> _upgradeDisplays = new List<LifeCrystalUpgradeDisplay>();
-    private List<LifeCrystalPurchasableDisplay> _purchasableDisplays = new List<LifeCrystalPurchasableDisplay>();
+    private List<LifeCrystalItemDisplay> _itemDisplays = new List<LifeCrystalItemDisplay>();
 
     protected override void Start()
     {
@@ -16,15 +18,11 @@ public class LifeCrystalUIPanel : SlidePanel
 
     private void FindAllDisplays()
     {
-        // Find all upgrade displays in children
-        _upgradeDisplays.Clear();
-        _upgradeDisplays.AddRange(GetComponentsInChildren<LifeCrystalUpgradeDisplay>(true));
+        // Find all item displays in children (works for both StatPurchasables and EventPurchasables)
+        _itemDisplays.Clear();
+        _itemDisplays.AddRange(GetComponentsInChildren<LifeCrystalItemDisplay>(true));
 
-        // Find all purchasable displays in children
-        _purchasableDisplays.Clear();
-        _purchasableDisplays.AddRange(GetComponentsInChildren<LifeCrystalPurchasableDisplay>(true));
-
-        Debug.Log($"[LifeCrystalUIPanel] Found {_upgradeDisplays.Count} upgrade displays and {_purchasableDisplays.Count} purchasable displays");
+        Debug.Log($"[LifeCrystalUIPanel] Found {_itemDisplays.Count} purchasable item displays");
     }
 
     protected override void OnClose()
@@ -39,15 +37,7 @@ public class LifeCrystalUIPanel : SlidePanel
 
     private void RefreshAllDisplays()
     {
-        foreach (var display in _upgradeDisplays)
-        {
-            if (display != null)
-            {
-                display.Refresh();
-            }
-        }
-
-        foreach (var display in _purchasableDisplays)
+        foreach (var display in _itemDisplays)
         {
             if (display != null)
             {

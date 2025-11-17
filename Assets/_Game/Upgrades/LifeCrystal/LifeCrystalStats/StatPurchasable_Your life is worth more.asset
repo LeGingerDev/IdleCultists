@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 267d33ad8716fec46874595e75fc65a3, type: 3}
-  m_Name: UpgradeBlueprint_Touch of the Devoted
+  m_Name: StatPurchasable_Your life is worth more
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeBlueprint
-  purchasableId: touch-of-the-devoted
-  displayName: Touch of the Devoted
-  description: Sometimes twice is nice
-  icon: {fileID: 21300000, guid: fc4ad5592c534c5438d4547dfb73091a, type: 3}
-  purchaseType: 1
-  maxPurchases: 10
+  purchasableId: your-life-is-worth-more
+  displayName: Your life is worth more
+  description: You have so much to live for. Here, have some more essence to fill
+    that void
+  icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
+  purchaseType: 0
+  maxPurchases: -1
   costScaling:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
-    baseCost: 50
+    baseCost: 5000
     growthType: 1
-    growthRate: 1.8
+    growthRate: 1.9
   prerequisitePurchasables: []
   modifierScaling: []

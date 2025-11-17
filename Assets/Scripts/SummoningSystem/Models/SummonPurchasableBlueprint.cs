@@ -1,10 +1,11 @@
 using LargeNumbers;
 using LGD.Core.Events;
+using LGD.Extensions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SummonPurchasable_[NAME]", menuName = "LGD/Idle Cultist/Purchasable/Summon Entity")]
-public class SummonPurchasableBlueprint : PurchasableBlueprint
+public class SummonPurchasableBlueprint : EventPurchasable
 {
     [FoldoutGroup("Summon Data")]
     public EntityBlueprint entityToSummon;
@@ -15,7 +16,7 @@ public class SummonPurchasableBlueprint : PurchasableBlueprint
     [FoldoutGroup("Full Preview"), ShowInInspector, HideLabel, TextArea(15, 30), ReadOnly]
     private string _fullPreview = "Click 'Preview Purchasable' to see cost breakdown";
 
-    public override void HandlePurchase(PurchasableRuntimeData runtimeData)
+    public override void HandlePurchase(BasePurchasableRuntimeData runtimeData)
     {
         // TODO: Replace with Topic System
         ServiceBus.Publish(PurchasableEventIds.ON_SUMMON_ENTITY_PURCHASED, this, entityToSummon, runtimeData);
@@ -56,7 +57,7 @@ public class SummonPurchasableBlueprint : PurchasableBlueprint
             AlphabeticNotation cost = costScaling.CalculateCost(purchase);
             totalCost += cost;
 
-            sb.AppendLine($"Purchase {purchase,2}: {cost.ToString(),15}  (Total spent: {totalCost.ToString()})");
+            sb.AppendLine($"Purchase {purchase,2}: {cost.FormatWithDecimals(),15}  (Total spent: {totalCost.FormatWithDecimals()})");
         }
 
         _fullPreview = sb.ToString();

@@ -1,6 +1,7 @@
 using LargeNumbers;
 using LGD.Core;
 using LGD.Core.Events;
+using LGD.Extensions;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;
 using Sirenix.OdinInspector;
@@ -9,6 +10,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Updated to work with unified purchasable system (BasePurchasable)
+/// Handles both StatPurchasables and EventPurchasables
+/// </summary>
 public class LifeCrystalPurchaseBox : BaseBehaviour
 {
     [SerializeField, FoldoutGroup("UI References")]
@@ -35,10 +40,7 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
     [SerializeField, FoldoutGroup("UI References")]
     private GameObject _contentContainer;
 
-    private UpgradeBlueprint _currentUpgrade;
-    private PurchasableBlueprint _currentPurchasable;
-    private bool _isUpgradeSelected = false;
-
+    private BasePurchasable _currentPurchasable;
     private Coroutine _canPurchaseLoopCoroutine;
 
     protected override void OnEnable()
@@ -63,25 +65,10 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         }
     }
 
-    [Topic(LifeCrystalEventIds.ON_UPGRADE_SELECTED)]
-    public void OnUpgradeSelected(object sender, UpgradeBlueprint blueprint)
-    {
-        _currentUpgrade = blueprint;
-        _currentPurchasable = null;
-        _isUpgradeSelected = true;
-
-        ShowContent();
-        DisplayUpgradeInfo(blueprint);
-        HookUpPurchaseButton();
-        StartPurchaseLoop();
-    }
-
     [Topic(LifeCrystalEventIds.ON_PURCHASABLE_SELECTED)]
-    public void OnPurchasableSelected(object sender, PurchasableBlueprint blueprint)
+    public void OnPurchasableSelected(object sender, BasePurchasable blueprint)
     {
-        _currentUpgrade = null;
         _currentPurchasable = blueprint;
-        _isUpgradeSelected = false;
 
         ShowContent();
         DisplayPurchasableInfo(blueprint);
@@ -89,32 +76,18 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         StartPurchaseLoop();
     }
 
-    private void DisplayUpgradeInfo(UpgradeBlueprint blueprint)
+    private void DisplayPurchasableInfo(BasePurchasable blueprint)
     {
-        int currentTier = UpgradeManager.Instance.GetUpgradeTier(blueprint.upgradeId);
-        int nextTier = currentTier + 1;
+        int currentPurchaseCount = blueprint.GetPurchaseCount(); // Use extension method
+        int nextPurchase = currentPurchaseCount + 1;
 
         _titleText.text = blueprint.displayName;
         _descriptionText.text = blueprint.description;
-        _levelText.text = GetUpgradeLevelText(blueprint, currentTier);
-        _bonusesText.text = GetUpgradeBonusText(blueprint, currentTier, nextTier);
+        _levelText.text = GetPurchaseLevelText(blueprint, currentPurchaseCount);
+        _bonusesText.text = GetPurchaseBonusText(blueprint, currentPurchaseCount, nextPurchase);
 
-        // Cost display
-        ResourceAmountPair cost = blueprint.GetCostWithResourceForTier(nextTier);
-        _costText.text = GetCostDisplayText(cost);
-    }
-
-    private void DisplayPurchasableInfo(PurchasableBlueprint blueprint)
-    {
-        int timesPurchased = PurchaseManager.Instance.GetTimesPurchased(blueprint.purchasableId);
-
-        _titleText.text = blueprint.displayName;
-        _descriptionText.text = blueprint.description;
-        _levelText.text = GetPurchasableLevelText(timesPurchased);
-        _bonusesText.text = GetPurchasableBonusText(blueprint);
-
-        // Cost display
-        ResourceAmountPair cost = blueprint.GetCurrentCost();
+        // Cost display using extension method
+        ResourceAmountPair cost = blueprint.GetCostForNextPurchase();
         _costText.text = GetCostDisplayText(cost);
     }
 
@@ -126,54 +99,25 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     private void OnPurchaseButtonClicked()
     {
-        if (_isUpgradeSelected && _currentUpgrade != null)
-        {
-            PurchaseUpgrade();
-        }
-        else if (!_isUpgradeSelected && _currentPurchasable != null)
+        if (_currentPurchasable != null)
         {
             PurchasePurchasable();
         }
     }
 
-    private void PurchaseUpgrade()
-    {
-        int nextTier = UpgradeManager.Instance.GetUpgradeTier(_currentUpgrade.upgradeId) + 1;
-        ResourceAmountPair cost = _currentUpgrade.GetCostWithResourceForTier(nextTier);
-
-        if (!ResourceManager.Instance.CanSpend(cost))
-        {
-            Debug.LogWarning($"Cannot afford {_currentUpgrade.displayName}");
-            return;
-        }
-
-        ResourceManager.Instance.RemoveResource(cost);
-        bool success = UpgradeManager.Instance.PurchaseUpgradeTier(_currentUpgrade.upgradeId);
-
-        if (success)
-        {
-            Publish(LifeCrystalEventIds.ON_LIFE_CRYSTAL_PURCHASE_COMPLETED);
-            DisplayUpgradeInfo(_currentUpgrade); // Refresh display
-        }
-    }
-
     private void PurchasePurchasable()
     {
-        ResourceAmountPair cost = _currentPurchasable.GetCurrentCost();
-
-        if (!ResourceManager.Instance.CanSpend(cost))
-        {
-            Debug.LogWarning($"Cannot afford {_currentPurchasable.displayName}");
-            return;
-        }
-
-        ResourceManager.Instance.RemoveResource(cost);
-        bool success = PurchaseManager.Instance.ExecutePurchase(_currentPurchasable.purchasableId);
+        // Use extension method which handles cost check, removal, and execution
+        bool success = _currentPurchasable.ExecutePurchase();
 
         if (success)
         {
             Publish(LifeCrystalEventIds.ON_LIFE_CRYSTAL_PURCHASE_COMPLETED);
             DisplayPurchasableInfo(_currentPurchasable); // Refresh display
+        }
+        else
+        {
+            Debug.LogWarning($"Cannot afford or execute purchase for {_currentPurchasable.displayName}");
         }
     }
 
@@ -191,42 +135,25 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         bool canPurchase = false;
         string buttonText = "Purchase";
 
-        if (_isUpgradeSelected && _currentUpgrade != null)
+        if (_currentPurchasable != null)
         {
-            int currentTier = UpgradeManager.Instance.GetUpgradeTier(_currentUpgrade.upgradeId);
-            canPurchase = CanPurchaseUpgrade(_currentUpgrade, currentTier);
-            buttonText = GetUpgradeButtonText(_currentUpgrade, currentTier, canPurchase);
-        }
-        else if (!_isUpgradeSelected && _currentPurchasable != null)
-        {
-            canPurchase = CanPurchasePurchasable(_currentPurchasable);
-            buttonText = GetPurchasableButtonText(_currentPurchasable, canPurchase);
+            int currentPurchaseCount = _currentPurchasable.GetPurchaseCount(); // Use extension method
+            canPurchase = CanPurchasePurchasable(_currentPurchasable, currentPurchaseCount);
+            buttonText = GetPurchasableButtonText(_currentPurchasable, currentPurchaseCount, canPurchase);
         }
 
         _purchaseButton.interactable = canPurchase;
         _purchaseButtonText.text = buttonText;
     }
 
-    private bool CanPurchaseUpgrade(UpgradeBlueprint blueprint, int currentTier)
+    private bool CanPurchasePurchasable(BasePurchasable blueprint, int currentPurchaseCount)
     {
-        // Check if maxed out
-        if (blueprint.upgradeType != UpgradeType.Infinite &&
-            blueprint.maxTier != -1 &&
-            currentTier >= blueprint.maxTier)
-        {
+        // Use extension method to check if maxed out
+        if (blueprint.IsMaxedOut())
             return false;
-        }
 
-        // Check if can afford
-        int nextTier = currentTier + 1;
-        ResourceAmountPair cost = blueprint.GetCostWithResourceForTier(nextTier);
-        return ResourceManager.Instance.CanSpend(cost);
-    }
-
-    private bool CanPurchasePurchasable(PurchasableBlueprint blueprint)
-    {
-        ResourceAmountPair cost = blueprint.GetCurrentCost();
-        return ResourceManager.Instance.CanSpend(cost);
+        // Use extension method to check if can afford
+        return blueprint.CanAfford();
     }
 
     public void StartPurchaseLoop()
@@ -252,38 +179,47 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
 
     #region Display Helpers
 
-    private string GetUpgradeLevelText(UpgradeBlueprint blueprint, int currentTier)
+    private string GetPurchaseLevelText(BasePurchasable blueprint, int currentPurchaseCount)
     {
-        if (currentTier == 0)
+        if (currentPurchaseCount == 0)
             return "Not Purchased";
 
-        bool isMaxed = blueprint.upgradeType != UpgradeType.Infinite &&
-                       blueprint.maxTier != -1 &&
-                       currentTier >= blueprint.maxTier;
+        bool isMaxed = (blueprint.purchaseType == PurchaseType.OneTime && currentPurchaseCount >= 1) ||
+                       (blueprint.purchaseType == PurchaseType.Capped &&
+                        blueprint.maxPurchases != -1 &&
+                        currentPurchaseCount >= blueprint.maxPurchases);
 
         if (isMaxed)
             return "Max Level";
 
-        if (blueprint.upgradeType == UpgradeType.Infinite)
-            return $"Lv. {currentTier}";
+        if (blueprint.purchaseType == PurchaseType.Infinite)
+            return $"Lv. {currentPurchaseCount}";
 
-        return $"Lv. {currentTier}/{blueprint.maxTier}";
+        if (blueprint.purchaseType == PurchaseType.Capped)
+            return $"Lv. {currentPurchaseCount}/{blueprint.maxPurchases}";
+
+        return $"Purchased {currentPurchaseCount} time{(currentPurchaseCount == 1 ? "" : "s")}";
     }
 
-    private string GetPurchasableLevelText(int timesPurchased)
+    private string GetPurchaseBonusText(BasePurchasable blueprint, int currentPurchaseCount, int nextPurchase)
     {
-        if (timesPurchased == 0)
-            return "Not Purchased";
+        // Check if this is a StatPurchasable (provides modifiers)
+        if (blueprint is StatPurchasable statPurchasable)
+        {
+            return GetStatPurchasableBonusText(statPurchasable, currentPurchaseCount, nextPurchase);
+        }
 
-        return $"Purchased {timesPurchased} time{(timesPurchased == 1 ? "" : "s")}";
+        // EventPurchasables don't have bonus text (they trigger custom behaviors)
+        return "";
     }
 
-    private string GetUpgradeBonusText(UpgradeBlueprint blueprint, int currentTier, int nextTier)
+    private string GetStatPurchasableBonusText(StatPurchasable blueprint, int currentPurchaseCount, int nextPurchase)
     {
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        bool isMaxed = blueprint.upgradeType != UpgradeType.Infinite &&
-                       blueprint.maxTier != -1 &&
-                       currentTier >= blueprint.maxTier;
+        bool isMaxed = (blueprint.purchaseType == PurchaseType.OneTime && currentPurchaseCount >= 1) ||
+                       (blueprint.purchaseType == PurchaseType.Capped &&
+                        blueprint.maxPurchases != -1 &&
+                        currentPurchaseCount >= blueprint.maxPurchases);
 
         foreach (var modifierScaling in blueprint.modifierScaling)
         {
@@ -292,30 +228,30 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
                 // Show current values
                 if (modifierScaling.modifierType == ModifierType.Multiplicative)
                 {
-                    float currentValue = modifierScaling.CalculateMultiplicativeValue(currentTier);
+                    float currentValue = modifierScaling.CalculateMultiplicativeValue(currentPurchaseCount);
                     sb.AppendLine($"{modifierScaling.statType}: +{currentValue * 100:F1}%");
                 }
                 else
                 {
-                    AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentTier);
-                    sb.AppendLine($"{modifierScaling.statType}: +{currentValue}");
+                    AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentPurchaseCount);
+                    sb.AppendLine($"{modifierScaling.statType}: +{currentValue.FormatWithDecimals()}");
                 }
             }
             else
             {
                 // Show progression
-                if (currentTier == 0)
+                if (currentPurchaseCount == 0)
                 {
                     // First purchase
                     if (modifierScaling.modifierType == ModifierType.Multiplicative)
                     {
-                        float nextValue = modifierScaling.CalculateMultiplicativeValue(nextTier);
+                        float nextValue = modifierScaling.CalculateMultiplicativeValue(nextPurchase);
                         sb.AppendLine($"{modifierScaling.statType}: +{nextValue * 100:F1}%");
                     }
                     else
                     {
-                        AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextTier);
-                        sb.AppendLine($"{modifierScaling.statType}: +{nextValue}");
+                        AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextPurchase);
+                        sb.AppendLine($"{modifierScaling.statType}: +{nextValue.FormatWithDecimals()}");
                     }
                 }
                 else
@@ -323,15 +259,15 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
                     // Show progression from current to next
                     if (modifierScaling.modifierType == ModifierType.Multiplicative)
                     {
-                        float currentValue = modifierScaling.CalculateMultiplicativeValue(currentTier);
-                        float nextValue = modifierScaling.CalculateMultiplicativeValue(nextTier);
+                        float currentValue = modifierScaling.CalculateMultiplicativeValue(currentPurchaseCount);
+                        float nextValue = modifierScaling.CalculateMultiplicativeValue(nextPurchase);
                         sb.AppendLine($"{modifierScaling.statType}: +{currentValue * 100:F1}% → +{nextValue * 100:F1}%");
                     }
                     else
                     {
-                        AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentTier);
-                        AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextTier);
-                        sb.AppendLine($"{modifierScaling.statType}: +{currentValue} → +{nextValue}");
+                        AlphabeticNotation currentValue = modifierScaling.CalculateAdditiveValue(currentPurchaseCount);
+                        AlphabeticNotation nextValue = modifierScaling.CalculateAdditiveValue(nextPurchase);
+                        sb.AppendLine($"{modifierScaling.statType}: +{currentValue.FormatWithDecimals()} → +{nextValue.FormatWithDecimals()}");
                     }
                 }
             }
@@ -340,29 +276,22 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         return sb.ToString();
     }
 
-    private string GetPurchasableBonusText(PurchasableBlueprint blueprint)
-    {
-        // Purchasables don't have modifiers like upgrades
-        // This would be custom per purchasable type
-        // For now, return description or empty
-        return ""; // Or could return additional flavor text
-    }
-
     private string GetCostDisplayText(ResourceAmountPair cost)
     {
         if (cost.amount.isZero)
             return "Free";
 
         AlphabeticNotation currentAmount = ResourceManager.Instance.GetResourceAmount(cost.resource);
-        
-        return $"{currentAmount}/{cost.amount} - {cost.resource.displayName}";
+
+        return $"{currentAmount.FormatWithDecimals()}/{cost.amount.FormatWithDecimals()} - {cost.resource.displayName}";
     }
 
-    private string GetUpgradeButtonText(UpgradeBlueprint blueprint, int currentTier, bool canAfford)
+    private string GetPurchasableButtonText(BasePurchasable blueprint, int currentPurchaseCount, bool canAfford)
     {
-        bool isMaxed = blueprint.upgradeType != UpgradeType.Infinite &&
-                       blueprint.maxTier != -1 &&
-                       currentTier >= blueprint.maxTier;
+        bool isMaxed = (blueprint.purchaseType == PurchaseType.OneTime && currentPurchaseCount >= 1) ||
+                       (blueprint.purchaseType == PurchaseType.Capped &&
+                        blueprint.maxPurchases != -1 &&
+                        currentPurchaseCount >= blueprint.maxPurchases);
 
         if (isMaxed)
             return "Maxed";
@@ -370,21 +299,12 @@ public class LifeCrystalPurchaseBox : BaseBehaviour
         if (!canAfford)
             return "Can't Afford";
 
-        if (currentTier == 0)
+        if (currentPurchaseCount == 0)
             return "Purchase";
 
-        return "Upgrade";
-    }
-
-    private string GetPurchasableButtonText(PurchasableBlueprint blueprint, bool canAfford)
-    {
-        if (!canAfford)
-            return "Can't Afford";
-
-        int timesPurchased = PurchaseManager.Instance.GetTimesPurchased(blueprint.purchasableId);
-        
-        if (timesPurchased == 0)
-            return "Purchase";
+        // StatPurchasables use "Upgrade", EventPurchasables use "Purchase Again"
+        if (blueprint is StatPurchasable)
+            return "Upgrade";
 
         return "Purchase Again";
     }

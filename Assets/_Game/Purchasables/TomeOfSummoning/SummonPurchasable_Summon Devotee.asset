@@ -17,10 +17,12 @@ MonoBehaviour:
   description: A lost soul joins the cult
   icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
   purchaseType: 0
+  maxPurchases: -1
   costScaling:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
     baseCost: 600
     growthType: 1
     growthRate: 1.8
+  prerequisitePurchasables: []
   entityToSummon: {fileID: 11400000, guid: b3df624c360ac2b4f9e55e0d9aec0e9b, type: 2}
   gainsDescription: +0.5 devotion per click

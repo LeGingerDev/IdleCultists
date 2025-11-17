@@ -66,7 +66,19 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         DebugManager.Log($"[IncrementalGame] Initialising BasePurchasableDisplay on {gameObject.name}");
         ApplyUiToggles();
         SetupStaticUI();
-        RefreshDynamicUI();
+
+        // If PurchasableManager is already initialized, refresh immediately
+        // Otherwise, wait for ON_PURCHASABLES_INITIALIZED event
+        if (PurchasableManager.Instance != null && PurchasableManager.Instance.IsInitialized())
+        {
+            DebugManager.Log($"[IncrementalGame] PurchasableManager already initialized, refreshing UI immediately");
+            RefreshDynamicUI();
+        }
+        else
+        {
+            DebugManager.Log($"[IncrementalGame] Waiting for PurchasableManager to initialize...");
+        }
+
         HookUpButton();
         StartPurchaseLoop();
     }

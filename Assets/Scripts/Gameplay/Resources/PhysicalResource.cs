@@ -3,6 +3,7 @@ using LargeNumbers;
 using LGD.ResourceSystem;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;
+using PoolSystem;
 using UnityEngine;
 
 public class PhysicalResource : HoverBase
@@ -12,9 +13,13 @@ public class PhysicalResource : HoverBase
     [SerializeField]
     private AlphabeticNotation amountToProvide;
 
-    public void Initialise(AlphabeticNotation amountToProvide)
+    // Optional: If set, the resource will be returned to the pool instead of destroyed
+    private string _poolKey;
+
+    public void Initialise(AlphabeticNotation amountToProvide, string poolKey = null)
     {
         this.amountToProvide = amountToProvide;
+        this._poolKey = poolKey;
     }
 
     public override void OnHoverStart()
@@ -28,7 +33,16 @@ public class PhysicalResource : HoverBase
     public void DestroyResource()
     {
         Publish(ResourceEventIds.ON_PHYSICAL_RESOURCE_DESTROYED, this);
-        Destroy(this.gameObject);
+
+        // Return to pool if poolKey is set, otherwise destroy normally
+        if (!string.IsNullOrEmpty(_poolKey))
+        {
+            PoolingManager.Return(gameObject, _poolKey, deactivate: true);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     public void MoveToPosition(Vector2 targetPosition, float duration, Ease ease)

@@ -17,10 +17,21 @@ public static class PurchasableExtensions
     /// </summary>
     public static int GetPurchaseCount(this BasePurchasable blueprint)
     {
-        if (blueprint == null) return 0;
-        return PurchasableManager.Instance != null
-            ? PurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId)
-            : 0;
+        if (blueprint == null)
+        {
+            DebugManager.Warning("[PurchasableExtensions] GetPurchaseCount called with NULL blueprint");
+            return 0;
+        }
+
+        if (PurchasableManager.Instance == null)
+        {
+            DebugManager.Warning($"[PurchasableExtensions] GetPurchaseCount: PurchasableManager.Instance is NULL for {blueprint.purchasableId}");
+            return 0;
+        }
+
+        int count = PurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId);
+        DebugManager.Log($"[PurchasableExtensions] GetPurchaseCount for '{blueprint.purchasableId}' returned {count}");
+        return count;
     }
 
     /// <summary>

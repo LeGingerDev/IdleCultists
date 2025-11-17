@@ -137,8 +137,24 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
 
     public int GetPurchaseCount(string purchasableId)
     {
+        DebugManager.Log($"[IncrementalGame] GetPurchaseCount called for '{purchasableId}'. Searching {_runtimeData.Count} runtime data entries...");
         BasePurchasableRuntimeData data = _runtimeData.Find(p => p.purchasableId == purchasableId);
-        return data != null ? data.purchaseCount : 0;
+
+        if (data != null)
+        {
+            DebugManager.Log($"[IncrementalGame] Found runtime data for '{purchasableId}': purchaseCount={data.purchaseCount}, isActive={data.isActive}");
+            return data.purchaseCount;
+        }
+        else
+        {
+            DebugManager.Warning($"[IncrementalGame] NO runtime data found for '{purchasableId}'!");
+            // Log first few entries to help debug
+            for (int i = 0; i < Mathf.Min(5, _runtimeData.Count); i++)
+            {
+                DebugManager.Log($"[IncrementalGame] Runtime data [{i}]: {_runtimeData[i].purchasableId} (count: {_runtimeData[i].purchaseCount})");
+            }
+            return 0;
+        }
     }
 
     public List<BasePurchasableRuntimeData> GetAllPurchasables()

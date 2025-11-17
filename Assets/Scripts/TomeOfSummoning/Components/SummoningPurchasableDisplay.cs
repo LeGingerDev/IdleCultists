@@ -119,7 +119,7 @@ public class SummoningPurchasableDisplay : BaseBehaviour
 
     public void UpdateCostDisplay()
     {
-        ResourceAmountPair resourcePair = _blueprint.GetCurrentCost();
+        ResourceAmountPair resourcePair = _blueprint.GetCurrentCostSafe();
 
         // AlphabeticNotation's ToString() automatically formats as "1.5K", "23.4M", etc.
         _costText.text = $"Cost\n{resourcePair.resource.displayName} {resourcePair.amount}";

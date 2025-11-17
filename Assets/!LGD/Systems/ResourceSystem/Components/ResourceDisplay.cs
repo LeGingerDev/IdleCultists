@@ -3,6 +3,7 @@ using LargeNumbers;
 using LGD.Core;
 using LGD.Core.Events;
 using LGD.Extensions;
+using LGD.ResourceSystem.Extensions;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;
 using Sirenix.OdinInspector;

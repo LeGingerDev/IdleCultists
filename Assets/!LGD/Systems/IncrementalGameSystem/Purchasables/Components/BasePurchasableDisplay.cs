@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using LGD.Core;
+using LargeNumbers;
+using LGD.ResourceSystem.Models;
+using LGD.Extensions;
+using LGD.Core.Events;
 
 /// <summary>
 /// Shared base for purchasable UI displays. Contains common serialized UI references,
@@ -53,8 +57,13 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     private Coroutine _canPurchaseLoopCoroutine;
 
+    // Allow derived classes to expose the blueprint this display represents.
+    // Concrete displays should override this to return their blueprint field.
+    protected virtual BasePurchasable GetDisplayedBlueprint() { return null; }
+
     public virtual void Initialise()
     {
+        DebugManager.Log($"[IncrementalGame] Initialising BasePurchasableDisplay on {gameObject.name}");
         ApplyUiToggles();
         SetupStaticUI();
         RefreshDynamicUI();
@@ -86,9 +95,66 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
             _costText.gameObject.SetActive(_showCost);
     }
 
-    protected abstract void SetupStaticUI();
+    protected virtual void SetupStaticUI()
+    {
+        var blueprint = GetDisplayedBlueprint();
 
-    protected abstract void RefreshDynamicUI();
+        if (_showIcon && _iconImage != null)
+            _iconImage.sprite = blueprint != null ? blueprint.icon : null;
+
+        if (_showName && _displayNameText != null)
+            _displayNameText.text = blueprint != null ? blueprint.displayName : string.Empty;
+
+        if (_showDescription && _descriptionText != null)
+            _descriptionText.text = blueprint != null ? blueprint.description : string.Empty;
+
+        // Allow derived classes to populate additional static UI elements
+        SetupAdditionalStaticUI();
+    }
+
+    /// <summary>
+    /// Hook for derived classes to populate additional static UI (e.g. gain text, timer bars).
+    /// Called after base static UI (icon/name/description) is applied.
+    /// </summary>
+    protected virtual void SetupAdditionalStaticUI() { }
+
+    protected virtual void RefreshDynamicUI()
+    {
+        // Base dynamic UI updates: times purchased and cost text
+        var blueprint = GetDisplayedBlueprint();
+
+        int timesPurchased = 0;
+        if (blueprint != null)
+            timesPurchased = blueprint.GetPurchaseCount();
+
+        string timesText = GetTimesPurchasedDisplayText(timesPurchased);
+        if (_showTimesPurchased && _timesPurchasedText != null)
+        {
+            DebugManager.Log($"[IncrementalGame] Setting timesPurchasedText on {gameObject.name}: {timesText}");
+            _timesPurchasedText.text = timesText;
+        }
+        else if (_showTimesPurchased && _timesPurchasedText == null)
+        {
+            DebugManager.Warning($"[IncrementalGame] timesPurchasedText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
+        }
+
+        if (_showCost)
+        {
+            ResourceAmountPair cost = blueprint != null ? blueprint.GetCurrentCostSafe() : new ResourceAmountPair(null, AlphabeticNotation.zero);
+            string costString = GetCostDisplayText(cost);
+            if (_costText != null)
+            {
+                DebugManager.Log($"[IncrementalGame] Setting costText on {gameObject.name}: {costString}");
+                _costText.text = costString;
+            }
+            else
+            {
+                DebugManager.Warning($"[IncrementalGame] costText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
+            }
+        }
+
+        CanPurchaseSet();
+    }
 
     protected virtual void HookUpButton()
     {
@@ -103,7 +169,28 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected abstract bool CanPurchase();
 
-    protected abstract string GetButtonText();
+    /// <summary>
+    /// Default button text logic for purchasables. Concrete displays can override this
+    /// to provide custom wording (e.g. "Summon" instead of "Purchase").
+    /// Default states:
+    /// - "Maxxed": when purchasable is maxed out
+    /// - "Can't Afford": when player cannot afford the next purchase
+    /// - "Purchase": when available to buy
+    /// </summary>
+    protected virtual string GetButtonText()
+    {
+        var blueprint = GetDisplayedBlueprint();
+        if (blueprint == null)
+            return string.Empty;
+
+        if (blueprint.IsMaxedOut())
+            return "Maxxed";
+
+        if (!blueprint.CanAfford())
+            return "Can't Afford";
+
+        return "Purchase";
+    }
 
     public IEnumerator CanPurchaseLoop()
     {
@@ -143,6 +230,40 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     private void OnDestroy()
     {
         StopPurchaseLoop();
+    }
+
+    [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]
+    public void OnPurchasablePurchased(object sender, BasePurchasable blueprint, BasePurchasableRuntimeData runtimeData)
+    {
+        var myBlueprint = GetDisplayedBlueprint();
+        DebugManager.Log($"[IncrementalGame] OnPurchasablePurchased received in {this.GetType().Name} for blueprint={blueprint?.purchasableId} myBlueprint={myBlueprint?.purchasableId}");
+        if (myBlueprint == null || blueprint == null) return;
+
+        if (myBlueprint.purchasableId == blueprint.purchasableId)
+        {
+            // Refresh UI when the purchasable this display represents was bought
+            DebugManager.Log($"[IncrementalGame] Refreshing dynamic UI for {myBlueprint.purchasableId} on {gameObject.name}");
+            RefreshDynamicUI();
+        }
+    }
+
+    [Topic(PurchasableEventIds.ON_PURCHASABLES_INITIALIZED)]
+    public void OnPurchasablesInitialized(object sender)
+    {
+        // Re-evaluate dynamic UI after purchasable runtime data is loaded
+        DebugManager.Log($"[IncrementalGame] Purchasables initialized - refreshing UI on {gameObject.name}");
+        RefreshDynamicUI();
+    }
+
+    protected string GetCostDisplayText(ResourceAmountPair cost)
+    {
+        if (cost == null || cost.amount.isZero)
+            return "Free";
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append("Cost\n");
+        sb.Append($"{cost.amount.FormatWithDecimals()} {cost.resource.displayName}");
+        return sb.ToString();
     }
 
     protected string GetTimesPurchasedDisplayText(int timesPurchased)

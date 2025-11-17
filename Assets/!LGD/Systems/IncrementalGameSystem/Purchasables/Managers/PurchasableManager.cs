@@ -53,6 +53,9 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
             DebugManager.Error("[IncrementalGame] Purchasable save provider not found! Make sure PurchasableSaveProvider is in the scene.");
         }
 
+        // Notify listeners that purchasables/runtime data are loaded so UI can refresh
+        ServiceBus.Publish(PurchasableEventIds.ON_PURCHASABLES_INITIALIZED, this);
+
         _isInitialized = true;
     }
 
@@ -95,6 +98,10 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
 
         // Mark save provider as dirty
         MarkDirty();
+
+        // Publish a generic purchasable purchased event so UI and other systems can react
+        DebugManager.Log($"[IncrementalGame] Publishing purchasable purchased event for {blueprint?.purchasableId}");
+        ServiceBus.Publish(PurchasableEventIds.ON_PURCHASABLE_PURCHASED, this, blueprint, runtimeData);
 
         // If this is a StatPurchasable, request stat recalculation
         if (blueprint is StatPurchasable)

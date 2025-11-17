@@ -364,7 +364,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12.9
+  m_fontSize: 10
   m_fontSizeBase: 16.9
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -793,14 +793,22 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  _showIcon: 1
+  _showName: 1
+  _showDescription: 1
+  _showTimesPurchased: 0
+  _showButton: 1
+  _showCost: 1
   _iconImage: {fileID: 837971970064629968}
   _displayNameText: {fileID: 6228039120260682620}
   _descriptionText: {fileID: 736508284313442745}
-  _gainText: {fileID: 141503376745887675}
-  _summonButton: {fileID: 6201505579894904181}
-  _summonButtonText: {fileID: 9217700273898947315}
+  _timesPurchasedText: {fileID: 0}
+  _purchaseButton: {fileID: 6201505579894904181}
+  _buttonPurchaseText: {fileID: 9217700273898947315}
   _costText: {fileID: 2363026516305086794}
+  _gainText: {fileID: 141503376745887675}
   _timerBar: {fileID: 2074232053894898855}
+  _blueprint: {fileID: 11400000, guid: 447bf5f697de891489eaef7a9e5b9c44, type: 2}
 --- !u!1 &5058151073967526630
 GameObject:
   m_ObjectHideFlags: 0

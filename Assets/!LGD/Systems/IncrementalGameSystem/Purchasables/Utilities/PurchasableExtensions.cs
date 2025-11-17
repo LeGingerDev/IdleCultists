@@ -1,4 +1,5 @@
 using LargeNumbers;
+using LGD.Extensions;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;
 using System.Collections.Generic;
@@ -123,9 +124,14 @@ public static class PurchasableExtensions
     public static bool ExecutePurchase(this BasePurchasable blueprint, bool removeCost = true)
     {
         if (blueprint == null) return false;
+        DebugManager.Log($"[Purchasable] ExecutePurchase called for {blueprint.purchasableId} removeCost={removeCost}");
 
         PurchasableManager pm = PurchasableManager.Instance;
-        if (pm == null) return false;
+        if (pm == null)
+        {
+            DebugManager.Warning($"[Purchasable] PurchasableManager.Instance is null while attempting to purchase {blueprint.purchasableId}");
+            return false;
+        }
 
         // Check if can purchase more
         if (blueprint.IsMaxedOut())
@@ -137,16 +143,31 @@ public static class PurchasableExtensions
         if (removeCost)
         {
             ResourceManager rm = ResourceManager.Instance;
-            if (rm == null) return false;
+            if (rm == null)
+            {
+                DebugManager.Warning($"[Purchasable] ResourceManager.Instance is null for {blueprint.purchasableId}");
+                return false;
+            }
 
             ResourceAmountPair cost = blueprint.GetCostForNextPurchase();
-            if (!rm.CanSpend(cost)) return false;
+            DebugManager.Log($"[Purchasable] Cost for next purchase: {cost.resource?.displayName} {cost.amount.FormatWithDecimals()}");
+            if (!rm.CanSpend(cost))
+            {
+                DebugManager.Log($"[Purchasable] Cannot afford {blueprint.purchasableId}");
+                return false;
+            }
 
             if (!rm.RemoveResource(cost))
+            {
+                DebugManager.Warning($"[Purchasable] Failed to remove resource for {blueprint.purchasableId}");
                 return false;
+            }
+            DebugManager.Log($"[Purchasable] Resource removed for {blueprint.purchasableId}");
         }
 
-        return pm.ExecutePurchase(blueprint.purchasableId);
+        bool result = pm.ExecutePurchase(blueprint.purchasableId);
+        DebugManager.Log($"[Purchasable] pm.ExecutePurchase returned {result} for {blueprint.purchasableId}");
+        return result;
     }
     #endregion
 

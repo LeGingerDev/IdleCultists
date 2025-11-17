@@ -31,9 +31,9 @@ public class EntitySpawnerTest : BaseBehaviour
         Debug.Log($"Spawned {blueprint.displayName} at {spawnPosition}");
     }
 
-    [Topic(SummoningEventIds.ON_SUMMONING_STARTED)]
-    public void OnSummonEvent(object sender, EntityBlueprint blueprint)
+    [Topic(SummoningEventIds.ON_SUMMONING_COMPLETED)]
+    public void OnSummonEvent(object sender, SummonPurchasableBlueprint blueprint)
     {
-        SpawnEntity(blueprint);
+        SpawnEntity(blueprint.entityToSummon);
     }
 }

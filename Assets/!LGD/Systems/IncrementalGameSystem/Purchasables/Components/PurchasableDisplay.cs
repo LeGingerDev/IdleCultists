@@ -15,6 +15,11 @@ public class PurchasableDisplay : BasePurchasableDisplay
     [SerializeField, FoldoutGroup("Identity")]
     private BasePurchasable _purchasableBlueprint;
 
+    protected override BasePurchasable GetDisplayedBlueprint()
+    {
+        return _purchasableBlueprint;
+    }
+
     private void Start()
     {
         if (_purchasableBlueprint != null)
@@ -23,31 +28,10 @@ public class PurchasableDisplay : BasePurchasableDisplay
         }
     }
 
-    protected override void SetupStaticUI()
-    {
-        if (_showIcon && _iconImage != null)
-            _iconImage.sprite = _purchasableBlueprint.icon;
+    // Base now handles icon/name/description via SetupStaticUI and provides a
+    // SetupAdditionalStaticUI hook for any extra static elements.
 
-        if (_showName && _displayNameText != null)
-            _displayNameText.text = _purchasableBlueprint.displayName;
 
-        if (_showDescription && _descriptionText != null)
-            _descriptionText.text = _purchasableBlueprint.description;
-    }
-
-    protected override void RefreshDynamicUI()
-    {
-        int timesPurchased = GetTimesPurchased();
-
-        if (_showTimesPurchased && _timesPurchasedText != null)
-            _timesPurchasedText.text = GetTimesPurchasedDisplayText(timesPurchased);
-
-        ResourceAmountPair cost = _purchasableBlueprint.GetCurrentCostSafe();
-        if (_showCost && _costText != null)
-            _costText.text = GetCostDisplayText(cost);
-
-        CanPurchaseSet();
-    }
 
     protected override void HookUpButton()
     {
@@ -78,31 +62,7 @@ public class PurchasableDisplay : BasePurchasableDisplay
         return _purchasableBlueprint != null && _purchasableBlueprint.CanAfford();
     }
 
-    protected override string GetButtonText()
-    {
-        if (!CanPurchase())
-            return "Can't Afford";
-
-        int timesPurchased = GetTimesPurchased();
-        if (timesPurchased == 0)
-            return "Purchase";
-
-        return "Purchase Again";
-    }
-
-    private string GetCostDisplayText(ResourceAmountPair cost)
-    {
-        if (cost.amount.isZero)
-            return "Free";
-
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.Append("Cost\n");
-
-        // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
-        sb.Append($"{cost.amount.FormatWithDecimals()} {cost.resource.displayName}");
-
-        return sb.ToString();
-    }
+    
 
     public int GetTimesPurchased()
     {

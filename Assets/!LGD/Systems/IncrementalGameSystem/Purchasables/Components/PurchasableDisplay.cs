@@ -181,8 +181,8 @@ public class PurchasableDisplay : BaseBehaviour
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append("Cost\n");
 
-        // Use AlphabeticNotation's ToString() - displays like "1.5K", "23.4M", etc.
-        sb.Append($"{cost.amount} {cost.resource.displayName}");
+        // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
+        sb.Append($"{cost.amount.FormatWithDecimals()} {cost.resource.displayName}");
 
         return sb.ToString();
     }

@@ -56,7 +56,7 @@ public class SummonPurchasableBlueprint : EventPurchasable
             AlphabeticNotation cost = costScaling.CalculateCost(purchase);
             totalCost += cost;
 
-            sb.AppendLine($"Purchase {purchase,2}: {cost.ToString(),15}  (Total spent: {totalCost.ToString()})");
+            sb.AppendLine($"Purchase {purchase,2}: {cost.FormatWithDecimals(),15}  (Total spent: {totalCost.FormatWithDecimals()})");
         }
 
         _fullPreview = sb.ToString();

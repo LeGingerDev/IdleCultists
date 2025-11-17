@@ -18,7 +18,7 @@ public static class EntityZoneReconnectionHelper
         DebugManager.Log("[IncrementalGame] <color=yellow>Starting zone reconnection...</color>");
 
         // Get all entities that were assigned to zones when saved
-        List<EntityRuntimeData> assignedEntities = EntityManager.Instance.GetEntitiesByState(EntityState.Assigned);
+        List<EntityRuntimeData> assignedEntities = EntityExtensions.GetAssignedEntities();
 
         if (assignedEntities.Count == 0)
         {

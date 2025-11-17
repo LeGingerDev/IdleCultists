@@ -121,8 +121,8 @@ public class SummoningPurchasableDisplay : BaseBehaviour
     {
         ResourceAmountPair resourcePair = _blueprint.GetCurrentCostSafe();
 
-        // AlphabeticNotation's ToString() automatically formats as "1.5K", "23.4M", etc.
-        _costText.text = $"Cost\n{resourcePair.resource.displayName} {resourcePair.amount}";
+        // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
+        _costText.text = $"Cost\n{resourcePair.resource.displayName} {resourcePair.amount.FormatWithDecimals()}";
     }
 
     //////////////////////////////

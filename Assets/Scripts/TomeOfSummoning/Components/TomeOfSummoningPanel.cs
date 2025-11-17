@@ -101,7 +101,7 @@ public class TomeOfSummoningPanel : SlidePanel
         AlphabeticNotation currentCapacity = StatManager.Instance.QueryStat(StatType.CapacityCount);
         AlphabeticNotation maxCapacity = StatManager.Instance.QueryStat(StatType.MaxCapacity);
 
-        if ((currentCapacity + _pendingCapacity) >= maxCapacity)
+        if ((currentCapacity + _pendingCapacity) > maxCapacity)
             return false;
 
         if (!blueprint.CanAfford())

@@ -102,6 +102,9 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
             ServiceBus.Publish(EntityEventIds.ON_STATS_RECALCULATION_REQUESTED, this);
         }
 
+        // Publish generic purchase event for UI updates
+        ServiceBus.Publish(PurchasableEventIds.ON_PURCHASABLE_PURCHASED, this, blueprint.purchasableId);
+
         DebugManager.Log($"[IncrementalGame] Purchased {blueprint.displayName} (Purchase #{runtimeData.purchaseCount})");
         return true;
     }

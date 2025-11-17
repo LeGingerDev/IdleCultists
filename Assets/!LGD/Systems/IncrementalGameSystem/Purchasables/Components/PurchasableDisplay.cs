@@ -122,12 +122,22 @@ public class PurchasableDisplay : BaseBehaviour
         _buttonPurchaseText.text = GetButtonText();
     }
 
-    // TODO: Replace with Topic System
+    // Refresh when stats are recalculated (for StatPurchasables)
     [Topic(StatEventIds.ON_STATS_RECALCULATED)]
     public void OnStatsRecalculated(object sender)
     {
         RefreshDynamicUI();
-        
+    }
+
+    // Refresh when any purchasable is purchased (for both Stat and Event purchasables)
+    [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]
+    public void OnPurchasableChanged(object sender, string purchasableId)
+    {
+        // Only refresh if this display's purchasable was purchased
+        if (_purchasableBlueprint != null && _purchasableBlueprint.purchasableId == purchasableId)
+        {
+            RefreshDynamicUI();
+        }
     }
 
     public void StartPurchaseLoop()

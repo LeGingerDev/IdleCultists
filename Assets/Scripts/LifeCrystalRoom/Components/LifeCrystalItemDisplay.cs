@@ -35,10 +35,13 @@ public class LifeCrystalItemDisplay : BaseBehaviour
 
     private void Start()
     {
-        if (_purchasableBlueprint != null)
+        if(_purchasableBlueprint == null)
         {
-            Initialise();
+            SetVisibilityImmediate(false);
+            DebugManager.Warning($"[{GetType().Name}] No purchasable blueprint assigned to {gameObject.name}. Display will be hidden.");
+            return;
         }
+            Initialise();
     }
 
     [Button]

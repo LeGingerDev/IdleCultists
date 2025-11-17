@@ -10,33 +10,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PurchasableDisplay : BaseBehaviour
+public class PurchasableDisplay : BasePurchasableDisplay
 {
     [SerializeField, FoldoutGroup("Identity")]
     private BasePurchasable _purchasableBlueprint;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private Image _iconImage;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private TextMeshProUGUI _displayNameText;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private TextMeshProUGUI _descriptionText;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private TextMeshProUGUI _timesPurchasedText;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private Button _purchaseButton;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private TextMeshProUGUI _buttonPurchaseText;
-
-    [SerializeField, FoldoutGroup("UI References")]
-    private TextMeshProUGUI _costText;
-
-    private Coroutine _canPurchaseLoopCoroutine;
 
     private void Start()
     {
@@ -46,44 +23,38 @@ public class PurchasableDisplay : BaseBehaviour
         }
     }
 
-    [Button]
-    private void Initialise()
+    protected override void SetupStaticUI()
     {
-        SetupStaticUI();
-        RefreshDynamicUI();
-        HookUpButton();
+        if (_showIcon && _iconImage != null)
+            _iconImage.sprite = _purchasableBlueprint.icon;
 
-        StartPurchaseLoop();
+        if (_showName && _displayNameText != null)
+            _displayNameText.text = _purchasableBlueprint.displayName;
+
+        if (_showDescription && _descriptionText != null)
+            _descriptionText.text = _purchasableBlueprint.description;
     }
 
-    private void SetupStaticUI()
-    {
-        _iconImage.sprite = _purchasableBlueprint.icon;
-        _displayNameText.text = _purchasableBlueprint.displayName;
-        _descriptionText.text = _purchasableBlueprint.description;
-    }
-
-    private void RefreshDynamicUI()
+    protected override void RefreshDynamicUI()
     {
         int timesPurchased = GetTimesPurchased();
 
-        // Times purchased display
-        _timesPurchasedText.text = GetTimesPurchasedDisplayText(timesPurchased);
+        if (_showTimesPurchased && _timesPurchasedText != null)
+            _timesPurchasedText.text = GetTimesPurchasedDisplayText(timesPurchased);
 
-        // Cost display
         ResourceAmountPair cost = _purchasableBlueprint.GetCurrentCostSafe();
-        _costText.text = GetCostDisplayText(cost);
+        if (_showCost && _costText != null)
+            _costText.text = GetCostDisplayText(cost);
 
         CanPurchaseSet();
     }
 
-    private void HookUpButton()
+    protected override void HookUpButton()
     {
-        _purchaseButton.onClick.RemoveAllListeners();
-        _purchaseButton.onClick.AddListener(OnPurchaseClicked);
+        base.HookUpButton();
     }
 
-    private void OnPurchaseClicked()
+    protected override void OnPurchaseClicked()
     {
         if (_purchasableBlueprint == null)
             return;
@@ -102,67 +73,12 @@ public class PurchasableDisplay : BaseBehaviour
         }
     }
 
-    public bool CanPurchase()
+    protected override bool CanPurchase()
     {
         return _purchasableBlueprint != null && _purchasableBlueprint.CanAfford();
     }
 
-    public IEnumerator CanPurchaseLoop()
-    {
-        while (true)
-        {
-            CanPurchaseSet();
-            yield return new WaitForSeconds(0.2f);
-        }
-    }
-
-    public void CanPurchaseSet()
-    {
-        _purchaseButton.interactable = CanPurchase();
-        _buttonPurchaseText.text = GetButtonText();
-    }
-
-    // TODO: Replace with Topic System
-    [Topic(StatEventIds.ON_STATS_RECALCULATED)]
-    public void OnStatsRecalculated(object sender)
-    {
-        RefreshDynamicUI();
-        
-    }
-
-    public void StartPurchaseLoop()
-    {
-        if (_canPurchaseLoopCoroutine == null)
-        {
-            _canPurchaseLoopCoroutine = StartCoroutine(CanPurchaseLoop());
-        }
-    }
-
-    public void StopPurchaseLoop()
-    {
-        if (_canPurchaseLoopCoroutine != null)
-        {
-            StopCoroutine(_canPurchaseLoopCoroutine);
-            _canPurchaseLoopCoroutine = null;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        StopPurchaseLoop();
-    }
-
-    #region Display Helpers
-
-    private string GetTimesPurchasedDisplayText(int timesPurchased)
-    {
-        if (timesPurchased == 0)
-            return "Not Yet Purchased";
-
-        return $"Purchased {timesPurchased} time{(timesPurchased == 1 ? "" : "s")}";
-    }
-
-    private string GetButtonText()
+    protected override string GetButtonText()
     {
         if (!CanPurchase())
             return "Can't Afford";
@@ -192,6 +108,4 @@ public class PurchasableDisplay : BaseBehaviour
     {
         return _purchasableBlueprint != null ? _purchasableBlueprint.GetPurchaseCount() : 0;
     }
-
-    #endregion
 }

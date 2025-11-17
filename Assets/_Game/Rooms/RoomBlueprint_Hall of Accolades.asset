@@ -17,8 +17,8 @@ MonoBehaviour:
   description: A room filled with achievements!
   icon: {fileID: 0}
   unlockCost:
-    costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
-    baseCost: 1
+    costType: {fileID: 11400000, guid: cdcd6bb8d0ffbf24a815ecfde7653d17, type: 2}
+    baseCost: 10
     growthType: 0
     growthRate: 0
   prerequisiteRooms: []

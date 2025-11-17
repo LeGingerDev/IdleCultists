@@ -9,20 +9,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fb43c40d74538a4192930ce817d2827, type: 3}
+  m_Script: {fileID: 11500000, guid: 267d33ad8716fec46874595e75fc65a3, type: 3}
   m_Name: UpgradeBlueprint_Extra Leg Room
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeBlueprint
-  upgradeId: extra-leg-room
+  purchasableId: extra-leg-room
   displayName: Extra Leg Room
   description: Extra Cultist Capacity
   icon: {fileID: -6072452630431816804, guid: cb0394033f37ff74d86fc39ff5524291, type: 3}
-  upgradeType: 1
-  maxTier: 3
+  purchaseType: 1
+  maxPurchases: 5
   costScaling:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
-    baseCost: 100
+    baseCost: 1000
     growthType: 1
-    growthRate: 2
+    growthRate: 4
+  prerequisitePurchasables: []
   modifierScaling:
   - statType: 4
     modifierType: 0

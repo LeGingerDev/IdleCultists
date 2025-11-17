@@ -14,23 +14,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SummoningPurchasableDisplay : BaseBehaviour
+public class SummoningPurchasableDisplay : BasePurchasableDisplay
 {
-    [SerializeField, FoldoutGroup("Identity")]
-    private Image _iconImage;
-    [SerializeField, FoldoutGroup("Identity")]
-    private TextMeshProUGUI _displayNameText;
-    [SerializeField, FoldoutGroup("Identity")]
-    private TextMeshProUGUI _descriptionText;
     [SerializeField, FoldoutGroup("Identity")]
     private TextMeshProUGUI _gainText;
 
-    [SerializeField, FoldoutGroup("Actionable")]
-    private Button _summonButton;
-    [SerializeField, FoldoutGroup("Actionable")]
-    private TextMeshProUGUI _summonButtonText;
-    [SerializeField, FoldoutGroup("Actionable")]
-    private TextMeshProUGUI _costText;
     [SerializeField, FoldoutGroup("Actionable")]
     private ValueBar _timerBar;
 
@@ -38,8 +26,6 @@ public class SummoningPurchasableDisplay : BaseBehaviour
     private Func<SummonPurchasableBlueprint, bool> _canPurchase;
     private Action<SummonPurchasableBlueprint> _onPurchase;
     private Action<SummonPurchasableBlueprint> _onComplete;
-
-    private Coroutine _canPurchaseLoop;
 
     private bool _isTimerRunning = false;
     private bool _isProcessingPurchase = false;
@@ -52,78 +38,84 @@ public class SummoningPurchasableDisplay : BaseBehaviour
         _onPurchase = onPurchase;
         _onComplete = onComplete;
 
-        _iconImage.sprite = blueprint.icon;
-        _displayNameText.text = blueprint.displayName;
-        _descriptionText.text = blueprint.description;
-        _gainText.text = blueprint.gainsDescription;
+        base.Initialise();
+    }
 
-        UpdateCostDisplay();
+    protected override void SetupStaticUI()
+    {
+        if (_showIcon && _iconImage != null)
+            _iconImage.sprite = _blueprint.icon;
 
-        // Convert AlphabeticNotation to float for timer (summon times are in seconds, won't overflow)
-        float summonTime = (float)(double)blueprint.GetSummonTime();
+        if (_showName && _displayNameText != null)
+            _displayNameText.text = _blueprint.displayName;
+
+        if (_showDescription && _descriptionText != null)
+            _descriptionText.text = _blueprint.description;
+
+        if (_gainText != null)
+            _gainText.text = _blueprint.gainsDescription;
+
+        // Initialize timer bar with full value
+        float summonTime = (float)(double)_blueprint.GetSummonTime();
         UpdateTimeLeft(new ValueChange(summonTime, summonTime));
-
-        TriggerBuyLoop();
-        HookUpButton();
     }
 
-    public void HookUpButton()
+    protected override void RefreshDynamicUI()
     {
-        _summonButton.onClick.RemoveAllListeners();
-        _summonButton.onClick.AddListener(() =>
+        UpdateCostDisplay();
+        CanPurchaseSet();
+    }
+
+    protected override void HookUpButton()
+    {
+        if (_showButton && _purchaseButton != null)
         {
-            if (!CanPurchaseUpgrade()) return; // Safety check
+            _purchaseButton.onClick.RemoveAllListeners();
+            _purchaseButton.onClick.AddListener(() =>
+            {
+                if (!CanPurchase()) return;
 
-            _isProcessingPurchase = true;
-            _onPurchase?.Invoke(_blueprint);
-            UpdateCostDisplay();
-        });
-    }
-
-    public void TriggerBuyLoop()
-    {
-        StopBuyLoop();
-
-        _canPurchaseLoop = StartCoroutine(CanPurchaseLoop());
-    }
-
-    public void StopBuyLoop()
-    {
-        if (_canPurchaseLoop != null)
-        {
-            StopCoroutine(_canPurchaseLoop);
-            _canPurchaseLoop = null;
+                _isProcessingPurchase = true;
+                _onPurchase?.Invoke(_blueprint);
+                UpdateCostDisplay();
+            });
         }
     }
 
-    public IEnumerator CanPurchaseLoop()
+    protected override void OnPurchaseClicked()
     {
-        while (true)
-        {
-            bool canPurchase = CanPurchaseUpgrade();
-            _summonButton.interactable = canPurchase;
-            _summonButtonText.text = canPurchase ? "Summon" : "Can't Summon";
-            yield return new WaitForSeconds(0.2f);
-        }
+        // Not used because we override HookUpButton with custom logic, but implement for completeness
+        if (!CanPurchase()) return;
+        _isProcessingPurchase = true;
+        _onPurchase?.Invoke(_blueprint);
+        UpdateCostDisplay();
+    }
+
+    protected override bool CanPurchase()
+    {
+        if (_isTimerRunning || _isProcessingPurchase) return false;
+        return _canPurchase != null && _canPurchase.Invoke(_blueprint);
+    }
+
+    protected override string GetButtonText()
+    {
+        return CanPurchase() ? "Summon" : "Can't Summon";
     }
 
     public void UpdateTimeLeft(ValueChange valueChange)
     {
-        _timerBar.UpdateBar(valueChange);
-    }
-
-    public bool CanPurchaseUpgrade()
-    {
-        if (_isTimerRunning || _isProcessingPurchase) return false; // Check both
-        return _canPurchase.Invoke(_blueprint);
+        if (_timerBar != null)
+            _timerBar.UpdateBar(valueChange);
     }
 
     public void UpdateCostDisplay()
     {
+        if (_blueprint == null) return;
+
         ResourceAmountPair resourcePair = _blueprint.GetCurrentCostSafe();
 
-        // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
-        _costText.text = $"Cost\n{resourcePair.resource.displayName} {resourcePair.amount.FormatWithDecimals()}";
+        if (_costText != null)
+            _costText.text = $"Cost\n{resourcePair.resource.displayName} {resourcePair.amount.FormatWithDecimals()}";
     }
 
     //////////////////////////////
@@ -142,13 +134,12 @@ public class SummoningPurchasableDisplay : BaseBehaviour
     }
 
     [Topic(TimerEventIds.TIMERS_UPDATED)]
-    public void OnSummoningTimerUpdated(object sender, List<(string contextId, ValueChange valueChange)> updates)
+    public void OnSummoningTimerUpdated(object sender, System.Collections.Generic.List<(string contextId, ValueChange valueChange)> updates)
     {
-        if (!updates.Any(u => u.contextId == _blueprint.GetContextId()))
+        if (!updates.Exists(u => u.contextId == _blueprint.GetContextId()))
             return;
 
-        ValueChange updateValues;
-        updateValues = updates.First(u => u.contextId == _blueprint.GetContextId()).valueChange;
+        var updateValues = updates.Find(u => u.contextId == _blueprint.GetContextId()).valueChange;
 
         UpdateTimeLeft(updateValues);
     }

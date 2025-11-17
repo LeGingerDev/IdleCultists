@@ -79,20 +79,29 @@ namespace LGD.Core.Events
                     @params[1].GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0)
                     arguments.Add(args);
 
+                bool allParametersMatched = true;
                 foreach (var param in @params.Skip(1))
                 {
-                    object val = args.FirstOrDefault(v => v.GetType() == param.ParameterType);
+                    object val = args.FirstOrDefault(v => v != null && v.GetType() == param.ParameterType);
                     if (val == null)
-                        val = args.FirstOrDefault(v => param.ParameterType.IsAssignableFrom(v.GetType()));
+                        val = args.FirstOrDefault(v => v != null && param.ParameterType.IsAssignableFrom(v.GetType()));
                     //args.ToList().Remove(val);
 
                     if (val == null)
                     {
-                            DebugManager.Warning($"[Core] Could not resolve value for {param} whilst publishing {topicName} at {method.Name}");
-                        continue;
+                        DebugManager.Warning($"[Core] Could not resolve value for parameter '{param.Name}' of type '{param.ParameterType}' whilst publishing {topicName} at {method.Name} in {instance?.GetType().Name ?? "static"}. Available args: {string.Join(", ", args.Select(a => a?.GetType().Name ?? "null"))}");
+                        allParametersMatched = false;
+                        break; // Stop trying to match parameters if one fails
                     }
 
                     arguments.Add(val);
+                }
+
+                // Only invoke if all parameters were successfully matched
+                if (!allParametersMatched)
+                {
+                    DebugManager.Error($"[Core] Skipping invocation of {method.Name} in {instance?.GetType().Name ?? "static"} for topic {topicName} due to parameter matching failure");
+                    continue;
                 }
 
                 try
@@ -101,7 +110,7 @@ namespace LGD.Core.Events
                 }
                 catch (Exception ex)
                 {
-                        DebugManager.Error($"[Core] {ex.Message} - {topicName} - {method} | {instance} | {arguments.ToArray().Length}");
+                    DebugManager.Error($"[Core] Exception invoking {method.Name} for topic {topicName}: {ex.Message}\nStack: {ex.StackTrace}");
                 }
             }
         }

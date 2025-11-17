@@ -61,6 +61,18 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     // Concrete displays should override this to return their blueprint field.
     protected virtual BasePurchasable GetDisplayedBlueprint() { return null; }
 
+    protected virtual void OnEnable()
+    {
+        base.OnEnable(); // This registers event handlers with ServiceBus
+        DebugManager.Log($"[IncrementalGame] OnEnable called for {this.GetType().Name} on {gameObject.name} - Event handlers should now be registered");
+    }
+
+    protected virtual void OnDisable()
+    {
+        base.OnDisable(); // This unregisters event handlers
+        DebugManager.Log($"[IncrementalGame] OnDisable called for {this.GetType().Name} on {gameObject.name} - Event handlers unregistered");
+    }
+
     public virtual void Initialise()
     {
         DebugManager.Log($"[IncrementalGame] Initialising BasePurchasableDisplay on {gameObject.name}");
@@ -132,40 +144,48 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected virtual void RefreshDynamicUI()
     {
+        DebugManager.Log($"[IncrementalGame] ========== RefreshDynamicUI CALLED on {gameObject.name} ({this.GetType().Name}) ==========");
+
         // Base dynamic UI updates: times purchased and cost text
         var blueprint = GetDisplayedBlueprint();
 
-        int timesPurchased = 0;
-        if (blueprint != null)
-            timesPurchased = blueprint.GetPurchaseCount();
+        if (blueprint == null)
+        {
+            DebugManager.Warning($"[IncrementalGame] RefreshDynamicUI: blueprint is NULL on {gameObject.name}");
+            return;
+        }
+
+        int timesPurchased = blueprint.GetPurchaseCount();
+        DebugManager.Log($"[IncrementalGame] Blueprint {blueprint.purchasableId} has been purchased {timesPurchased} times");
 
         string timesText = GetTimesPurchasedDisplayText(timesPurchased);
         if (_showTimesPurchased && _timesPurchasedText != null)
         {
-            DebugManager.Log($"[IncrementalGame] Setting timesPurchasedText on {gameObject.name}: {timesText}");
+            DebugManager.Log($"[IncrementalGame] Setting timesPurchasedText on {gameObject.name}: '{timesText}'");
             _timesPurchasedText.text = timesText;
         }
         else if (_showTimesPurchased && _timesPurchasedText == null)
         {
-            DebugManager.Warning($"[IncrementalGame] timesPurchasedText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
+            DebugManager.Warning($"[IncrementalGame] timesPurchasedText is NULL on {gameObject.name} but _showTimesPurchased is TRUE");
         }
 
         if (_showCost)
         {
-            ResourceAmountPair cost = blueprint != null ? blueprint.GetCurrentCostSafe() : new ResourceAmountPair(null, AlphabeticNotation.zero);
+            ResourceAmountPair cost = blueprint.GetCurrentCostSafe();
             string costString = GetCostDisplayText(cost);
             if (_costText != null)
             {
-                DebugManager.Log($"[IncrementalGame] Setting costText on {gameObject.name}: {costString}");
+                DebugManager.Log($"[IncrementalGame] Setting costText on {gameObject.name}: '{costString}'");
                 _costText.text = costString;
             }
             else
             {
-                DebugManager.Warning($"[IncrementalGame] costText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
+                DebugManager.Warning($"[IncrementalGame] costText is NULL on {gameObject.name} but _showCost is TRUE");
             }
         }
 
         CanPurchaseSet();
+        DebugManager.Log($"[IncrementalGame] ========== RefreshDynamicUI COMPLETED on {gameObject.name} ==========");
     }
 
     protected virtual void HookUpButton()
@@ -248,14 +268,29 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     public void OnPurchasablePurchased(object sender, BasePurchasable blueprint, BasePurchasableRuntimeData runtimeData)
     {
         var myBlueprint = GetDisplayedBlueprint();
-        DebugManager.Log($"[IncrementalGame] OnPurchasablePurchased received in {this.GetType().Name} for blueprint={blueprint?.purchasableId} myBlueprint={myBlueprint?.purchasableId}");
-        if (myBlueprint == null || blueprint == null) return;
+        DebugManager.Log($"[IncrementalGame] OnPurchasablePurchased EVENT RECEIVED in {this.GetType().Name} on {gameObject.name}. Event blueprint={blueprint?.purchasableId}, My blueprint={myBlueprint?.purchasableId}");
+
+        if (myBlueprint == null)
+        {
+            DebugManager.Warning($"[IncrementalGame] OnPurchasablePurchased: myBlueprint is NULL on {gameObject.name}");
+            return;
+        }
+
+        if (blueprint == null)
+        {
+            DebugManager.Warning($"[IncrementalGame] OnPurchasablePurchased: event blueprint is NULL on {gameObject.name}");
+            return;
+        }
 
         if (myBlueprint.purchasableId == blueprint.purchasableId)
         {
             // Refresh UI when the purchasable this display represents was bought
-            DebugManager.Log($"[IncrementalGame] Refreshing dynamic UI for {myBlueprint.purchasableId} on {gameObject.name}");
+            DebugManager.Log($"[IncrementalGame] MATCH! Refreshing dynamic UI for {myBlueprint.purchasableId} on {gameObject.name}");
             RefreshDynamicUI();
+        }
+        else
+        {
+            DebugManager.Log($"[IncrementalGame] NO MATCH - skipping refresh on {gameObject.name}");
         }
     }
 

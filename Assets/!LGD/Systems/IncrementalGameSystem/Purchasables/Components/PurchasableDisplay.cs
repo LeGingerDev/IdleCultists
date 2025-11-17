@@ -40,8 +40,13 @@ public class PurchasableDisplay : BasePurchasableDisplay
 
     protected override void OnPurchaseClicked()
     {
+        DebugManager.Log($"[IncrementalGame] OnPurchaseClicked called on {gameObject.name}");
+
         if (_purchasableBlueprint == null)
+        {
+            DebugManager.Warning($"[IncrementalGame] OnPurchaseClicked: _purchasableBlueprint is NULL on {gameObject.name}");
             return;
+        }
 
         if (!_purchasableBlueprint.CanAfford())
         {
@@ -49,11 +54,18 @@ public class PurchasableDisplay : BasePurchasableDisplay
             return;
         }
 
+        DebugManager.Log($"[IncrementalGame] Executing purchase for {_purchasableBlueprint.displayName} ({_purchasableBlueprint.purchasableId})");
         bool success = _purchasableBlueprint.ExecutePurchase();
+        DebugManager.Log($"[IncrementalGame] Purchase execution returned: {success}");
 
         if (success)
         {
+            DebugManager.Log($"[IncrementalGame] Purchase successful! Calling RefreshDynamicUI()...");
             RefreshDynamicUI();
+        }
+        else
+        {
+            DebugManager.Warning($"[IncrementalGame] Purchase FAILED for {_purchasableBlueprint.displayName}");
         }
     }
 

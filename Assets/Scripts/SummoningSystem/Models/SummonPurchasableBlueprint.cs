@@ -1,5 +1,6 @@
 using LargeNumbers;
 using LGD.Core.Events;
+using LGD.Extensions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

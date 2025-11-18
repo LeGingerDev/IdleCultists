@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Test Tree
   description: This is a test tree config
   icon: {fileID: 7521721706400054894, guid: e693f438d556e464b861f3b33fe9cd91, type: 3}
-  displayMode: 1
+  displayMode: 0
   treeColor: {r: 1, g: 1, b: 1, a: 1}
   backgroundSprite: {fileID: 0}
   resetOnAscension: 1

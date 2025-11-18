@@ -2,7 +2,6 @@ using LGD.Core;
 using LGD.Core.Events;
 using LGD.UIelements.Panels;
 using Sirenix.OdinInspector;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -30,11 +29,6 @@ public class SkillTreePanel : SlidePanel
     [Tooltip("Sprite to use for connection lines")]
     [SerializeField] private Sprite _lineSprite;
 
-    [FoldoutGroup("Refresh Settings")]
-    [Tooltip("How often to refresh node states (in seconds). Set to 0 to disable periodic refresh.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float _refreshInterval = 0.2f;
-
     [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private List<SkillNodeDisplay> _skillNodes = new List<SkillNodeDisplay>();
 
@@ -42,7 +36,6 @@ public class SkillTreePanel : SlidePanel
     [SerializeField, ReadOnly] private List<SkillConnectionLine> _connectionLines = new List<SkillConnectionLine>();
 
     private bool _isInitialized = false;
-    private Coroutine _periodicRefreshCoroutine;
 
     protected override void Start()
     {
@@ -73,20 +66,7 @@ public class SkillTreePanel : SlidePanel
 
         _isInitialized = true;
 
-        // Start periodic refresh if interval is set
-        StartPeriodicRefresh();
-
         DebugManager.Log($"[SkillTreePanel] Initialized with {_skillNodes.Count} nodes and {_connectionLines.Count} connections");
-    }
-
-    private void OnDisable()
-    {
-        StopPeriodicRefresh();
-    }
-
-    private void OnDestroy()
-    {
-        StopPeriodicRefresh();
     }
 
     private void FindAllSkillNodes()
@@ -270,55 +250,6 @@ public class SkillTreePanel : SlidePanel
     }
 
     /// <summary>
-    /// Start the periodic refresh coroutine
-    /// </summary>
-    private void StartPeriodicRefresh()
-    {
-        if (_refreshInterval <= 0f)
-        {
-            DebugManager.Log($"[SkillTreePanel] Periodic refresh disabled (interval = {_refreshInterval})");
-            return;
-        }
-
-        StopPeriodicRefresh(); // Stop existing coroutine if any
-        _periodicRefreshCoroutine = StartCoroutine(PeriodicRefreshCoroutine());
-        DebugManager.Log($"[SkillTreePanel] Started periodic refresh every {_refreshInterval}s");
-    }
-
-    /// <summary>
-    /// Stop the periodic refresh coroutine
-    /// </summary>
-    private void StopPeriodicRefresh()
-    {
-        if (_periodicRefreshCoroutine != null)
-        {
-            StopCoroutine(_periodicRefreshCoroutine);
-            _periodicRefreshCoroutine = null;
-            DebugManager.Log($"[SkillTreePanel] Stopped periodic refresh");
-        }
-    }
-
-    /// <summary>
-    /// Coroutine that periodically refreshes all nodes
-    /// This ensures nodes update their state even when changes happen off-screen
-    /// </summary>
-    private IEnumerator PeriodicRefreshCoroutine()
-    {
-        WaitForSeconds wait = new WaitForSeconds(_refreshInterval);
-
-        while (true)
-        {
-            yield return wait;
-
-            // Only refresh if the panel is active
-            if (gameObject.activeInHierarchy && _isInitialized)
-            {
-                RefreshTreeState();
-            }
-        }
-    }
-
-    /// <summary>
     /// Listen for purchasable purchases to refresh tree
     /// </summary>
     [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]
@@ -368,12 +299,11 @@ public class SkillTreePanel : SlidePanel
     protected override void OnOpen()
     {
         RefreshTreeState();
-        StartPeriodicRefresh();
     }
 
     protected override void OnClose()
     {
-        StopPeriodicRefresh();
+        // Child nodes automatically handle their own refresh via OnEnable/OnDisable
     }
 
 #if UNITY_EDITOR

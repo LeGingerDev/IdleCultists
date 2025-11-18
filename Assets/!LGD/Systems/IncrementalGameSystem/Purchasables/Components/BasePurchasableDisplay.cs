@@ -34,6 +34,11 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     [SerializeField, FoldoutGroup("UI Options")]
     protected bool _showCost = true;
 
+    [SerializeField, FoldoutGroup("Refresh Settings")]
+    [Tooltip("How often to refresh UI state (in seconds). Set to 0 to disable periodic refresh.")]
+    [Range(0f, 1f)]
+    protected float _refreshInterval = 0.2f;
+
     [SerializeField, FoldoutGroup("UI References"), ShowIf(nameof(_showIcon))]
     protected Image _iconImage;
 
@@ -56,6 +61,7 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     protected TextMeshProUGUI _costText;
 
     private Coroutine _canPurchaseLoopCoroutine;
+    private Coroutine _periodicRefreshCoroutine;
 
     // Allow derived classes to expose the blueprint this display represents.
     // Concrete displays should override this to return their blueprint field.
@@ -65,12 +71,14 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     {
         base.OnEnable(); // This registers event handlers with ServiceBus
         DebugManager.Log($"[IncrementalGame] OnEnable called for {this.GetType().Name} on {gameObject.name} - Event handlers should now be registered");
+        StartPeriodicRefresh();
     }
 
     protected virtual void OnDisable()
     {
         base.OnDisable(); // This unregisters event handlers
         DebugManager.Log($"[IncrementalGame] OnDisable called for {this.GetType().Name} on {gameObject.name} - Event handlers unregistered");
+        StopPeriodicRefresh();
     }
 
     public virtual void Initialise()
@@ -259,9 +267,52 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         }
     }
 
+    /// <summary>
+    /// Start the periodic refresh coroutine (only when display is active)
+    /// </summary>
+    private void StartPeriodicRefresh()
+    {
+        if (_refreshInterval <= 0f)
+        {
+            return; // Periodic refresh disabled
+        }
+
+        StopPeriodicRefresh(); // Stop existing coroutine if any
+        _periodicRefreshCoroutine = StartCoroutine(PeriodicRefreshCoroutine());
+    }
+
+    /// <summary>
+    /// Stop the periodic refresh coroutine
+    /// </summary>
+    private void StopPeriodicRefresh()
+    {
+        if (_periodicRefreshCoroutine != null)
+        {
+            StopCoroutine(_periodicRefreshCoroutine);
+            _periodicRefreshCoroutine = null;
+        }
+    }
+
+    /// <summary>
+    /// Coroutine that periodically refreshes the display
+    /// This ensures the UI updates when resources change off-screen
+    /// Only runs when the display is active in hierarchy (OnEnable/OnDisable manages this)
+    /// </summary>
+    private IEnumerator PeriodicRefreshCoroutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_refreshInterval);
+
+        while (true)
+        {
+            yield return wait;
+            RefreshDynamicUI();
+        }
+    }
+
     private void OnDestroy()
     {
         StopPurchaseLoop();
+        StopPeriodicRefresh();
     }
 
     [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]

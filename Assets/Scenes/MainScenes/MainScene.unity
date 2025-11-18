@@ -16305,14 +16305,12 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: _chargeLoopCoroutine
-      Entry: 6
-      Data: 
+    SerializationNodes: []
   _zoneId: 
   _zoneType: 0
   _isRegisteredWithStatManager: 0
   _resourceToProvide: {fileID: 11400000, guid: cdcd6bb8d0ffbf24a815ecfde7653d17, type: 2}
+  _resourcePoolKey: 
   _minMaxX: {x: -4.7953215, y: 4.7953224}
   _minMaxY: {x: 3.5672517, y: 6.9005847}
   _spawnPosition: {fileID: 2061105754}
@@ -16325,6 +16323,12 @@ MonoBehaviour:
   - {fileID: 1062060072}
   _jumpPower: 2
   _jumpDuration: 0.5
+  onEntityAssigned:
+    m_PersistentCalls:
+      m_Calls: []
+  onEntityRemoved:
+    m_PersistentCalls:
+      m_Calls: []
   _internalTimer:
     coefficient: 0
     magnitude: 0

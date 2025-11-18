@@ -17,7 +17,7 @@ MonoBehaviour:
   description: You have so much to live for. Here, have some more essence to fill
     that void
   icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
-  purchaseType: 0
+  purchaseType: 2
   maxPurchases: -1
   costScaling:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
@@ -25,4 +25,8 @@ MonoBehaviour:
     growthType: 1
     growthRate: 1.9
   prerequisitePurchasables: []
-  modifierScaling: []
+  modifierScaling:
+  - statType: 7
+    modifierType: 0
+    baseValue: 1
+    growthPerLevel: 1

@@ -113,15 +113,23 @@ public class SkillNodeTooltipTrigger : ToolTipBase<SkillNodeData>
         foreach (var modifier in modifiers)
         {
             string statName = FormatStatName(modifier.statType);
+<<<<<<< HEAD
             string valueStr = modifier.additiveValue.FormatWithDecimals(2);
+=======
+>>>>>>> 374afab388731e19a5fbcba03fdc17462187ae7a
 
             if (modifier.modifierType == ModifierType.Additive)
             {
+                string valueStr = modifier.additiveValue.FormatWithDecimals(2);
                 sb.AppendLine($"+{valueStr} {statName}");
             }
             else // Multiplicative
             {
+<<<<<<< HEAD
                 float percentage = (float)(double)modifier.multiplicativeValue * 100f;
+=======
+                float percentage = modifier.multiplicativeValue * 100f;
+>>>>>>> 374afab388731e19a5fbcba03fdc17462187ae7a
                 sb.AppendLine($"+{percentage:F0}% {statName}");
             }
         }

@@ -18,6 +18,7 @@ MonoBehaviour:
   icon: {fileID: 7521721706400054894, guid: e693f438d556e464b861f3b33fe9cd91, type: 3}
   displayMode: 0
   treeColor: {r: 1, g: 1, b: 1, a: 1}
+  lineThickness: 7
   backgroundSprite: {fileID: 0}
   resetOnAscension: 1
   minimumAscensionLevel: 0

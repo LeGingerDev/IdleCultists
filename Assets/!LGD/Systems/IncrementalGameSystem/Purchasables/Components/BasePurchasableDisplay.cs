@@ -309,6 +309,11 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected string GetTimesPurchasedDisplayText(int timesPurchased)
     {
-        return $"{timesPurchased}/{timesPurchased}";
+        BasePurchasable blueprint = GetDisplayedBlueprint();
+
+        if(blueprint.IsMaxedOut())
+            return "Maxxed";
+        
+        return $"{timesPurchased}/{blueprint.maxPurchases}";
     }
 }

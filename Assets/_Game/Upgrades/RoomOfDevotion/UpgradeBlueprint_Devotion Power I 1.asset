@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267d33ad8716fec46874595e75fc65a3, type: 3}
   m_Name: UpgradeBlueprint_Devotion Power I 1
   m_EditorClassIdentifier: Assembly-CSharp::StatPurchasable
-  purchasableId: devotion-power-I
+  purchasableId: devotion-power-II
   displayName: Devotion Power I
   description: The orb grows stronger
   icon: {fileID: -3155132167330789978, guid: ea70a9b34a8b4bb49aaefcba6407aaed, type: 3}
@@ -23,7 +23,8 @@ MonoBehaviour:
     baseCost: 50
     growthType: 1
     growthRate: 1.7
-  prerequisitePurchasables: []
+  prerequisitePurchasables:
+  - {fileID: 11400000, guid: 3c5799ac776cbff42af6aed61dba5cdb, type: 2}
   modifierScaling:
   - statType: 0
     modifierType: 0

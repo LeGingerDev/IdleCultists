@@ -562,9 +562,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5744400569127655853, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
     - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      propertyPath: _skillBlueprint
+      value: 
+      objectReference: {fileID: 11400000, guid: c5e09efa2d6be534bba5d9aa529ad072, type: 2}
+    - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: serializationData.Prefab
       value: 
-      objectReference: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 7825699839382022917, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: m_Name
       value: SkillTreeNode (3)
@@ -19859,7 +19863,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 379061660}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -19868,11 +19872,11 @@ RectTransform:
   - {fileID: 1552681529}
   - {fileID: 1312534879}
   - {fileID: 1268961981}
-  m_Father: {fileID: 1602367272}
+  m_Father: {fileID: 1969053747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -245, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &380282620
@@ -48781,12 +48785,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1084271024}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1602367272}
+  m_Father: {fileID: 1969053747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -58430,9 +58434,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5744400569127655853, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
     - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      propertyPath: _skillBlueprint
+      value: 
+      objectReference: {fileID: 11400000, guid: 3c5799ac776cbff42af6aed61dba5cdb, type: 2}
+    - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: serializationData.Prefab
       value: 
-      objectReference: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 7825699839382022917, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: m_Name
       value: SkillTreeNode (1)
@@ -70644,8 +70652,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1084271025}
-  - {fileID: 379061661}
+  - {fileID: 1969053747}
   m_Father: {fileID: 1706537367}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -70997,13 +71004,13 @@ MonoBehaviour:
   _connectionLinePrefab: {fileID: 35867084438165051, guid: 6885c253fed3b2247a2ee88faae6fc91, type: 3}
   _lineSprite: {fileID: 0}
   _enablePanning: 1
-  _contentTransform: {fileID: 379061661}
-  _centerPoint: {fileID: 1084271025}
+  _contentTransform: {fileID: 1969053747}
+  _centerPoint: {fileID: 1602367272}
   _panSpeed: 1
-  _useBounds: 1
+  _useBounds: 0
   _boundsPadding: 200
   _centerOnPurchase: 1
-  _centerDistanceThreshold: 300
+  _centerDistanceThreshold: 50
   _centerAnimationDuration: 0.5
   _centerEaseType: 9
   _skillNodes: []
@@ -91598,6 +91605,43 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1969053746
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1969053747}
+  m_Layer: 0
+  m_Name: MovingPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1969053747
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969053746}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1084271025}
+  - {fileID: 379061661}
+  m_Father: {fileID: 1602367272}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1975922288
 GameObject:
   m_ObjectHideFlags: 0

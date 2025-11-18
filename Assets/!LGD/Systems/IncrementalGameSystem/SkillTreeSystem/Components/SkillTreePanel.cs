@@ -1,5 +1,6 @@
 using LGD.Core;
 using LGD.Core.Events;
+using LGD.UIelements.Panels;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 /// Main controller for a skill tree panel
 /// Manages skill node displays, connection lines, and tree state
 /// </summary>
-public class SkillTreePanel : BaseBehaviour
+public class SkillTreePanel : SlidePanel
 {
     [FoldoutGroup("Configuration")]
     [Tooltip("Configuration asset for this skill tree")]
@@ -36,10 +37,12 @@ public class SkillTreePanel : BaseBehaviour
 
     private bool _isInitialized = false;
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         InitializeTree();
     }
+
 
     [Button("Initialize Tree"), FoldoutGroup("Debug")]
     private void InitializeTree()
@@ -101,7 +104,10 @@ public class SkillTreePanel : BaseBehaviour
             foreach (BasePurchasable prerequisite in blueprint.prerequisitePurchasables)
             {
                 if (prerequisite == null)
+                {
+                    DebugManager.Warning($"[SkillTreePanel] Prerequisite is NULL for skill: {blueprint.purchasableId}");
                     continue;
+                }
 
                 // Find the node that represents this prerequisite
                 SkillNodeDisplay prerequisiteNode = FindNodeForBlueprint(prerequisite);
@@ -110,7 +116,7 @@ public class SkillTreePanel : BaseBehaviour
                     DebugManager.Warning($"[SkillTreePanel] Could not find node for prerequisite: {prerequisite.purchasableId}");
                     continue;
                 }
-
+                DebugManager.Log($"[SkillTreePanel] Creating line from {prerequisiteNode.name} to {node.name}");
                 // Create connection line
                 CreateConnectionLine(prerequisiteNode, node);
             }
@@ -155,7 +161,7 @@ public class SkillTreePanel : BaseBehaviour
 
     private SkillNodeDisplay FindNodeForBlueprint(BasePurchasable blueprint)
     {
-        return _skillNodes.FirstOrDefault(node => node.GetBlueprint() == blueprint);
+        return _skillNodes.FirstOrDefault(node => node.GetBlueprint().purchasableId == blueprint.purchasableId);
     }
 
     private void ClearConnectionLines()
@@ -298,6 +304,15 @@ public class SkillTreePanel : BaseBehaviour
                 _connectionLinesParent = linesTransform;
             }
         }
+    }
+
+    protected override void OnOpen()
+    {
+        RefreshTreeState();
+    }
+
+    protected override void OnClose()
+    {
     }
 #endif
 }

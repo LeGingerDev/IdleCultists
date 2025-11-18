@@ -268,29 +268,24 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     public void OnPurchasablePurchased(object sender, BasePurchasable blueprint, BasePurchasableRuntimeData runtimeData)
     {
         var myBlueprint = GetDisplayedBlueprint();
-        DebugManager.Log($"[IncrementalGame] OnPurchasablePurchased EVENT RECEIVED in {this.GetType().Name} on {gameObject.name}. Event blueprint={blueprint?.purchasableId}, My blueprint={myBlueprint?.purchasableId}");
 
         if (myBlueprint == null)
         {
-            DebugManager.Warning($"[IncrementalGame] OnPurchasablePurchased: myBlueprint is NULL on {gameObject.name}");
             return;
         }
 
         if (blueprint == null)
         {
-            DebugManager.Warning($"[IncrementalGame] OnPurchasablePurchased: event blueprint is NULL on {gameObject.name}");
             return;
         }
 
         if (myBlueprint.purchasableId == blueprint.purchasableId)
         {
             // Refresh UI when the purchasable this display represents was bought
-            DebugManager.Log($"[IncrementalGame] MATCH! Refreshing dynamic UI for {myBlueprint.purchasableId} on {gameObject.name}");
             RefreshDynamicUI();
         }
         else
         {
-            DebugManager.Log($"[IncrementalGame] NO MATCH - skipping refresh on {gameObject.name}");
         }
     }
 
@@ -298,7 +293,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     public void OnPurchasablesInitialized(object sender)
     {
         // Re-evaluate dynamic UI after purchasable runtime data is loaded
-        DebugManager.Log($"[IncrementalGame] Purchasables initialized - refreshing UI on {gameObject.name}");
         RefreshDynamicUI();
     }
 
@@ -315,9 +309,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected string GetTimesPurchasedDisplayText(int timesPurchased)
     {
-        if (timesPurchased == 0)
-            return "Not Yet Purchased";
-
-        return $"Purchased {timesPurchased} time{(timesPurchased == 1 ? "" : "s")}";
+        return $"{timesPurchased}/{timesPurchased}";
     }
 }

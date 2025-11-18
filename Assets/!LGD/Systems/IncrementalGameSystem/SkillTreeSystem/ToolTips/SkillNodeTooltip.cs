@@ -144,33 +144,21 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
         string statusMessage;
         Color statusColor;
 
-        if (data.isPurchased)
+        if (data.isMaxedOut)
         {
-            if (data.isMaxedOut)
-            {
-                statusMessage = "Maxed Out";
-                statusColor = _maxxedColor;
-            }
-            else
-            {
-                statusMessage = "Purchased";
-                statusColor = _purchasedColor;
-            }
+            statusMessage = "Maxxed";
+            statusColor = _maxxedColor;
         }
-        else if (!data.prerequisitesMet)
+        else if (data.prerequisitesMet && data.canAfford)
         {
-            statusMessage = "Locked";
-            statusColor = _lockedColor;
-        }
-        else if (!data.canAfford)
-        {
-            statusMessage = "Can't afford";
+            statusMessage = "Click to Purchase";
             statusColor = _unlockedColor;
         }
         else
         {
-            statusMessage = "Click to Purchase";
-            statusColor = _unlockedColor;
+            // Either locked or can't afford - both mean "can't purchase right now"
+            statusMessage = "Can't Afford";
+            statusColor = _lockedColor;
         }
 
         _statusText.text = statusMessage;

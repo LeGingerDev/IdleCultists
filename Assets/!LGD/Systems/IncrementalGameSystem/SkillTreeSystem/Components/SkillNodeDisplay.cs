@@ -241,6 +241,14 @@ public class SkillNodeDisplay : BasePurchasableDisplay
     }
 
     /// <summary>
+    /// Public method to refresh the node display (called by SkillTreePanel)
+    /// </summary>
+    public void Refresh()
+    {
+        RefreshDynamicUI();
+    }
+
+    /// <summary>
     /// Determine if this node should be visible based on display mode
     /// </summary>
     public bool ShouldBeVisible(SkillNodeDisplayMode displayMode)

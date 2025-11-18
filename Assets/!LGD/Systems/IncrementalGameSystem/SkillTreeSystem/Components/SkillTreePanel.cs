@@ -284,6 +284,14 @@ public class SkillTreePanel : SlidePanel
         return _configuration != null ? _configuration.treeId : gameObject.name;
     }
 
+    /// <summary>
+    /// Get the display mode for this tree
+    /// </summary>
+    public SkillNodeDisplayMode GetDisplayMode()
+    {
+        return _configuration != null ? _configuration.displayMode : SkillNodeDisplayMode.AlwaysShowLocked;
+    }
+
 #if UNITY_EDITOR
     [Button("Recreate Lines"), FoldoutGroup("Debug")]
     private void RecreateLines()

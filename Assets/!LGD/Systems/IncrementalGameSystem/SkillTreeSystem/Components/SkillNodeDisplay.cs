@@ -15,32 +15,28 @@ public class SkillNodeDisplay : BasePurchasableDisplay
     private BasePurchasable _skillBlueprint;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Lock Overlay")]
-    [Tooltip("Image overlay shown when skill is locked (for AlwaysShowLocked mode)")]
+    [Tooltip("Image overlay shown when skill is locked (only visible in AlwaysShowLocked mode)")]
     private GameObject _lockOverlay;
 
-    [SerializeField, FoldoutGroup("Skill Node Settings/Lock Overlay")]
-    [Tooltip("Icon sprite for locked state")]
-    private Image _lockIcon;
+    [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
+    [Tooltip("Target image to apply state sprites to")]
+    private Image _stateImage;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Color tint when skill is purchased")]
-    private Color _purchasedColor = Color.white;
+    [Tooltip("Sprite when skill is locked (prerequisites not met or can't afford)")]
+    private Sprite _lockedSprite;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Color tint when skill is purchasable")]
-    private Color _purchasableColor = Color.yellow;
+    [Tooltip("Sprite when skill is purchasable (can afford and prerequisites met)")]
+    private Sprite _purchasableSprite;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Color tint when prerequisites not met")]
-    private Color _lockedRequirementsColor = Color.red;
+    [Tooltip("Sprite when skill is purchased")]
+    private Sprite _purchasedSprite;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Color tint when prerequisites met but can't afford")]
-    private Color _lockedCostColor = new Color(1f, 0.5f, 0f); // Orange
-
-    [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Image component to apply state colors to")]
-    private Image _stateIndicator;
+    [Tooltip("Sprite when skill is maxed out")]
+    private Sprite _maxedSprite;
 
     private SkillTreePanel _parentTree;
 
@@ -164,33 +160,36 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 
     private SkillNodeState DetermineNodeState()
     {
+        if (_skillBlueprint.IsMaxedOut())
+            return SkillNodeState.Maxed;
+
         if (_skillBlueprint.GetPurchaseCount() > 0)
             return SkillNodeState.Purchased;
 
-        if (!_skillBlueprint.ArePrerequisitesMet())
-            return SkillNodeState.LockedRequirements;
-
-        if (!_skillBlueprint.CanAfford())
-            return SkillNodeState.LockedCost;
+        if (!_skillBlueprint.ArePrerequisitesMet() || !_skillBlueprint.CanAfford())
+            return SkillNodeState.Locked;
 
         return SkillNodeState.Purchasable;
     }
 
     private void ApplyVisualState(SkillNodeState state)
     {
-        if (_stateIndicator == null)
+        if (_stateImage == null)
             return;
 
-        Color targetColor = state switch
+        Sprite targetSprite = state switch
         {
-            SkillNodeState.Purchased => _purchasedColor,
-            SkillNodeState.Purchasable => _purchasableColor,
-            SkillNodeState.LockedCost => _lockedCostColor,
-            SkillNodeState.LockedRequirements => _lockedRequirementsColor,
-            _ => Color.white
+            SkillNodeState.Locked => _lockedSprite,
+            SkillNodeState.Purchasable => _purchasableSprite,
+            SkillNodeState.Purchased => _purchasedSprite,
+            SkillNodeState.Maxed => _maxedSprite,
+            _ => null
         };
 
-        _stateIndicator.color = targetColor;
+        if (targetSprite != null)
+        {
+            _stateImage.sprite = targetSprite;
+        }
     }
 
     private void UpdateLockOverlay(SkillNodeState state)
@@ -198,8 +197,17 @@ public class SkillNodeDisplay : BasePurchasableDisplay
         if (_lockOverlay == null)
             return;
 
-        // Show lock only if locked and not purchased
-        bool showLock = (state == SkillNodeState.LockedRequirements || state == SkillNodeState.LockedCost);
+        // Only show lock overlay if:
+        // 1. The state is Locked
+        // 2. The display mode is AlwaysShowLocked (otherwise the node would be hidden)
+        bool showLock = state == SkillNodeState.Locked;
+
+        if (_parentTree != null)
+        {
+            SkillNodeDisplayMode displayMode = _parentTree.GetDisplayMode();
+            showLock = showLock && displayMode == SkillNodeDisplayMode.AlwaysShowLocked;
+        }
+
         _lockOverlay.SetActive(showLock);
     }
 
@@ -248,8 +256,8 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 /// </summary>
 public enum SkillNodeState
 {
-    Purchased,              // Green - Skill is owned
-    Purchasable,            // Yellow - Can be purchased now
-    LockedCost,             // Orange - Prerequisites met but can't afford
-    LockedRequirements      // Red - Prerequisites not met
+    Locked,         // Prerequisites not met or can't afford
+    Purchasable,    // Can be purchased right now
+    Purchased,      // Skill is owned
+    Maxed           // Skill is maxed out
 }

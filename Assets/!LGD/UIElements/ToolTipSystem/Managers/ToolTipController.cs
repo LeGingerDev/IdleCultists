@@ -61,6 +61,9 @@ namespace ToolTipSystem.Managers
             if (_currentToolTip == null)
                 return;
 
+            // Reset scale before hiding
+            ApplyTooltipScale(1f);
+
             _currentToolTip.Hide();
             _currentToolTip = null;
         }
@@ -73,6 +76,9 @@ namespace ToolTipSystem.Managers
 
             Vector2 finalPosition = CalculateFinalPosition(positionData);
             _currentToolTip.Move(finalPosition);
+
+            // Apply scale from position data (e.g., for zoomed UI elements)
+            ApplyTooltipScale(positionData.Scale);
         }
 
         private Vector2 CalculateFinalPosition(ToolTipPositionData positionData)
@@ -202,6 +208,22 @@ namespace ToolTipSystem.Managers
         public IToolTip GetToolTip(Type type)
         {
             return _toolTipMapping[type];
+        }
+
+        /// <summary>
+        /// Apply scale to the tooltip transform
+        /// This makes tooltips scale with zoomed UI elements (e.g., skill tree zoom)
+        /// </summary>
+        private void ApplyTooltipScale(float scale)
+        {
+            if (_currentToolTip == null)
+                return;
+
+            RectTransform tooltipRect = GetTooltipRectTransform();
+            if (tooltipRect != null)
+            {
+                tooltipRect.localScale = Vector3.one * scale;
+            }
         }
     }
 }

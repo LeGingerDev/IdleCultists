@@ -49,13 +49,23 @@ public class SkillConnectionLine : MonoBehaviour
     /// <summary>
     /// Initialize the connection line with two nodes
     /// </summary>
-    public void Initialize(SkillNodeDisplay fromNode, SkillNodeDisplay toNode, Image lineImage)
+    public void Initialize(SkillNodeDisplay fromNode, SkillNodeDisplay toNode, Image lineImage, float thickness = 3f)
     {
         _fromNode = fromNode;
         _toNode = toNode;
         _lineImage = lineImage;
+        _lineThickness = thickness;
 
         UpdateVisualState();
+    }
+
+    /// <summary>
+    /// Set the line thickness
+    /// </summary>
+    public void SetLineThickness(float thickness)
+    {
+        _lineThickness = thickness;
+        UpdateLineTransform(); // Refresh to apply new thickness
     }
 
     /// <summary>

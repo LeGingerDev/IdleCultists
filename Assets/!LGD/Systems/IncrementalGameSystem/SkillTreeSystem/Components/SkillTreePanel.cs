@@ -144,8 +144,11 @@ public class SkillTreePanel : SlidePanel
             connectionLine = lineObj.AddComponent<SkillConnectionLine>();
         }
 
+        // Get line thickness from config
+        float lineThickness = _configuration != null ? _configuration.lineThickness : 5f;
+
         // Initialize
-        connectionLine.Initialize(fromNode, toNode, lineImage);
+        connectionLine.Initialize(fromNode, toNode, lineImage, lineThickness);
         connectionLine.UpdateLineTransform();
 
         // Apply tree color if configured

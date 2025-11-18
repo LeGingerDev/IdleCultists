@@ -34,6 +34,11 @@ public class SkillTreeConfiguration : ScriptableObject
     public Color treeColor = Color.white;
 
     [FoldoutGroup("Visual Settings")]
+    [Tooltip("Thickness of connection lines between nodes")]
+    [Range(1f, 20f)]
+    public float lineThickness = 5f;
+
+    [FoldoutGroup("Visual Settings")]
     [Tooltip("Optional background sprite for the tree panel")]
     public Sprite backgroundSprite;
 

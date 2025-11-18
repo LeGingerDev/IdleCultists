@@ -564,7 +564,7 @@ PrefabInstance:
     - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: _skillBlueprint
       value: 
-      objectReference: {fileID: 11400000, guid: c5e09efa2d6be534bba5d9aa529ad072, type: 2}
+      objectReference: {fileID: 11400000, guid: 67015d6d710945b45869edd0c065a012, type: 2}
     - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: serializationData.Prefab
       value: 
@@ -4095,9 +4095,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5744400569127655853, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
     - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      propertyPath: _skillBlueprint
+      value: 
+      objectReference: {fileID: 11400000, guid: c5e09efa2d6be534bba5d9aa529ad072, type: 2}
+    - target: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: serializationData.Prefab
       value: 
-      objectReference: {fileID: 6305429341919289342, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 7825699839382022917, guid: 926cb593af1d9244c8130a3676d00a29, type: 3}
       propertyPath: m_Name
       value: SkillTreeNode (2)
@@ -71009,10 +71013,15 @@ MonoBehaviour:
   _panSpeed: 1
   _useBounds: 0
   _boundsPadding: 200
+  _enableZoom: 1
+  _minZoom: 0.5
+  _maxZoom: 2
+  _zoomSpeed: 0.1
   _centerOnPurchase: 1
   _centerDistanceThreshold: 50
   _centerAnimationDuration: 0.5
   _centerEaseType: 9
+  _resetOnOpen: 1
   _skillNodes: []
   _connectionLines: []
 --- !u!225 &1607165978

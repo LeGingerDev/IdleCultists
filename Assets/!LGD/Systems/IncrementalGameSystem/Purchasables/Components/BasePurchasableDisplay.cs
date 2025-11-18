@@ -62,7 +62,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     private Coroutine _canPurchaseLoopCoroutine;
     private Coroutine _periodicRefreshCoroutine;
-    private CanvasGroup[] _cachedCanvasGroups;
 
     // Allow derived classes to expose the blueprint this display represents.
     // Concrete displays should override this to return their blueprint field.
@@ -72,21 +71,12 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     {
         base.OnEnable(); // This registers event handlers with ServiceBus
         DebugManager.Log($"[IncrementalGame] OnEnable called for {this.GetType().Name} on {gameObject.name} - Event handlers should now be registered");
-
-        // Cache CanvasGroups once for performance
-        if (_cachedCanvasGroups == null)
-        {
-            _cachedCanvasGroups = GetComponentsInParent<CanvasGroup>(true);
-        }
-
-        StartPeriodicRefresh();
     }
 
     protected virtual void OnDisable()
     {
         base.OnDisable(); // This unregisters event handlers
         DebugManager.Log($"[IncrementalGame] OnDisable called for {this.GetType().Name} on {gameObject.name} - Event handlers unregistered");
-        StopPeriodicRefresh();
     }
 
     public virtual void Initialise()
@@ -108,7 +98,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         }
 
         HookUpButton();
-        StartPurchaseLoop();
     }
 
     protected void ApplyUiToggles()
@@ -277,9 +266,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     /// <summary>
     /// Start the periodic refresh coroutine
-    /// Automatically started in OnEnable
+    /// Should be called by parent panels when they open (e.g., PurchasablePanel.OnOpen)
     /// </summary>
-    private void StartPeriodicRefresh()
+    public void StartPeriodicRefresh()
     {
         if (_refreshInterval <= 0f)
         {
@@ -292,9 +281,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     /// <summary>
     /// Stop the periodic refresh coroutine
-    /// Automatically stopped in OnDisable
+    /// Should be called by parent panels when they close (e.g., PurchasablePanel.OnClose)
     /// </summary>
-    private void StopPeriodicRefresh()
+    public void StopPeriodicRefresh()
     {
         if (_periodicRefreshCoroutine != null)
         {
@@ -305,8 +294,8 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     /// <summary>
     /// Coroutine that periodically refreshes the display
-    /// Only refreshes when display is visible (checks CanvasGroup alpha/interactable)
     /// This ensures UI updates when resources change (e.g., becoming unaffordable after purchase)
+    /// Managed by parent panels via StartPeriodicRefresh/StopPeriodicRefresh
     /// </summary>
     private IEnumerator PeriodicRefreshCoroutine()
     {
@@ -315,37 +304,8 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         while (true)
         {
             yield return wait;
-
-            // Only refresh if visible and interactable
-            if (IsVisibleInHierarchy())
-            {
-                RefreshDynamicUI();
-            }
+            RefreshDynamicUI();
         }
-    }
-
-    /// <summary>
-    /// Check if this display is visible in the hierarchy
-    /// Uses cached CanvasGroups to avoid GetComponentsInParent every frame
-    /// </summary>
-    private bool IsVisibleInHierarchy()
-    {
-        // If no canvas groups cached, assume visible
-        if (_cachedCanvasGroups == null || _cachedCanvasGroups.Length == 0)
-            return true;
-
-        // Check if any parent CanvasGroup is blocking this display
-        foreach (var cg in _cachedCanvasGroups)
-        {
-            if (cg == null)
-                continue;
-
-            // If alpha is 0 or not interactable, this display is effectively hidden
-            if (cg.alpha <= 0f || !cg.interactable)
-                return false;
-        }
-
-        return true;
     }
 
     private void OnDestroy()

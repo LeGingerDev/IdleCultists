@@ -12,7 +12,7 @@ using DG.Tweening;
 /// Main controller for a skill tree panel
 /// Manages skill node displays, connection lines, and tree state
 /// </summary>
-public class SkillTreePanel : SlidePanel
+public class SkillTreePanel : PurchasablePanel
 {
     [FoldoutGroup("Configuration")]
     [Tooltip("Configuration asset for this skill tree")]
@@ -548,45 +548,13 @@ public class SkillTreePanel : SlidePanel
 
     protected override void OnOpen()
     {
+        base.OnOpen(); // Start periodic refresh and purchase loops for all child displays
         RefreshTreeState();
-        StartChildrenPeriodicRefresh();
     }
 
     protected override void OnClose()
     {
-        StopChildrenPeriodicRefresh();
-    }
-
-    /// <summary>
-    /// Start periodic refresh for all skill nodes
-    /// </summary>
-    private void StartChildrenPeriodicRefresh()
-    {
-        foreach (SkillNodeDisplay node in _skillNodes)
-        {
-            if (node != null)
-            {
-                node.StartPeriodicRefresh();
-            }
-        }
-
-        DebugManager.Log($"[SkillTreePanel] Started periodic refresh for {_skillNodes.Count} nodes");
-    }
-
-    /// <summary>
-    /// Stop periodic refresh for all skill nodes
-    /// </summary>
-    private void StopChildrenPeriodicRefresh()
-    {
-        foreach (SkillNodeDisplay node in _skillNodes)
-        {
-            if (node != null)
-            {
-                node.StopPeriodicRefresh();
-            }
-        }
-
-        DebugManager.Log($"[SkillTreePanel] Stopped periodic refresh for {_skillNodes.Count} nodes");
+        base.OnClose(); // Stop periodic refresh and purchase loops for all child displays
     }
 
     private void OnDestroy()

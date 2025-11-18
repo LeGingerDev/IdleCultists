@@ -61,6 +61,9 @@ namespace ToolTipSystem.Managers
             if (_currentToolTip == null)
                 return;
 
+            // Reset scale before hiding
+            ApplyTooltipScale(1f);
+
             _currentToolTip.Hide();
             _currentToolTip = null;
         }
@@ -73,6 +76,9 @@ namespace ToolTipSystem.Managers
 
             Vector2 finalPosition = CalculateFinalPosition(positionData);
             _currentToolTip.Move(finalPosition);
+
+            // Apply scale from position data (e.g., for zoomed UI elements)
+            ApplyTooltipScale(positionData.Scale);
         }
 
         private Vector2 CalculateFinalPosition(ToolTipPositionData positionData)
@@ -105,7 +111,12 @@ namespace ToolTipSystem.Managers
             float targetRight = corners[2].x;
             float targetCenterY = (corners[0].y + corners[2].y) * 0.5f;
 
-            return new Vector2(targetRight, targetCenterY) + offset;
+            // Account for target's scale when applying offset
+            // This makes tooltip offset scale with zoomed content (e.g., skill tree zoom)
+            float scaleFactor = target.lossyScale.x;
+            Vector2 scaledOffset = offset * scaleFactor;
+
+            return new Vector2(targetRight, targetCenterY) + scaledOffset;
         }
 
         private Vector2 GetWorldTargetPosition(Transform target, Vector2 offset)
@@ -197,6 +208,22 @@ namespace ToolTipSystem.Managers
         public IToolTip GetToolTip(Type type)
         {
             return _toolTipMapping[type];
+        }
+
+        /// <summary>
+        /// Apply scale to the tooltip transform
+        /// This makes tooltips scale with zoomed UI elements (e.g., skill tree zoom)
+        /// </summary>
+        private void ApplyTooltipScale(float scale)
+        {
+            if (_currentToolTip == null)
+                return;
+
+            RectTransform tooltipRect = GetTooltipRectTransform();
+            if (tooltipRect != null)
+            {
+                tooltipRect.localScale = Vector3.one * scale;
+            }
         }
     }
 }

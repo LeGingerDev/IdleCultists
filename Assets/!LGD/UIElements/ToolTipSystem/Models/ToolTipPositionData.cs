@@ -12,18 +12,20 @@ namespace ToolTipSystem.Utilities
         public RectTransform UITarget { get; private set; }
         public Transform WorldTarget { get; private set; }
         public Vector2 Offset { get; private set; }
+        public float Scale { get; private set; }
         public bool UseUITarget { get; private set; }
         public bool UseWorldTarget { get; private set; }
 
-        private ToolTipPositionData(Vector2 screenPosition, Vector2 offset, RectTransform uiTarget = null, Transform worldTarget = null)
+        private ToolTipPositionData(Vector2 screenPosition, Vector2 offset, float scale = 1f, RectTransform uiTarget = null, Transform worldTarget = null)
         {
             ScreenPosition = screenPosition;
             Offset = offset;
+            Scale = scale;
             UITarget = uiTarget;
             WorldTarget = worldTarget;
             UseUITarget = uiTarget != null;
             UseWorldTarget = worldTarget != null && uiTarget == null;
-            
+
         }
 
         public static ToolTipPositionData FromMousePosition(Vector2 offset)
@@ -33,12 +35,14 @@ namespace ToolTipSystem.Utilities
 
         public static ToolTipPositionData FromUITarget(RectTransform target, Vector2 offset)
         {
-            return new ToolTipPositionData(Input.mousePosition, offset, uiTarget: target);
+            float scale = target != null ? target.lossyScale.x : 1f;
+            return new ToolTipPositionData(Input.mousePosition, offset, scale, uiTarget: target);
         }
 
         public static ToolTipPositionData FromWorldTarget(Transform target, Vector2 offset)
         {
-            return new ToolTipPositionData(Input.mousePosition, offset, worldTarget: target);
+            float scale = target != null ? target.lossyScale.x : 1f;
+            return new ToolTipPositionData(Input.mousePosition, offset, scale, worldTarget: target);
         }
     }
 }

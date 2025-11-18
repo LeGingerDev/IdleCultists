@@ -105,7 +105,12 @@ namespace ToolTipSystem.Managers
             float targetRight = corners[2].x;
             float targetCenterY = (corners[0].y + corners[2].y) * 0.5f;
 
-            return new Vector2(targetRight, targetCenterY) + offset;
+            // Account for target's scale when applying offset
+            // This makes tooltip offset scale with zoomed content (e.g., skill tree zoom)
+            float scaleFactor = target.lossyScale.x;
+            Vector2 scaledOffset = offset * scaleFactor;
+
+            return new Vector2(targetRight, targetCenterY) + scaledOffset;
         }
 
         private Vector2 GetWorldTargetPosition(Transform target, Vector2 offset)

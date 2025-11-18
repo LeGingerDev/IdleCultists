@@ -168,17 +168,17 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 
     private SkillNodeState DetermineNodeState()
     {
-        if (_skillBlueprint.IsMaxedOut())
-            return SkillNodeState.Maxed;
-
-        if (_skillBlueprint.GetPurchaseCount() > 0)
-            return SkillNodeState.Purchased;
-
         if (!_skillBlueprint.ArePrerequisitesMet())
             return SkillNodeState.Locked;
 
+        if (_skillBlueprint.IsMaxedOut())
+            return SkillNodeState.Maxed;
+
         if (!_skillBlueprint.CanAfford())
             return SkillNodeState.CantAfford;
+
+        if (_skillBlueprint.GetPurchaseCount() > 0)
+            return SkillNodeState.Purchased;   
 
         return SkillNodeState.Purchasable;
     }

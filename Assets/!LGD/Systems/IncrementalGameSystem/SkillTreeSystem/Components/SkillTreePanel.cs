@@ -54,6 +54,24 @@ public class SkillTreePanel : PurchasablePanel
     [Tooltip("Extra padding around content bounds")]
     [SerializeField] private float _boundsPadding = 200f;
 
+    [FoldoutGroup("Pan Settings/Zoom")]
+    [Tooltip("Enable scroll wheel zooming")]
+    [SerializeField] private bool _enableZoom = true;
+
+    [FoldoutGroup("Pan Settings/Zoom")]
+    [Tooltip("Minimum zoom scale")]
+    [Range(0.1f, 1f)]
+    [SerializeField] private float _minZoom = 0.5f;
+
+    [FoldoutGroup("Pan Settings/Zoom")]
+    [Tooltip("Maximum zoom scale")]
+    [Range(1f, 5f)]
+    [SerializeField] private float _maxZoom = 2f;
+
+    [FoldoutGroup("Pan Settings/Zoom")]
+    [Tooltip("Zoom speed multiplier")]
+    [SerializeField] private float _zoomSpeed = 0.1f;
+
     [FoldoutGroup("Pan Settings/Centering")]
     [Tooltip("Center on node when purchased")]
     [SerializeField] private bool _centerOnPurchase = true;
@@ -70,6 +88,10 @@ public class SkillTreePanel : PurchasablePanel
     [Tooltip("Ease type for center animation")]
     [SerializeField] private Ease _centerEaseType = Ease.OutCubic;
 
+    [FoldoutGroup("Pan Settings/Centering")]
+    [Tooltip("Reset pan/zoom to first node when panel opens (otherwise remembers last position)")]
+    [SerializeField] private bool _resetOnOpen = true;
+
     [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private List<SkillNodeDisplay> _skillNodes = new List<SkillNodeDisplay>();
 
@@ -82,6 +104,11 @@ public class SkillTreePanel : PurchasablePanel
     private Vector2 _minBounds;
     private Vector2 _maxBounds;
     private Tween _centerTween;
+
+    // Stored pan/zoom state
+    private Vector2 _storedPanPosition;
+    private float _storedZoomScale = 1f;
+    private Vector2 _initialContentPosition;
 
     protected override void Start()
     {
@@ -104,6 +131,12 @@ public class SkillTreePanel : PurchasablePanel
             return;
 
         DebugManager.Log($"[SkillTreePanel] Initializing skill tree: {GetTreeName()}");
+
+        // Store initial content position for reset
+        if (_contentTransform != null)
+        {
+            _initialContentPosition = _contentTransform.anchoredPosition;
+        }
 
         // Find all skill node displays in children
         FindAllSkillNodes();
@@ -305,15 +338,25 @@ public class SkillTreePanel : PurchasablePanel
         }
     }
 
-    #region Panning
+    #region Panning & Zooming
 
     /// <summary>
-    /// Handle right mouse button panning input
+    /// Handle right mouse button panning and scroll wheel zoom input
     /// </summary>
     private void HandlePanningInput()
     {
         if (_contentTransform == null)
             return;
+
+        // Handle zoom
+        if (_enableZoom)
+        {
+            float scrollDelta = Input.mouseScrollDelta.y;
+            if (Mathf.Abs(scrollDelta) > 0.01f)
+            {
+                HandleZoom(scrollDelta);
+            }
+        }
 
         // Start dragging
         if (Input.GetMouseButtonDown(1))
@@ -330,7 +373,7 @@ public class SkillTreePanel : PurchasablePanel
             // Apply pan speed
             delta *= _panSpeed;
 
-            // Move content (invert delta for natural drag feel)
+            // Move content
             _contentTransform.anchoredPosition += delta;
 
             // Clamp to bounds if enabled
@@ -345,6 +388,29 @@ public class SkillTreePanel : PurchasablePanel
         else if (Input.GetMouseButtonUp(1))
         {
             _isRightMouseDragging = false;
+        }
+    }
+
+    /// <summary>
+    /// Handle zoom input
+    /// </summary>
+    private void HandleZoom(float scrollDelta)
+    {
+        if (_contentTransform == null)
+            return;
+
+        // Calculate new scale
+        float currentScale = _contentTransform.localScale.x;
+        float newScale = currentScale + (scrollDelta * _zoomSpeed);
+        newScale = Mathf.Clamp(newScale, _minZoom, _maxZoom);
+
+        // Apply scale
+        _contentTransform.localScale = Vector3.one * newScale;
+
+        // Recalculate bounds after zoom if enabled
+        if (_useBounds)
+        {
+            _contentTransform.anchoredPosition = ClampToBounds(_contentTransform.anchoredPosition);
         }
     }
 
@@ -390,28 +456,42 @@ public class SkillTreePanel : PurchasablePanel
 
     /// <summary>
     /// Clamp position to stay within bounds
+    /// Prevents panning beyond the edges of the content
     /// </summary>
     private Vector2 ClampToBounds(Vector2 position)
     {
-        if (_centerPoint == null)
+        if (_contentTransform == null)
             return position;
 
-        // Get the viewport size (center point's parent should be the viewport)
-        RectTransform viewport = _centerPoint.parent as RectTransform;
+        // Get the viewport (parent of content)
+        RectTransform viewport = _contentTransform.parent as RectTransform;
         if (viewport == null)
             return position;
 
+        // Get current scale
+        float scale = _contentTransform.localScale.x;
+
+        // Calculate scaled content bounds
+        Vector2 scaledMin = _minBounds * scale;
+        Vector2 scaledMax = _maxBounds * scale;
+
+        // Viewport size
         Vector2 viewportSize = viewport.rect.size;
 
-        // Calculate how far we can pan based on content size vs viewport size
-        // We want to prevent panning beyond the bounds
-        float minX = -_maxBounds.x + viewportSize.x * 0.5f;
-        float maxX = -_minBounds.x - viewportSize.x * 0.5f;
-        float minY = -_maxBounds.y + viewportSize.y * 0.5f;
-        float maxY = -_minBounds.y - viewportSize.y * 0.5f;
+        // Calculate content size
+        Vector2 contentSize = (scaledMax - scaledMin);
 
-        position.x = Mathf.Clamp(position.x, minX, maxX);
-        position.y = Mathf.Clamp(position.y, minY, maxY);
+        // Calculate max allowed offset in each direction
+        // If content is smaller than viewport, don't clamp (allow centering)
+        float maxOffsetX = Mathf.Max(0, (contentSize.x - viewportSize.x) * 0.5f);
+        float maxOffsetY = Mathf.Max(0, (contentSize.y - viewportSize.y) * 0.5f);
+
+        // Calculate the center offset (where content would be centered)
+        Vector2 contentCenter = (scaledMin + scaledMax) * 0.5f;
+
+        // Clamp position relative to content center
+        position.x = Mathf.Clamp(position.x, -contentCenter.x - maxOffsetX, -contentCenter.x + maxOffsetX);
+        position.y = Mathf.Clamp(position.y, -contentCenter.y - maxOffsetY, -contentCenter.y + maxOffsetY);
 
         return position;
     }
@@ -550,11 +630,83 @@ public class SkillTreePanel : PurchasablePanel
     {
         base.OnOpen(); // Start periodic refresh and purchase loops for all child displays
         RefreshTreeState();
+
+        // Handle pan/zoom state on open
+        if (_contentTransform != null)
+        {
+            if (_resetOnOpen)
+            {
+                // Reset to first node or initial position
+                ResetPanAndZoom();
+            }
+            else
+            {
+                // Restore last position/zoom
+                RestorePanAndZoom();
+            }
+        }
     }
 
     protected override void OnClose()
     {
         base.OnClose(); // Stop periodic refresh and purchase loops for all child displays
+
+        // Store current pan/zoom state
+        StorePanAndZoom();
+    }
+
+    /// <summary>
+    /// Store current pan and zoom state
+    /// </summary>
+    private void StorePanAndZoom()
+    {
+        if (_contentTransform != null)
+        {
+            _storedPanPosition = _contentTransform.anchoredPosition;
+            _storedZoomScale = _contentTransform.localScale.x;
+            DebugManager.Log($"[SkillTreePanel] Stored pan/zoom: pos={_storedPanPosition}, scale={_storedZoomScale}");
+        }
+    }
+
+    /// <summary>
+    /// Restore previously stored pan and zoom state
+    /// </summary>
+    private void RestorePanAndZoom()
+    {
+        if (_contentTransform != null)
+        {
+            _contentTransform.anchoredPosition = _storedPanPosition;
+            _contentTransform.localScale = Vector3.one * _storedZoomScale;
+            DebugManager.Log($"[SkillTreePanel] Restored pan/zoom: pos={_storedPanPosition}, scale={_storedZoomScale}");
+        }
+    }
+
+    /// <summary>
+    /// Reset pan to first node and zoom to 1.0
+    /// </summary>
+    private void ResetPanAndZoom()
+    {
+        if (_contentTransform == null)
+            return;
+
+        // Reset zoom to 1.0
+        _contentTransform.localScale = Vector3.one;
+
+        // Center on first node if available
+        if (_skillNodes != null && _skillNodes.Count > 0)
+        {
+            SkillNodeDisplay firstNode = _skillNodes[0];
+            if (firstNode != null)
+            {
+                CenterOnNode(firstNode, animated: false);
+                DebugManager.Log($"[SkillTreePanel] Reset to first node: {firstNode.name}");
+                return;
+            }
+        }
+
+        // Otherwise reset to initial position
+        _contentTransform.anchoredPosition = _initialContentPosition;
+        DebugManager.Log($"[SkillTreePanel] Reset to initial position: {_initialContentPosition}");
     }
 
     private void OnDestroy()

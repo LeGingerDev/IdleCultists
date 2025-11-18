@@ -392,16 +392,12 @@ public class SkillTreePanel : PurchasablePanel
     }
 
     /// <summary>
-    /// Handle zoom input with zoom-to-viewport-center behavior
+    /// Handle zoom input with zoom-to-mouse-cursor behavior
+    /// Zooms toward the point under the mouse cursor for natural interaction
     /// </summary>
     private void HandleZoom(float scrollDelta)
     {
         if (_contentTransform == null)
-            return;
-
-        // Get viewport (parent of content)
-        RectTransform viewport = _contentTransform.parent as RectTransform;
-        if (viewport == null)
             return;
 
         // Calculate new scale
@@ -413,35 +409,36 @@ public class SkillTreePanel : PurchasablePanel
         if (Mathf.Approximately(oldScale, newScale))
             return;
 
-        // Get the viewport center in screen space (this is our zoom focal point)
-        Vector2 viewportCenter = new Vector2(viewport.rect.width * 0.5f, viewport.rect.height * 0.5f);
-
-        // Convert viewport center to content's local space BEFORE scaling
+        // Get mouse position and convert to content's local space BEFORE scaling
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _contentTransform,
-            RectTransformUtility.WorldToScreenPoint(null, viewport.TransformPoint(viewportCenter)),
+            Input.mousePosition,
             null,
             out localPoint
         );
 
+        // Store the mouse screen position
+        Vector2 mouseScreenPos = Input.mousePosition;
+
         // Apply scale
         _contentTransform.localScale = Vector3.one * newScale;
 
-        // After scaling, that same local point has moved in screen space
-        // We need to adjust content position so it appears stationary
+        // After scaling, calculate where that local point is now in screen space
         Vector2 newScreenPoint = RectTransformUtility.WorldToScreenPoint(
             null,
             _contentTransform.TransformPoint(localPoint)
         );
-        Vector2 oldScreenPoint = RectTransformUtility.WorldToScreenPoint(
-            null,
-            viewport.TransformPoint(viewportCenter)
-        );
 
-        // Calculate the offset and adjust content position
-        Vector2 screenDelta = oldScreenPoint - newScreenPoint;
-        _contentTransform.anchoredPosition += screenDelta / viewport.lossyScale.x;
+        // Calculate the offset and adjust content position to keep point under mouse
+        Vector2 screenDelta = mouseScreenPos - newScreenPoint;
+
+        // Get the viewport to account for canvas scaling
+        RectTransform viewport = _contentTransform.parent as RectTransform;
+        if (viewport != null)
+        {
+            _contentTransform.anchoredPosition += screenDelta / viewport.lossyScale.x;
+        }
 
         // Clamp to bounds if enabled
         if (_useBounds)

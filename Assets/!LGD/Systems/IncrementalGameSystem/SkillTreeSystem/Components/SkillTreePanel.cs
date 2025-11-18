@@ -199,12 +199,13 @@ public class SkillTreePanel : SlidePanel
     {
         DebugManager.Log($"[SkillTreePanel] Refreshing tree state for: {GetTreeName()}");
 
-        // Update all node visual states
+        // Update all node UI states (includes visual state, button state, costs, etc.)
         foreach (SkillNodeDisplay node in _skillNodes)
         {
             if (node != null)
             {
-                node.UpdateVisualState();
+                // Refresh updates all UI elements including visual state
+                node.Refresh();
 
                 // Re-evaluate visibility if using HideUntilUnlocked mode
                 if (_configuration != null && _configuration.displayMode == SkillNodeDisplayMode.HideUntilUnlocked)

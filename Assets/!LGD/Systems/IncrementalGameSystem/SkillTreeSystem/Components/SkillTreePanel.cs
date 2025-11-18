@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 /// <summary>
 /// Main controller for a skill tree panel
@@ -29,6 +30,46 @@ public class SkillTreePanel : SlidePanel
     [Tooltip("Sprite to use for connection lines")]
     [SerializeField] private Sprite _lineSprite;
 
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Enable right-click panning of the skill tree")]
+    [SerializeField] private bool _enablePanning = true;
+
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Content container (parent of all skill nodes)")]
+    [SerializeField] private RectTransform _contentTransform;
+
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Center point reference for node centering (viewport center)")]
+    [SerializeField] private RectTransform _centerPoint;
+
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Speed multiplier for panning")]
+    [SerializeField] private float _panSpeed = 1f;
+
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Use bounds checking to prevent panning too far")]
+    [SerializeField] private bool _useBounds = true;
+
+    [FoldoutGroup("Pan Settings")]
+    [Tooltip("Extra padding around content bounds")]
+    [SerializeField] private float _boundsPadding = 200f;
+
+    [FoldoutGroup("Pan Settings/Centering")]
+    [Tooltip("Center on node when purchased")]
+    [SerializeField] private bool _centerOnPurchase = true;
+
+    [FoldoutGroup("Pan Settings/Centering")]
+    [Tooltip("Only center if node is beyond this distance from center (0 = always center)")]
+    [SerializeField] private float _centerDistanceThreshold = 300f;
+
+    [FoldoutGroup("Pan Settings/Centering")]
+    [Tooltip("Duration of center animation")]
+    [SerializeField] private float _centerAnimationDuration = 0.5f;
+
+    [FoldoutGroup("Pan Settings/Centering")]
+    [Tooltip("Ease type for center animation")]
+    [SerializeField] private Ease _centerEaseType = Ease.OutCubic;
+
     [FoldoutGroup("Debug")]
     [SerializeField, ReadOnly] private List<SkillNodeDisplay> _skillNodes = new List<SkillNodeDisplay>();
 
@@ -36,6 +77,11 @@ public class SkillTreePanel : SlidePanel
     [SerializeField, ReadOnly] private List<SkillConnectionLine> _connectionLines = new List<SkillConnectionLine>();
 
     private bool _isInitialized = false;
+    private bool _isRightMouseDragging;
+    private Vector2 _lastMousePosition;
+    private Vector2 _minBounds;
+    private Vector2 _maxBounds;
+    private Tween _centerTween;
 
     protected override void Start()
     {
@@ -43,6 +89,13 @@ public class SkillTreePanel : SlidePanel
         InitializeTree();
     }
 
+    private void Update()
+    {
+        if (!_isInitialized || !_enablePanning)
+            return;
+
+        HandlePanningInput();
+    }
 
     [Button("Initialize Tree"), FoldoutGroup("Debug")]
     private void InitializeTree()
@@ -60,6 +113,9 @@ public class SkillTreePanel : SlidePanel
 
         // Apply display mode to all nodes
         ApplyDisplayMode();
+
+        // Calculate bounds for panning
+        CalculateBounds();
 
         // Refresh initial state
         RefreshTreeState();
@@ -249,6 +305,192 @@ public class SkillTreePanel : SlidePanel
         }
     }
 
+    #region Panning
+
+    /// <summary>
+    /// Handle right mouse button panning input
+    /// </summary>
+    private void HandlePanningInput()
+    {
+        if (_contentTransform == null)
+            return;
+
+        // Start dragging
+        if (Input.GetMouseButtonDown(1))
+        {
+            _isRightMouseDragging = true;
+            _lastMousePosition = Input.mousePosition;
+        }
+        // Update drag
+        else if (Input.GetMouseButton(1) && _isRightMouseDragging)
+        {
+            Vector2 currentMousePosition = Input.mousePosition;
+            Vector2 delta = currentMousePosition - _lastMousePosition;
+
+            // Apply pan speed
+            delta *= _panSpeed;
+
+            // Move content (invert delta for natural drag feel)
+            _contentTransform.anchoredPosition += delta;
+
+            // Clamp to bounds if enabled
+            if (_useBounds)
+            {
+                _contentTransform.anchoredPosition = ClampToBounds(_contentTransform.anchoredPosition);
+            }
+
+            _lastMousePosition = currentMousePosition;
+        }
+        // Stop dragging
+        else if (Input.GetMouseButtonUp(1))
+        {
+            _isRightMouseDragging = false;
+        }
+    }
+
+    /// <summary>
+    /// Calculate bounds based on all skill node positions
+    /// </summary>
+    [Button("Recalculate Bounds"), FoldoutGroup("Debug")]
+    private void CalculateBounds()
+    {
+        if (_contentTransform == null || _skillNodes.Count == 0)
+        {
+            DebugManager.Warning("[SkillTreePanel] Cannot calculate bounds: missing content or no nodes");
+            return;
+        }
+
+        // Find the min/max positions of all nodes
+        Vector2 min = Vector2.one * float.MaxValue;
+        Vector2 max = Vector2.one * float.MinValue;
+
+        foreach (SkillNodeDisplay node in _skillNodes)
+        {
+            if (node == null)
+                continue;
+
+            RectTransform nodeRect = node.GetComponent<RectTransform>();
+            if (nodeRect == null)
+                continue;
+
+            Vector2 pos = nodeRect.anchoredPosition;
+            min = Vector2.Min(min, pos);
+            max = Vector2.Max(max, pos);
+        }
+
+        // Add padding
+        min -= Vector2.one * _boundsPadding;
+        max += Vector2.one * _boundsPadding;
+
+        _minBounds = min;
+        _maxBounds = max;
+
+        DebugManager.Log($"[SkillTreePanel] Calculated bounds: Min={_minBounds}, Max={_maxBounds}");
+    }
+
+    /// <summary>
+    /// Clamp position to stay within bounds
+    /// </summary>
+    private Vector2 ClampToBounds(Vector2 position)
+    {
+        if (_centerPoint == null)
+            return position;
+
+        // Get the viewport size (center point's parent should be the viewport)
+        RectTransform viewport = _centerPoint.parent as RectTransform;
+        if (viewport == null)
+            return position;
+
+        Vector2 viewportSize = viewport.rect.size;
+
+        // Calculate how far we can pan based on content size vs viewport size
+        // We want to prevent panning beyond the bounds
+        float minX = -_maxBounds.x + viewportSize.x * 0.5f;
+        float maxX = -_minBounds.x - viewportSize.x * 0.5f;
+        float minY = -_maxBounds.y + viewportSize.y * 0.5f;
+        float maxY = -_minBounds.y - viewportSize.y * 0.5f;
+
+        position.x = Mathf.Clamp(position.x, minX, maxX);
+        position.y = Mathf.Clamp(position.y, minY, maxY);
+
+        return position;
+    }
+
+    /// <summary>
+    /// Center the view on a specific skill node
+    /// </summary>
+    public void CenterOnNode(SkillNodeDisplay node, bool animated = true)
+    {
+        if (_contentTransform == null || _centerPoint == null || node == null)
+        {
+            DebugManager.Warning("[SkillTreePanel] Cannot center: missing references");
+            return;
+        }
+
+        // Get the node's RectTransform
+        RectTransform nodeRect = node.GetComponent<RectTransform>();
+        if (nodeRect == null)
+            return;
+
+        // Calculate the offset needed to move the node to the center point
+        // The node's position is relative to the content transform
+        Vector2 nodeLocalPos = nodeRect.anchoredPosition;
+
+        // The center point's position in the content's local space
+        Vector2 targetOffset = -nodeLocalPos;
+
+        // Clamp to bounds if enabled
+        if (_useBounds)
+        {
+            targetOffset = ClampToBounds(targetOffset);
+        }
+
+        // Kill any existing center animation
+        _centerTween?.Kill();
+
+        if (animated)
+        {
+            // Animate to the target position
+            _centerTween = _contentTransform.DOAnchorPos(targetOffset, _centerAnimationDuration)
+                .SetEase(_centerEaseType);
+        }
+        else
+        {
+            // Instant move
+            _contentTransform.anchoredPosition = targetOffset;
+        }
+
+        DebugManager.Log($"[SkillTreePanel] Centering on node: {node.name}");
+    }
+
+    /// <summary>
+    /// Check if a node is far from center and needs centering
+    /// </summary>
+    private bool ShouldCenterOnNode(SkillNodeDisplay node)
+    {
+        if (!_centerOnPurchase || _centerPoint == null || node == null)
+            return false;
+
+        // If threshold is 0, always center
+        if (_centerDistanceThreshold <= 0f)
+            return true;
+
+        // Get the node's RectTransform
+        RectTransform nodeRect = node.GetComponent<RectTransform>();
+        if (nodeRect == null)
+            return false;
+
+        // Calculate distance from node to center point in screen space
+        Vector3 nodeScreenPos = RectTransformUtility.WorldToScreenPoint(null, nodeRect.position);
+        Vector3 centerScreenPos = RectTransformUtility.WorldToScreenPoint(null, _centerPoint.position);
+
+        float distance = Vector2.Distance(nodeScreenPos, centerScreenPos);
+
+        return distance > _centerDistanceThreshold;
+    }
+
+    #endregion
+
     /// <summary>
     /// Listen for purchasable purchases to refresh tree
     /// </summary>
@@ -270,7 +512,15 @@ public class SkillTreePanel : SlidePanel
     public void OnSkillNodePurchased(object sender, BasePurchasable blueprint)
     {
         DebugManager.Log($"[SkillTreePanel] Skill node purchased: {blueprint?.displayName}");
-        // Tree should already be refreshed by the node itself, but we can add extra logic here if needed
+
+        // Check if we should center on this node
+        if (sender is SkillNodeDisplay nodeDisplay)
+        {
+            if (ShouldCenterOnNode(nodeDisplay))
+            {
+                CenterOnNode(nodeDisplay, animated: true);
+            }
+        }
     }
 
     private bool IsSkillInThisTree(BasePurchasable blueprint)
@@ -304,6 +554,12 @@ public class SkillTreePanel : SlidePanel
     protected override void OnClose()
     {
         // Child nodes automatically handle their own refresh via OnEnable/OnDisable
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up any active tweens
+        _centerTween?.Kill();
     }
 
 #if UNITY_EDITOR

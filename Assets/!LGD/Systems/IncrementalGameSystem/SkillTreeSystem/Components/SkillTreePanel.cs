@@ -549,11 +549,44 @@ public class SkillTreePanel : SlidePanel
     protected override void OnOpen()
     {
         RefreshTreeState();
+        StartChildrenPeriodicRefresh();
     }
 
     protected override void OnClose()
     {
-        // Child nodes automatically handle their own refresh via OnEnable/OnDisable
+        StopChildrenPeriodicRefresh();
+    }
+
+    /// <summary>
+    /// Start periodic refresh for all skill nodes
+    /// </summary>
+    private void StartChildrenPeriodicRefresh()
+    {
+        foreach (SkillNodeDisplay node in _skillNodes)
+        {
+            if (node != null)
+            {
+                node.StartPeriodicRefresh();
+            }
+        }
+
+        DebugManager.Log($"[SkillTreePanel] Started periodic refresh for {_skillNodes.Count} nodes");
+    }
+
+    /// <summary>
+    /// Stop periodic refresh for all skill nodes
+    /// </summary>
+    private void StopChildrenPeriodicRefresh()
+    {
+        foreach (SkillNodeDisplay node in _skillNodes)
+        {
+            if (node != null)
+            {
+                node.StopPeriodicRefresh();
+            }
+        }
+
+        DebugManager.Log($"[SkillTreePanel] Stopped periodic refresh for {_skillNodes.Count} nodes");
     }
 
     private void OnDestroy()

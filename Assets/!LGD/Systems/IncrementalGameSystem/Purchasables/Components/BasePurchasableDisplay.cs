@@ -71,14 +71,12 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     {
         base.OnEnable(); // This registers event handlers with ServiceBus
         DebugManager.Log($"[IncrementalGame] OnEnable called for {this.GetType().Name} on {gameObject.name} - Event handlers should now be registered");
-        StartPeriodicRefresh();
     }
 
     protected virtual void OnDisable()
     {
         base.OnDisable(); // This unregisters event handlers
         DebugManager.Log($"[IncrementalGame] OnDisable called for {this.GetType().Name} on {gameObject.name} - Event handlers unregistered");
-        StopPeriodicRefresh();
     }
 
     public virtual void Initialise()
@@ -268,9 +266,10 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     }
 
     /// <summary>
-    /// Start the periodic refresh coroutine (only when display is active)
+    /// Start the periodic refresh coroutine
+    /// Should be called by parent panels when they open (e.g., SkillTreePanel.OnOpen)
     /// </summary>
-    private void StartPeriodicRefresh()
+    public void StartPeriodicRefresh()
     {
         if (_refreshInterval <= 0f)
         {
@@ -283,8 +282,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     /// <summary>
     /// Stop the periodic refresh coroutine
+    /// Should be called by parent panels when they close (e.g., SkillTreePanel.OnClose)
     /// </summary>
-    private void StopPeriodicRefresh()
+    public void StopPeriodicRefresh()
     {
         if (_periodicRefreshCoroutine != null)
         {
@@ -295,8 +295,8 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     /// <summary>
     /// Coroutine that periodically refreshes the display
-    /// This ensures the UI updates when resources change off-screen
-    /// Only runs when the display is active in hierarchy (OnEnable/OnDisable manages this)
+    /// This ensures the UI updates when resources change (e.g., becoming unaffordable after purchase)
+    /// Managed by parent panels via StartPeriodicRefresh/StopPeriodicRefresh
     /// </summary>
     private IEnumerator PeriodicRefreshCoroutine()
     {

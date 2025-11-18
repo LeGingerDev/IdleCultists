@@ -15,16 +15,24 @@ public class SkillNodeDisplay : BasePurchasableDisplay
     private BasePurchasable _skillBlueprint;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Lock Overlay")]
-    [Tooltip("Image overlay shown when skill is locked (only visible in AlwaysShowLocked mode)")]
+    [Tooltip("Lock overlay shown when prerequisites not met (only visible in AlwaysShowLocked mode)")]
     private GameObject _lockOverlay;
+
+    [SerializeField, FoldoutGroup("Skill Node Settings/Icon")]
+    [Tooltip("Icon image that shows skill content (hidden when lock overlay is visible)")]
+    private GameObject _iconObject;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
     [Tooltip("Target image to apply state sprites to")]
     private Image _stateImage;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
-    [Tooltip("Sprite when skill is locked (prerequisites not met or can't afford)")]
+    [Tooltip("Sprite when skill is locked (prerequisites not met)")]
     private Sprite _lockedSprite;
+
+    [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
+    [Tooltip("Sprite when can't afford (prerequisites met but insufficient resources)")]
+    private Sprite _cantAffordSprite;
 
     [SerializeField, FoldoutGroup("Skill Node Settings/Visual States")]
     [Tooltip("Sprite when skill is purchasable (can afford and prerequisites met)")]
@@ -166,8 +174,11 @@ public class SkillNodeDisplay : BasePurchasableDisplay
         if (_skillBlueprint.GetPurchaseCount() > 0)
             return SkillNodeState.Purchased;
 
-        if (!_skillBlueprint.ArePrerequisitesMet() || !_skillBlueprint.CanAfford())
+        if (!_skillBlueprint.ArePrerequisitesMet())
             return SkillNodeState.Locked;
+
+        if (!_skillBlueprint.CanAfford())
+            return SkillNodeState.CantAfford;
 
         return SkillNodeState.Purchasable;
     }
@@ -180,6 +191,7 @@ public class SkillNodeDisplay : BasePurchasableDisplay
         Sprite targetSprite = state switch
         {
             SkillNodeState.Locked => _lockedSprite,
+            SkillNodeState.CantAfford => _cantAffordSprite,
             SkillNodeState.Purchasable => _purchasableSprite,
             SkillNodeState.Purchased => _purchasedSprite,
             SkillNodeState.Maxed => _maxedSprite,
@@ -194,11 +206,8 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 
     private void UpdateLockOverlay(SkillNodeState state)
     {
-        if (_lockOverlay == null)
-            return;
-
         // Only show lock overlay if:
-        // 1. The state is Locked
+        // 1. The state is Locked (prerequisites not met)
         // 2. The display mode is AlwaysShowLocked (otherwise the node would be hidden)
         bool showLock = state == SkillNodeState.Locked;
 
@@ -208,7 +217,18 @@ public class SkillNodeDisplay : BasePurchasableDisplay
             showLock = showLock && displayMode == SkillNodeDisplayMode.AlwaysShowLocked;
         }
 
-        _lockOverlay.SetActive(showLock);
+        // Show/hide lock overlay
+        if (_lockOverlay != null)
+        {
+            _lockOverlay.SetActive(showLock);
+        }
+
+        // Icon visibility is opposite of lock overlay
+        // Icon shows when lock is hidden and vice versa
+        if (_iconObject != null)
+        {
+            _iconObject.SetActive(!showLock);
+        }
     }
 
     /// <summary>
@@ -256,7 +276,8 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 /// </summary>
 public enum SkillNodeState
 {
-    Locked,         // Prerequisites not met or can't afford
+    Locked,         // Prerequisites not met
+    CantAfford,     // Prerequisites met but insufficient resources
     Purchasable,    // Can be purchased right now
     Purchased,      // Skill is owned
     Maxed           // Skill is maxed out

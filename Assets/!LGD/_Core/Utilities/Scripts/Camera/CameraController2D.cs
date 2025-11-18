@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Sirenix.OdinInspector;
 using DG.Tweening;
 using LGD.Core.Singleton;
@@ -112,6 +113,7 @@ public class CameraController2D : MonoSingleton<CameraController2D>
     private void HandleMovementInput()
     {
         if (_isRightMouseDragging) return;
+        if (IsPointerOverUI()) return;
 
         Vector3 inputDirection = GetMovementDirection();
 
@@ -120,6 +122,14 @@ public class CameraController2D : MonoSingleton<CameraController2D>
             ClearLockOn();
             MoveCamera(inputDirection);
         }
+    }
+
+    /// <summary>
+    /// Check if the mouse pointer is currently over UI
+    /// </summary>
+    private bool IsPointerOverUI()
+    {
+        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 
     private Vector3 GetMovementDirection()
@@ -168,6 +178,7 @@ public class CameraController2D : MonoSingleton<CameraController2D>
     private void StartMouseDrag()
     {
         if (_camera == null) return;
+        if (IsPointerOverUI()) return;
 
         Vector3 worldPosition = GetMouseWorldPosition();
         if (worldPosition != Vector3.zero)
@@ -217,6 +228,8 @@ public class CameraController2D : MonoSingleton<CameraController2D>
 
     private void HandleZoomInput()
     {
+        if (IsPointerOverUI()) return;
+
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
 
         if (scrollInput != 0f)

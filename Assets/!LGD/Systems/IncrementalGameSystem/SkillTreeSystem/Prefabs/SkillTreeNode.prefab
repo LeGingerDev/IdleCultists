@@ -320,7 +320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillNodeDisplay
   serializationData:
-    SerializedFormat: 2
+    SerializedFormat: 0
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -334,6 +334,7 @@ MonoBehaviour:
   _showTimesPurchased: 1
   _showButton: 1
   _showCost: 0
+  _refreshInterval: 0.2
   _iconImage: {fileID: 5260426995513619768}
   _displayNameText: {fileID: 0}
   _descriptionText: {fileID: 0}
@@ -401,13 +402,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7825699839382022917}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70e9d1db891870e47a62135fa92df9ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillNodeTooltipTrigger
   serializationData:
-    SerializedFormat: 2
+    SerializedFormat: 0
     SerializedBytes: 
     ReferencedUnityObjects: []
     SerializedBytesString: 
@@ -416,7 +417,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _targetTransform: {fileID: 0}
-  _offset: {x: 50, y: 50}
+  _offset: {x: -70, y: 70}
   _skillNodeDisplay: {fileID: 6305429341919289342}
 --- !u!1 &8411821416180754692
 GameObject:

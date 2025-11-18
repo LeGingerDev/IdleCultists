@@ -36,7 +36,7 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
     [SerializeField] private TextMeshProUGUI _statusText;
 
     [FoldoutGroup("UI References/Status")]
-    [SerializeField] private Image _statusIcon;
+    [SerializeField] private TextMeshProUGUI _statusIcon;
 
     [FoldoutGroup("Visual Settings")]
     [SerializeField] private Color _lockedColor = Color.red;
@@ -46,6 +46,9 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
 
     [FoldoutGroup("Visual Settings")]
     [SerializeField] private Color _purchasedColor = Color.green;
+    [FoldoutGroup("Visual Settings")]
+    [SerializeField] private Color _maxxedColor = Color.green;
+
 
     public override void Show(SkillNodeData data)
     {
@@ -146,7 +149,7 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
             if (data.isMaxedOut)
             {
                 statusMessage = "Maxed Out";
-                statusColor = _purchasedColor;
+                statusColor = _maxxedColor;
             }
             else
             {
@@ -156,17 +159,17 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
         }
         else if (!data.prerequisitesMet)
         {
-            statusMessage = "Locked: Prerequisites not met";
+            statusMessage = "Locked";
             statusColor = _lockedColor;
         }
         else if (!data.canAfford)
         {
-            statusMessage = "Cannot afford";
+            statusMessage = "Can't afford";
             statusColor = _unlockedColor;
         }
         else
         {
-            statusMessage = "Available to purchase";
+            statusMessage = "Click to Purchase";
             statusColor = _unlockedColor;
         }
 

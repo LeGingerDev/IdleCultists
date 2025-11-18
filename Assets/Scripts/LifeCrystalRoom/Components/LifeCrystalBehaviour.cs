@@ -35,6 +35,8 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     private float _resourceMoveDuration = 1f;
 
     [SerializeField, FoldoutGroup("References")]
+    private Animator _anim;
+    [SerializeField, FoldoutGroup("References")]
     private List<EntityDockedPosition> _dockedPositions;
 
     [SerializeField, FoldoutGroup("Jumping")]
@@ -57,7 +59,13 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     private AlphabeticNotation _maxChargeTimeSeconds;
 
     private List<PhysicalResource> _physicalSpawned = new List<PhysicalResource>();
-    
+    protected override void Start()
+    {
+        base.Start();
+        SetSpeed();
+    }
+
+
     [Topic(PickupEventIds.ON_ENTITY_ASSIGNED_TO_ZONE)]
     public void OnEntityAssignToZone(object sender, EntityRuntimeData runtimeData, string zoneId)
     {
@@ -69,6 +77,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+        SetSpeed();
     }
 
     [Topic(PickupEventIds.ON_ENTITY_RECONNECTED_TO_ZONE)]
@@ -83,6 +92,8 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+
+        SetSpeed();
     }
 
 
@@ -105,6 +116,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+        SetSpeed();
     }
 
     [Topic(PickupEventIds.ON_ENTITY_REMOVED_FROM_ZONE)]
@@ -121,6 +133,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (!IsOccupied())
             StopChargingLoop();
+        SetSpeed();
     }
 
     [Button]
@@ -264,11 +277,22 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
             {
                 entity.transform.localScale = new Vector3(GetDirectionToTarget(transform.position, entity.transform.position), 1, 1);
                 entityRigidbody.bodyType = RigidbodyType2D.Dynamic;
-
+                SetSpeed();
                 // Invoke UnityEvent after entity is fully assigned
                 onEntityAssigned?.Invoke(entity);
             })
             ;
+    }
+
+    public void SetSpeed()
+    {
+        if(_dropZone.GetCurrentCapacity() <= 0)
+        {
+            _anim.speed = 0f;
+            return;
+        }
+        
+        _anim.speed = 0.4f * _dropZone.GetCurrentCapacity(); 
     }
 
     #endregion EntityManagement

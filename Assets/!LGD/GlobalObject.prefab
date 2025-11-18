@@ -3413,11 +3413,15 @@ MonoBehaviour:
       magnitude: 0
   - statType: 8
     currentValue:
-      coefficient: 1
+      coefficient: 0
       magnitude: 0
   - statType: 9
     currentValue:
-      coefficient: 5
+      coefficient: 60
+      magnitude: 0
+  - statType: 10
+    currentValue:
+      coefficient: 10
       magnitude: 0
   _forceReinitialize: 0
 --- !u!114 &4384404692286180457
@@ -4496,9 +4500,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: da3f8168f4dc6ec46a17812ba3a5718d, type: 2}
   - {fileID: 11400000, guid: a97b5758a550f934da14c7b59557ef38, type: 2}
   - {fileID: 11400000, guid: b1ec93ab4db7b6a4bb88020fda08a13f, type: 2}
-  - {fileID: 11400000, guid: 053b608a124a01f4bbdc09a7c4a486ae, type: 2}
   - {fileID: 11400000, guid: 3c5799ac776cbff42af6aed61dba5cdb, type: 2}
   - {fileID: 11400000, guid: d83ec3a3611aa884f91d1ec3447733d1, type: 2}
+  - {fileID: 11400000, guid: c5e09efa2d6be534bba5d9aa529ad072, type: 2}
   - {fileID: 11400000, guid: 4f35d1a5081df944c863cf9cd31c772f, type: 2}
   - {fileID: 11400000, guid: 8736f200e511ee442b5e010a0c6b33f5, type: 2}
   - {fileID: 11400000, guid: 3304a2f2ae3545f49b26c8e03fe6be49, type: 2}
@@ -5158,6 +5162,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 639da2e38bfbad14aa248d1f9d9933aa, type: 2}
   - {fileID: 11400000, guid: a191520517f86b34e8c9c756d3662da3, type: 2}
   - {fileID: 11400000, guid: 68050a7cc398de04ca9f3dac492feae2, type: 2}
+  - {fileID: 11400000, guid: e83fe4412009b3e458bf42483253b9ed, type: 2}
+  - {fileID: 11400000, guid: 8215cc46f42c23b4597c347576614f80, type: 2}
   - {fileID: 11400000, guid: 534e7828414ab6646a1766e6fc607f19, type: 2}
 --- !u!1 &5102751526451034048
 GameObject:
@@ -7842,7 +7848,7 @@ MonoBehaviour:
   - Wloth
   - Obito
   - Jotaro
-  - Swash
+  - Culty McCulterson
 --- !u!1 &7870085728073890293
 GameObject:
   m_ObjectHideFlags: 0
@@ -9397,6 +9403,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3246534888240589271, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 9.25415
+      objectReference: {fileID: 0}
+    - target: {fileID: 3246534888240589271, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -8.900024
+      objectReference: {fileID: 0}
     - target: {fileID: 3723239327202186251, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
       propertyPath: m_Alpha
       value: 0
@@ -9405,6 +9419,14 @@ PrefabInstance:
       propertyPath: m_Interactable
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3937404549600529270, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 9.25415
+      objectReference: {fileID: 0}
+    - target: {fileID: 3937404549600529270, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 8.599976
+      objectReference: {fileID: 0}
     - target: {fileID: 4317288999431403382, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9588,6 +9610,14 @@ PrefabInstance:
     - target: {fileID: 6258534751382256043, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7153599278046153329, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -8.900024
+      objectReference: {fileID: 0}
+    - target: {fileID: 7355860287101174068, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 8.599976
       objectReference: {fileID: 0}
     - target: {fileID: 7902733662049670849, guid: d7cdfeaa4697bdc439e2f48ff590e67c, type: 3}
       propertyPath: m_AnchorMax.y

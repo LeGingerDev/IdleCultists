@@ -149,29 +149,21 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected virtual void RefreshDynamicUI()
     {
-        DebugManager.Log($"[IncrementalGame] ========== RefreshDynamicUI CALLED on {gameObject.name} ({this.GetType().Name}) ==========");
 
         // Base dynamic UI updates: times purchased and cost text
         var blueprint = GetDisplayedBlueprint();
 
         if (blueprint == null)
         {
-            DebugManager.Warning($"[IncrementalGame] RefreshDynamicUI: blueprint is NULL on {gameObject.name}");
             return;
         }
 
         int timesPurchased = blueprint.GetPurchaseCount();
-        DebugManager.Log($"[IncrementalGame] Blueprint {blueprint.purchasableId} has been purchased {timesPurchased} times");
 
         string timesText = GetTimesPurchasedDisplayText(timesPurchased);
         if (_showTimesPurchased && _timesPurchasedText != null)
         {
-            DebugManager.Log($"[IncrementalGame] Setting timesPurchasedText on {gameObject.name}: '{timesText}'");
             _timesPurchasedText.text = timesText;
-        }
-        else if (_showTimesPurchased && _timesPurchasedText == null)
-        {
-            DebugManager.Warning($"[IncrementalGame] timesPurchasedText is NULL on {gameObject.name} but _showTimesPurchased is TRUE");
         }
 
         if (_showCost)
@@ -180,17 +172,14 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
             string costString = GetCostDisplayText(cost);
             if (_costText != null)
             {
-                DebugManager.Log($"[IncrementalGame] Setting costText on {gameObject.name}: '{costString}'");
                 _costText.text = costString;
             }
             else
             {
-                DebugManager.Warning($"[IncrementalGame] costText is NULL on {gameObject.name} but _showCost is TRUE");
             }
         }
 
         CanPurchaseSet();
-        DebugManager.Log($"[IncrementalGame] ========== RefreshDynamicUI COMPLETED on {gameObject.name} ==========");
     }
 
     protected virtual void HookUpButton()

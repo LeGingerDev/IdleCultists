@@ -19,18 +19,15 @@ public static class PurchasableExtensions
     {
         if (blueprint == null)
         {
-            DebugManager.Warning("[PurchasableExtensions] GetPurchaseCount called with NULL blueprint");
             return 0;
         }
 
         if (PurchasableManager.Instance == null)
         {
-            DebugManager.Warning($"[PurchasableExtensions] GetPurchaseCount: PurchasableManager.Instance is NULL for {blueprint.purchasableId}");
             return 0;
         }
 
         int count = PurchasableManager.Instance.GetPurchaseCount(blueprint.purchasableId);
-        DebugManager.Log($"[PurchasableExtensions] GetPurchaseCount for '{blueprint.purchasableId}' returned {count}");
         return count;
     }
 
@@ -135,19 +132,16 @@ public static class PurchasableExtensions
     public static bool ExecutePurchase(this BasePurchasable blueprint, bool removeCost = true)
     {
         if (blueprint == null) return false;
-        DebugManager.Log($"[Purchasable] ExecutePurchase called for {blueprint.purchasableId} removeCost={removeCost}");
 
         PurchasableManager pm = PurchasableManager.Instance;
         if (pm == null)
         {
-            DebugManager.Warning($"[Purchasable] PurchasableManager.Instance is null while attempting to purchase {blueprint.purchasableId}");
             return false;
         }
 
         // Check if can purchase more
         if (blueprint.IsMaxedOut())
         {
-            DebugManager.Warning($"[IncrementalGame] Cannot purchase {blueprint.displayName} - already maxed out");
             return false;
         }
 
@@ -156,28 +150,22 @@ public static class PurchasableExtensions
             ResourceManager rm = ResourceManager.Instance;
             if (rm == null)
             {
-                DebugManager.Warning($"[Purchasable] ResourceManager.Instance is null for {blueprint.purchasableId}");
                 return false;
             }
 
             ResourceAmountPair cost = blueprint.GetCostForNextPurchase();
-            DebugManager.Log($"[Purchasable] Cost for next purchase: {cost.resource?.displayName} {cost.amount.FormatWithDecimals()}");
             if (!rm.CanSpend(cost))
             {
-                DebugManager.Log($"[Purchasable] Cannot afford {blueprint.purchasableId}");
                 return false;
             }
 
             if (!rm.RemoveResource(cost))
             {
-                DebugManager.Warning($"[Purchasable] Failed to remove resource for {blueprint.purchasableId}");
                 return false;
             }
-            DebugManager.Log($"[Purchasable] Resource removed for {blueprint.purchasableId}");
         }
 
         bool result = pm.ExecutePurchase(blueprint.purchasableId);
-        DebugManager.Log($"[Purchasable] pm.ExecutePurchase returned {result} for {blueprint.purchasableId}");
         return result;
     }
     #endregion

@@ -4,9 +4,12 @@ using LGD.Core.Singleton;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;
 using Sirenix.OdinInspector;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// UGUI-based admin console for in-game debugging and testing
@@ -40,7 +43,8 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
     private const int TAB_ENTITIES = 1;
     private const int TAB_PURCHASABLES = 2;
     private const int TAB_RESOURCES = 3;
-    private const int TAB_TOOLS = 4;
+    private const int TAB_STATS = 4;
+    private const int TAB_TOOLS = 5;
 
     // Rooms tab state
     private int _selectedRoomIndex = 0;
@@ -262,6 +266,9 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
             case TAB_RESOURCES:
                 DrawResourcesTab();
                 break;
+            case TAB_STATS:
+                DrawStatsTab();
+                break;
             case TAB_TOOLS:
                 DrawToolsTab();
                 break;
@@ -299,6 +306,11 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
         {
             _currentTab = TAB_RESOURCES;
             RefreshResourcesData();
+        }
+
+        if (GUILayout.Button("Stats", _currentTab == TAB_STATS ? _activeTabButtonStyle : _tabButtonStyle, GUILayout.Height(30)))
+        {
+            _currentTab = TAB_STATS;
         }
 
         if (GUILayout.Button("Tools", _currentTab == TAB_TOOLS ? _activeTabButtonStyle : _tabButtonStyle, GUILayout.Height(30)))
@@ -581,6 +593,50 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
         GUILayout.EndScrollView();
     }
 
+    private void DrawStatsTab()
+    {
+        GUILayout.Label("Stats Overview", _headerStyle);
+        GUILayout.Space(5);
+
+        if (StatManager.Instance == null)
+        {
+            GUILayout.Label("StatManager not found.");
+            return;
+        }
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Recalculate Stats", _buttonStyle))
+        {
+            StatManager.Instance.RecalculateAllStats();
+        }
+        GUILayout.EndHorizontal();
+
+        GUILayout.Space(10);
+
+        _scrollPositions[TAB_STATS] = GUILayout.BeginScrollView(_scrollPositions[TAB_STATS], GUILayout.Height(450));
+
+        // Display all stat types and their current values
+        foreach (StatType statType in Enum.GetValues(typeof(StatType)))
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+
+            GUILayout.Label($"{statType}", _headerStyle);
+
+            // Get breakdown
+            StatBreakdown breakdown = StatManager.Instance.GetStatBreakdown(statType);
+
+            GUILayout.Label($"Final Value: {breakdown.FinalValue}");
+            GUILayout.Label($"Base: {breakdown.BaseValue}");
+            GUILayout.Label($"Additive: +{breakdown.AdditiveBonus}");
+            GUILayout.Label($"Multiplicative: x{(1f + breakdown.MultiplicativeBonus):F2} ({(breakdown.MultiplicativeBonus * 100f):F1}%)");
+
+            GUILayout.EndVertical();
+            GUILayout.Space(5);
+        }
+
+        GUILayout.EndScrollView();
+    }
+
     private void DrawToolsTab()
     {
         GUILayout.Label("Development Tools", _headerStyle);
@@ -662,6 +718,14 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
     private void LockRoom(RoomRuntimeData room)
     {
         room.isUnlocked = false;
+
+        // Hide the room visually
+        RoomController controller = RoomManager.Instance.GetRoomController(room.roomId);
+        if (controller != null)
+        {
+            controller.HideRoom();
+        }
+
         StartCoroutine(RoomManager.Instance.ManualSave());
         RefreshRoomsData();
         DebugManager.Log($"[Admin] Locked room: {room.roomId}");
@@ -702,6 +766,9 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
 
     private void ResetAllPurchases()
     {
+        // Destroy all entities
+        DestroyAllEntities();
+
         foreach (var purchasable in _allPurchasables)
         {
             purchasable.purchaseCount = 0;
@@ -709,7 +776,7 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
         }
         SavePurchasables();
         ServiceBus.Publish(EntityEventIds.ON_STATS_RECALCULATION_REQUESTED, this);
-        DebugManager.Log("[Admin] Reset all purchases");
+        DebugManager.Log("[Admin] Reset all purchases and destroyed all entities");
     }
 
     private void MaxAllPurchases()
@@ -761,7 +828,17 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
     private void DeleteAllSaves()
     {
         SaveLoadProviderManager.Instance.DeleteAllSaves();
-        DebugManager.Warning("[Admin] Deleted all saves! Restart the game for changes to take effect.");
+        DebugManager.Warning("[Admin] Deleted all saves! Reloading scene...");
+
+        // Reload current scene to reset everything
+        StartCoroutine(ReloadSceneAfterDelay());
+    }
+
+    private IEnumerator ReloadSceneAfterDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.name);
     }
 
     private void UnlockAllRooms()
@@ -784,10 +861,32 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
         foreach (var room in _allRooms)
         {
             room.isUnlocked = false;
+
+            // Hide each locked room
+            RoomController controller = RoomManager.Instance.GetRoomController(room.roomId);
+            if (controller != null)
+            {
+                controller.HideRoom();
+            }
         }
         StartCoroutine(RoomManager.Instance.ManualSave());
         RefreshRoomsData();
         DebugManager.Log("[Admin] Locked all rooms");
+    }
+
+    private void DestroyAllEntities()
+    {
+        // Find all EntityControllers in the scene and destroy them
+        EntityController[] allEntities = FindObjectsOfType<EntityController>();
+
+        int destroyedCount = allEntities.Length;
+
+        foreach (EntityController entity in allEntities)
+        {
+            Destroy(entity.gameObject);
+        }
+
+        DebugManager.Log($"[Admin] Destroyed {destroyedCount} entities");
     }
 
     #endregion

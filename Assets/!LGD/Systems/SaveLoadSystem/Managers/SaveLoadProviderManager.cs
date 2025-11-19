@@ -185,4 +185,20 @@ public class SaveLoadProviderManager : MonoSingleton<SaveLoadProviderManager>
             provider.ResetData();
         }
     }
+
+    public void DeleteAllSaves()
+    {
+        int deletedCount = 0;
+        foreach (object providerObj in _providers.Values)
+        {
+            // Use reflection to call DeleteFileAndData since it's not on the interface
+            var method = providerObj.GetType().GetMethod("DeleteFileAndData");
+            if (method != null)
+            {
+                method.Invoke(providerObj, null);
+                deletedCount++;
+            }
+        }
+        DebugManager.Warning($"[SaveLoad] <color=red>Deleted {deletedCount} save file(s)</color>");
+    }
 }

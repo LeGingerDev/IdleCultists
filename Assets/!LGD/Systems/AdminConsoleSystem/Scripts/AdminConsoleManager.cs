@@ -761,7 +761,7 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
 
     private void DeleteAllSaves()
     {
-        SaveLoadProviderManager.Instance.DeleteAllSaves();
+        //SaveLoadProviderManager.Instance.DeleteAllSaves();
         DebugManager.Warning("[Admin] Deleted all saves! Restart the game for changes to take effect.");
     }
 

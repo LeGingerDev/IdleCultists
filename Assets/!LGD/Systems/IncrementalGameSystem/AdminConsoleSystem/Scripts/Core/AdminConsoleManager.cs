@@ -64,7 +64,8 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
 
     private void InitializeTabs()
     {
-        AdminGUIStyles.Initialize();
+        // Note: AdminGUIStyles.Initialize() is called lazily in OnGUI via EnsureInitialized()
+        // Cannot initialize GUI styles outside of OnGUI context
 
         // Initialize all tabs
         AddTab(new AdminRoomsTab(), "Rooms");

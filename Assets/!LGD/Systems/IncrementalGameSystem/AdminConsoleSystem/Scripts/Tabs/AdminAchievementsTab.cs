@@ -8,7 +8,7 @@ using UnityEngine;
 public class AdminAchievementsTab : AdminTabBase
 {
     private List<AchievementRuntimeData> _allAchievements = new List<AchievementRuntimeData>();
-    private Dictionary<string, AchievementBlueprint> _achievementBlueprintCache = new Dictionary<string, AchievementBlueprint>();
+    private Dictionary<string, AchievementData> _achievementDataCache = new Dictionary<string, AchievementData>();
 
     public override void RefreshData()
     {
@@ -16,17 +16,17 @@ public class AdminAchievementsTab : AdminTabBase
         {
             _allAchievements = AchievementManager.Instance.GetAllAchievements();
 
-            // Cache blueprints
-            var achievementRegistry = RegistryManager.Instance?.GetRegistry<AchievementBlueprint>() as AchievementRegistry;
+            // Cache achievement data (blueprints)
+            var achievementRegistry = RegistryManager.Instance?.GetRegistry<AchievementData>();
             if (achievementRegistry != null)
             {
-                _achievementBlueprintCache.Clear();
+                _achievementDataCache.Clear();
                 foreach (var runtime in _allAchievements)
                 {
-                    var blueprint = achievementRegistry.GetItemById(runtime.achievementId);
-                    if (blueprint != null)
+                    var data = achievementRegistry.GetItemById(runtime.id);
+                    if (data != null)
                     {
-                        _achievementBlueprintCache[runtime.achievementId] = blueprint;
+                        _achievementDataCache[runtime.id] = data;
                     }
                 }
             }
@@ -68,8 +68,8 @@ public class AdminAchievementsTab : AdminTabBase
         GUILayout.Space(10);
 
         // Stats
-        int completedCount = _allAchievements.Count(a => a.isComplete);
-        GUILayout.Label($"Completed: {completedCount} / {_allAchievements.Count}");
+        int completedCount = _allAchievements.Count(a => a.isUnlocked);
+        GUILayout.Label($"Unlocked: {completedCount} / {_allAchievements.Count}");
 
         GUILayout.Space(10);
 
@@ -77,23 +77,19 @@ public class AdminAchievementsTab : AdminTabBase
 
         foreach (var runtimeData in _allAchievements)
         {
-            if (!_achievementBlueprintCache.TryGetValue(runtimeData.achievementId, out AchievementBlueprint blueprint))
+            if (!_achievementDataCache.TryGetValue(runtimeData.id, out AchievementData data))
                 continue;
 
             GUILayout.BeginVertical(BoxStyle);
 
-            GUILayout.Label($"{blueprint.displayName}", HeaderStyle);
-            GUILayout.Label($"ID: {blueprint.achievementId}");
-            GUILayout.Label($"Status: {(runtimeData.isComplete ? "COMPLETED" : "LOCKED")}");
-
-            if (runtimeData.isComplete)
-            {
-                GUILayout.Label($"Completed At: {runtimeData.completionTime}");
-            }
+            GUILayout.Label($"{data.title}", HeaderStyle);
+            GUILayout.Label($"ID: {data.id}");
+            GUILayout.Label($"Status: {(runtimeData.isUnlocked ? "UNLOCKED" : "LOCKED")}");
+            GUILayout.Label($"Progress: {runtimeData.progress} / {runtimeData.goal} ({runtimeData.GetCompletionPercent():F1}%)");
 
             GUILayout.BeginHorizontal();
 
-            if (runtimeData.isComplete)
+            if (runtimeData.isUnlocked)
             {
                 if (GUILayout.Button("Lock", SmallButtonStyle, GUILayout.Width(80)))
                 {
@@ -119,27 +115,27 @@ public class AdminAchievementsTab : AdminTabBase
 
     private void UnlockAchievement(AchievementRuntimeData runtime)
     {
-        AchievementManager.Instance.CompleteAchievement(runtime.achievementId);
+        AchievementManager.Instance.UnlockAchievement(runtime.id);
         RefreshData();
-        DebugManager.Log($"[Admin] Unlocked achievement: {runtime.achievementId}");
+        DebugManager.Log($"[Admin] Unlocked achievement: {runtime.id}");
     }
 
     private void LockAchievement(AchievementRuntimeData runtime)
     {
-        runtime.isComplete = false;
-        runtime.completionTime = System.DateTime.MinValue;
+        runtime.isUnlocked = false;
+        runtime.progress = new LargeNumbers.AlphabeticNotation(0);
         Console.StartCoroutine(AchievementManager.Instance.ManualSave());
         RefreshData();
-        DebugManager.Log($"[Admin] Locked achievement: {runtime.achievementId}");
+        DebugManager.Log($"[Admin] Locked achievement: {runtime.id}");
     }
 
     private void UnlockAllAchievements()
     {
         foreach (var achievement in _allAchievements)
         {
-            if (!achievement.isComplete)
+            if (!achievement.isUnlocked)
             {
-                AchievementManager.Instance.CompleteAchievement(achievement.achievementId);
+                AchievementManager.Instance.UnlockAchievement(achievement.id);
             }
         }
         RefreshData();
@@ -150,8 +146,8 @@ public class AdminAchievementsTab : AdminTabBase
     {
         foreach (var achievement in _allAchievements)
         {
-            achievement.isComplete = false;
-            achievement.completionTime = System.DateTime.MinValue;
+            achievement.isUnlocked = false;
+            achievement.progress = new LargeNumbers.AlphabeticNotation(0);
         }
         Console.StartCoroutine(AchievementManager.Instance.ManualSave());
         RefreshData();

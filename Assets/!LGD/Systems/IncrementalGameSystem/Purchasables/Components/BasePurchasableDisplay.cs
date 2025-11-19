@@ -353,6 +353,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         if(blueprint.IsMaxedOut())
             return "Maxxed";
         
-        return $"{timesPurchased}/{blueprint.maxPurchases}";
+        if(blueprint.purchaseType == PurchaseType.Infinite)
+            return $"Lv.{timesPurchased}";
+
+        return $"Lv.{timesPurchased}/{blueprint.maxPurchases}";
     }
 }

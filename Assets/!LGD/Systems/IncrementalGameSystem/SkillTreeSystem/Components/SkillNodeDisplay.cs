@@ -147,7 +147,7 @@ public class SkillNodeDisplay : BasePurchasableDisplay
 
         // Check purchase type for button text
         int purchaseCount = _skillBlueprint.GetPurchaseCount();
-        if (purchaseCount > 0 && _skillBlueprint.purchaseType != PurchaseType.OneTime)
+        if (_skillBlueprint.purchaseType != PurchaseType.OneTime)
             return "Upgrade";
 
         return "Purchase";

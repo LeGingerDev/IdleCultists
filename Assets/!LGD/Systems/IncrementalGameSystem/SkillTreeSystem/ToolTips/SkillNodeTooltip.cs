@@ -11,6 +11,7 @@ using UnityEngine.UI;
 /// </summary>
 public class SkillNodeTooltip : ToolTip<SkillNodeData>
 {
+    [FoldoutGroup("UI References")]
     [FoldoutGroup("UI References/Header")]
     [SerializeField] private TextMeshProUGUI _skillNameText;
 

@@ -1,5 +1,6 @@
 using LargeNumbers;
 using LGD.Core;
+using LGD.Core.Events;
 using LGD.Core.Singleton;
 using LGD.ResourceSystem.Managers;
 using LGD.ResourceSystem.Models;

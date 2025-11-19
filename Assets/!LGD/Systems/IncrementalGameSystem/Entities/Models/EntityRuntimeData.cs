@@ -33,7 +33,7 @@ public class EntityRuntimeData
 
     // Parameterless constructor for JSON deserialization
     public EntityRuntimeData() { }
-
+    public EntityRuntimeData()
     public void Initialise(EntityBlueprint blueprint)
     {
         uniqueId = Guid.NewGuid().ToString();

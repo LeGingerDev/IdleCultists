@@ -677,9 +677,9 @@ public class AdminConsoleManager : MonoSingleton<AdminConsoleManager>
         }
 
         // Create new runtime data
-        EntityRuntimeData runtimeData = new EntityRuntimeData(blueprint.id);
-        runtimeData.entityName = blueprint.GetRandomName();
-        runtimeData.worldPosition = SerializableVector3.FromVector3(_spawnPosition);
+        EntityRuntimeData runtimeData = new EntityRuntimeData();
+        runtimeData.Initialise(blueprint);
+        runtimeData.worldPosition = new SerializableVector3(_spawnPosition);
 
         // Spawn the GameObject
         EntityController controller = Instantiate(blueprint.prefab, _spawnPosition, Quaternion.identity);

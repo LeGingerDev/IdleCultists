@@ -109,6 +109,12 @@ public class SummoningPurchasableDisplay : BasePurchasableDisplay
                 AlphabeticNotation maxCapacity = StatManager.Instance.QueryStat(StatType.MaxCapacity);
                 AlphabeticNotation entityCapacity = _blueprint.GetEntityCapacityAmount();
 
+                DebugManager.Log("[Summoning] Attempting to summon " +
+                    $"{_blueprint.displayName} (Current Capacity: {currentCapacity}, " +
+                    $"Pending Capacity: {s_pendingCapacity}, " +
+                    $"Entity Capacity: {entityCapacity}, " +
+                    $"Max Capacity: {maxCapacity})");
+
                 if ((currentCapacity + s_pendingCapacity + entityCapacity) > maxCapacity)
                 {
                     DebugManager.Warning($"[Summoning] Cannot summon {_blueprint.displayName} - capacity would be exceeded");

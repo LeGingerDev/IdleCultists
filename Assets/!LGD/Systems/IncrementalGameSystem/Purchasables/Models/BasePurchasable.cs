@@ -122,15 +122,7 @@ public abstract class BasePurchasable : ScriptableObject
 #endif
     #endregion
 
-    #region Runtime Data Access (Extension Point)
-    /// <summary>
-    /// Get the current purchase count for this purchasable
-    /// This is overridden by extension methods to access the manager
-    /// </summary>
-    public virtual int GetPurchaseCount()
-    {
-        // This will be implemented via extension methods to avoid circular dependency
-        return 0;
-    }
-    #endregion
+    // NOTE: GetPurchaseCount() is implemented as an extension method in PurchasableExtensions.cs
+    // to avoid circular dependencies with PurchasableManager. Do NOT add a virtual method here,
+    // as C# will call the instance method instead of the extension method, causing bugs!
 }

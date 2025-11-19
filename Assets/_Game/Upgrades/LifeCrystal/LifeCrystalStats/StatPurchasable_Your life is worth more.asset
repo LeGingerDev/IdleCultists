@@ -25,4 +25,8 @@ MonoBehaviour:
     growthType: 1
     growthRate: 1.9
   prerequisitePurchasables: []
-  modifierScaling: []
+  modifierScaling:
+  - statType: 7
+    modifierType: 0
+    baseValue: 1
+    growthPerLevel: 1

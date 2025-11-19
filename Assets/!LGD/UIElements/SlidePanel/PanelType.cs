@@ -10,4 +10,5 @@ public enum PanelType
     HallOfAccolades,
     Settings,
     LifeCrystal,
+    TestSkillTree,
 }

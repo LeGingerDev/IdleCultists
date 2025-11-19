@@ -238,6 +238,18 @@ namespace LGD.UIelements.Panels
         // Abstract Hooks
         // --------------------------------------------------------------------
 
+        [Button]
+        public void ForceOpen()
+        {
+            ShowPanel();
+        }
+
+        [Button]
+        public void ForceClose()
+        {
+            HidePanel();
+        }
+
         protected abstract void OnOpen();
         protected abstract void OnClose();
     }

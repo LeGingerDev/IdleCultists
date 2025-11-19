@@ -34,6 +34,11 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     [SerializeField, FoldoutGroup("UI Options")]
     protected bool _showCost = true;
 
+    [SerializeField, FoldoutGroup("Refresh Settings")]
+    [Tooltip("How often to refresh UI state (in seconds). Set to 0 to disable periodic refresh.")]
+    [Range(0f, 1f)]
+    protected float _refreshInterval = 0.2f;
+
     [SerializeField, FoldoutGroup("UI References"), ShowIf(nameof(_showIcon))]
     protected Image _iconImage;
 
@@ -56,10 +61,23 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     protected TextMeshProUGUI _costText;
 
     private Coroutine _canPurchaseLoopCoroutine;
+    private Coroutine _periodicRefreshCoroutine;
 
     // Allow derived classes to expose the blueprint this display represents.
     // Concrete displays should override this to return their blueprint field.
     protected virtual BasePurchasable GetDisplayedBlueprint() { return null; }
+
+    protected virtual void OnEnable()
+    {
+        base.OnEnable(); // This registers event handlers with ServiceBus
+        DebugManager.Log($"[IncrementalGame] OnEnable called for {this.GetType().Name} on {gameObject.name} - Event handlers should now be registered");
+    }
+
+    protected virtual void OnDisable()
+    {
+        base.OnDisable(); // This unregisters event handlers
+        DebugManager.Log($"[IncrementalGame] OnDisable called for {this.GetType().Name} on {gameObject.name} - Event handlers unregistered");
+    }
 
     public virtual void Initialise()
     {
@@ -80,7 +98,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         }
 
         HookUpButton();
-        StartPurchaseLoop();
     }
 
     protected void ApplyUiToggles()
@@ -132,36 +149,33 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected virtual void RefreshDynamicUI()
     {
+
         // Base dynamic UI updates: times purchased and cost text
         var blueprint = GetDisplayedBlueprint();
 
-        int timesPurchased = 0;
-        if (blueprint != null)
-            timesPurchased = blueprint.GetPurchaseCount();
+        if (blueprint == null)
+        {
+            return;
+        }
+
+        int timesPurchased = blueprint.GetPurchaseCount();
 
         string timesText = GetTimesPurchasedDisplayText(timesPurchased);
         if (_showTimesPurchased && _timesPurchasedText != null)
         {
-            DebugManager.Log($"[IncrementalGame] Setting timesPurchasedText on {gameObject.name}: {timesText}");
             _timesPurchasedText.text = timesText;
-        }
-        else if (_showTimesPurchased && _timesPurchasedText == null)
-        {
-            DebugManager.Warning($"[IncrementalGame] timesPurchasedText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
         }
 
         if (_showCost)
         {
-            ResourceAmountPair cost = blueprint != null ? blueprint.GetCurrentCostSafe() : new ResourceAmountPair(null, AlphabeticNotation.zero);
+            ResourceAmountPair cost = blueprint.GetCurrentCostSafe();
             string costString = GetCostDisplayText(cost);
             if (_costText != null)
             {
-                DebugManager.Log($"[IncrementalGame] Setting costText on {gameObject.name}: {costString}");
                 _costText.text = costString;
             }
             else
             {
-                DebugManager.Warning($"[IncrementalGame] costText is null on {gameObject.name} for blueprint {blueprint?.purchasableId}");
             }
         }
 
@@ -239,23 +253,78 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         }
     }
 
+    /// <summary>
+    /// Start the periodic refresh coroutine
+    /// Should be called by parent panels when they open (e.g., PurchasablePanel.OnOpen)
+    /// </summary>
+    public void StartPeriodicRefresh()
+    {
+        if (_refreshInterval <= 0f)
+        {
+            return; // Periodic refresh disabled
+        }
+
+        StopPeriodicRefresh(); // Stop existing coroutine if any
+        _periodicRefreshCoroutine = StartCoroutine(PeriodicRefreshCoroutine());
+    }
+
+    /// <summary>
+    /// Stop the periodic refresh coroutine
+    /// Should be called by parent panels when they close (e.g., PurchasablePanel.OnClose)
+    /// </summary>
+    public void StopPeriodicRefresh()
+    {
+        if (_periodicRefreshCoroutine != null)
+        {
+            StopCoroutine(_periodicRefreshCoroutine);
+            _periodicRefreshCoroutine = null;
+        }
+    }
+
+    /// <summary>
+    /// Coroutine that periodically refreshes the display
+    /// This ensures UI updates when resources change (e.g., becoming unaffordable after purchase)
+    /// Managed by parent panels via StartPeriodicRefresh/StopPeriodicRefresh
+    /// </summary>
+    private IEnumerator PeriodicRefreshCoroutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_refreshInterval);
+
+        while (true)
+        {
+            yield return wait;
+            RefreshDynamicUI();
+        }
+    }
+
     private void OnDestroy()
     {
         StopPurchaseLoop();
+        StopPeriodicRefresh();
     }
 
     [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]
     public void OnPurchasablePurchased(object sender, BasePurchasable blueprint, BasePurchasableRuntimeData runtimeData)
     {
         var myBlueprint = GetDisplayedBlueprint();
-        DebugManager.Log($"[IncrementalGame] OnPurchasablePurchased received in {this.GetType().Name} for blueprint={blueprint?.purchasableId} myBlueprint={myBlueprint?.purchasableId}");
-        if (myBlueprint == null || blueprint == null) return;
+
+        if (myBlueprint == null)
+        {
+            return;
+        }
+
+        if (blueprint == null)
+        {
+            return;
+        }
 
         if (myBlueprint.purchasableId == blueprint.purchasableId)
         {
             // Refresh UI when the purchasable this display represents was bought
-            DebugManager.Log($"[IncrementalGame] Refreshing dynamic UI for {myBlueprint.purchasableId} on {gameObject.name}");
             RefreshDynamicUI();
+        }
+        else
+        {
         }
     }
 
@@ -263,7 +332,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     public void OnPurchasablesInitialized(object sender)
     {
         // Re-evaluate dynamic UI after purchasable runtime data is loaded
-        DebugManager.Log($"[IncrementalGame] Purchasables initialized - refreshing UI on {gameObject.name}");
         RefreshDynamicUI();
     }
 
@@ -280,9 +348,14 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected string GetTimesPurchasedDisplayText(int timesPurchased)
     {
-        if (timesPurchased == 0)
-            return "Not Yet Purchased";
+        BasePurchasable blueprint = GetDisplayedBlueprint();
 
-        return $"Purchased {timesPurchased} time{(timesPurchased == 1 ? "" : "s")}";
+        if(blueprint.IsMaxedOut())
+            return "Maxxed";
+        
+        if(blueprint.purchaseType == PurchaseType.Infinite)
+            return $"Lv.{timesPurchased}";
+
+        return $"Lv.{timesPurchased}/{blueprint.maxPurchases}";
     }
 }

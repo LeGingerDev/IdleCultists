@@ -7,6 +7,7 @@ namespace LGD.Utilities.UI.UIComponents
     {
         [SerializeField]
         private Image _fillImage;
+        
 
         protected override void UpdateBarInternal(ValueChange valueChange)
         {

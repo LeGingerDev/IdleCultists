@@ -92,6 +92,7 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
 
         // Increment purchase count FIRST
         runtimeData.IncrementPurchase();
+        DebugManager.Log($"[IncrementalGame] Incremented purchase count for {purchasableId}: now {runtimeData.purchaseCount}");
 
         // Execute the purchase (blueprint handles specific logic)
         blueprint.HandlePurchase(runtimeData);
@@ -100,8 +101,9 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
         MarkDirty();
 
         // Publish a generic purchasable purchased event so UI and other systems can react
-        DebugManager.Log($"[IncrementalGame] Publishing purchasable purchased event for {blueprint?.purchasableId}");
+        DebugManager.Log($"[IncrementalGame] ========== PUBLISHING EVENT: ON_PURCHASABLE_PURCHASED for {blueprint.purchasableId} (count: {runtimeData.purchaseCount}) ==========");
         ServiceBus.Publish(PurchasableEventIds.ON_PURCHASABLE_PURCHASED, this, blueprint, runtimeData);
+        DebugManager.Log($"[IncrementalGame] Event published successfully");
 
         // If this is a StatPurchasable, request stat recalculation
         if (blueprint is StatPurchasable)
@@ -136,7 +138,16 @@ public class PurchasableManager : MonoSingleton<PurchasableManager>, IStatProvid
     public int GetPurchaseCount(string purchasableId)
     {
         BasePurchasableRuntimeData data = _runtimeData.Find(p => p.purchasableId == purchasableId);
-        return data != null ? data.purchaseCount : 0;
+
+        if (data != null)
+        {
+            return data.purchaseCount;
+        }
+        else
+        {
+
+            return 0;
+        }
     }
 
     public List<BasePurchasableRuntimeData> GetAllPurchasables()

@@ -4,18 +4,25 @@ using LGD.Core.Events;
 using LGD.PickupSystem;
 using LGD.ResourceSystem;
 using LGD.ResourceSystem.Models;
+using LGD.Utilities.Data;
 using LGD.Utilities.Extensions;
+using PoolSystem;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using static Unity.Cinemachine.CinemachineFreeLookModifier;
 
 public class LifeCrystalBehaviour : ZoneBehaviorBase
 {
     [SerializeField, FoldoutGroup("Resources")]
     private Resource _resourceToProvide;
+
+    [SerializeField, FoldoutGroup("Resources"), Tooltip("Optional: Pool key for object pooling. Leave empty to use Instantiate/Destroy.")]
+    private string _resourcePoolKey;
+
     [SerializeField, FoldoutGroup("Resources"), MinMaxSlider(-20f, 20f)]
     private Vector2 _minMaxX;
     [SerializeField, FoldoutGroup("Resources"), MinMaxSlider(0, 20f)]
@@ -28,13 +35,20 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     private float _resourceMoveDuration = 1f;
 
     [SerializeField, FoldoutGroup("References")]
+    private Animator _anim;
+    [SerializeField, FoldoutGroup("References")]
     private List<EntityDockedPosition> _dockedPositions;
+
     [SerializeField, FoldoutGroup("Jumping")]
     private float _jumpPower = 2f;
     [SerializeField, FoldoutGroup("Jumping")]
     private float _jumpDuration = 0.5f;
-    [SerializeField, FoldoutGroup("Jumping")]
-    
+
+    [SerializeField, FoldoutGroup("Events")]
+    private UnityEvent<EntityController> onEntityAssigned;
+    [SerializeField, FoldoutGroup("Events")]
+    private UnityEvent<EntityController> onEntityRemoved;
+
     private Coroutine _chargeLoopCoroutine;
 
     [SerializeField, ReadOnly]
@@ -45,7 +59,13 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     private AlphabeticNotation _maxChargeTimeSeconds;
 
     private List<PhysicalResource> _physicalSpawned = new List<PhysicalResource>();
-    
+    protected override void Start()
+    {
+        base.Start();
+        SetSpeed();
+    }
+
+
     [Topic(PickupEventIds.ON_ENTITY_ASSIGNED_TO_ZONE)]
     public void OnEntityAssignToZone(object sender, EntityRuntimeData runtimeData, string zoneId)
     {
@@ -57,6 +77,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+        SetSpeed();
     }
 
     [Topic(PickupEventIds.ON_ENTITY_RECONNECTED_TO_ZONE)]
@@ -71,6 +92,8 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+
+        SetSpeed();
     }
 
 
@@ -93,6 +116,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         if (IsOccupied())
             StartChargingLoop();
+        SetSpeed();
     }
 
     [Topic(PickupEventIds.ON_ENTITY_REMOVED_FROM_ZONE)]
@@ -101,10 +125,15 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
         if (_zoneId != zoneId)
             return;
 
+        EntityController controller = runtimeData.GetController();
         GetDockedPositionWithEntity(runtimeData.uniqueId)?.Remove();
+
+        // Invoke UnityEvent when entity is removed
+        onEntityRemoved?.Invoke(controller);
 
         if (!IsOccupied())
             StopChargingLoop();
+        SetSpeed();
     }
 
     [Button]
@@ -122,7 +151,12 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     {
         if (_chargeLoopCoroutine != null)
             return;
+
         _chargeLoopCoroutine = StartCoroutine(LifeEssenceChargeLoop());
+
+        // Publish charge started event
+        ValueChange initialCharge = new ValueChange((float)(double)_internalTimer, (float)(double)_maxChargeTimeSeconds);
+        ServiceBus.Publish(LifeCrystalEventIds.ON_CHARGE_STARTED, this, _zoneId, initialCharge);
     }
 
     public IEnumerator LifeEssenceChargeLoop()
@@ -132,6 +166,11 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
         while (true)
         {
             _internalTimer += _currentChargeTimePerSecond * Time.deltaTime;
+
+            // Publish charge update event
+            ValueChange chargeProgress = new ValueChange((float)(double)_internalTimer, (float)(double)_maxChargeTimeSeconds);
+            ServiceBus.Publish(LifeCrystalEventIds.ON_CHARGE_UPDATED, this, _zoneId, chargeProgress);
+
             yield return new WaitForEndOfFrame();
 
             if (_internalTimer >= _maxChargeTimeSeconds)
@@ -147,16 +186,49 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
     {
         RemoveOldest();
 
+        if (_resourceToProvide == null)
+        {
+            DebugManager.Error("[LifeCrystal] Resource to provide is not assigned!");
+            return;
+        }
+
         PhysicalResource resourceObject = _resourceToProvide.physicalResourceAssociation;
+        if (resourceObject == null)
+        {
+            DebugManager.Error($"[LifeCrystal] Physical resource prefab is not assigned for {_resourceToProvide.displayName}!");
+            return;
+        }
+
         //This will be changed later on to have different visuals for different quantities.
         AlphabeticNotation howMuch = StatManager.Instance.QueryStat(StatType.LifeEssenceGain);
 
+        PhysicalResource createdResource;
+
+        // Use object pooling if pool key is set, otherwise instantiate normally
+        if (!string.IsNullOrEmpty(_resourcePoolKey))
+        {
+            createdResource = PoolingManager.Get<PhysicalResource>(_resourcePoolKey);
+            if (createdResource == null)
+            {
+                DebugManager.Error($"[LifeCrystal] Failed to get PhysicalResource from pool '{_resourcePoolKey}'!");
+                return;
+            }
+            createdResource.transform.position = _spawnPosition.position;
+            createdResource.gameObject.SetActive(true);
+        }
+        else
+        {
+            createdResource = Instantiate(resourceObject, _spawnPosition.position, Quaternion.identity, null);
+        }
+
         float x = _minMaxX.GetRandom();
         float y = _minMaxY.GetRandom();
-        PhysicalResource createdResource = Instantiate(resourceObject, _spawnPosition.position,Quaternion.identity,null);
-        createdResource.Initialise(new AlphabeticNotation(howMuch));
+        createdResource.Initialise(new AlphabeticNotation(howMuch), _resourcePoolKey);
         createdResource.MoveToPosition(GetRandomSpawnToPosition(), _resourceMoveDuration, _resourceSpawnEase);
         _physicalSpawned.Add(createdResource);
+
+        // Publish charge completed event
+        ServiceBus.Publish(LifeCrystalEventIds.ON_CHARGE_COMPLETED, this, _zoneId);
     }
 
     [Topic(ResourceEventIds.ON_PHYSICAL_RESOURCE_DESTROYED)]
@@ -197,7 +269,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
         entityRigidbody.bodyType = RigidbodyType2D.Kinematic;
         dockedPosition.Assign(entity);
         entity.transform.DOJump(dockedPosition.transform.position, _jumpPower, 1, _jumpDuration)
-            .OnStart(() => 
+            .OnStart(() =>
             {
                 entity.transform.localScale = new Vector3(GetDirectionToTarget(dockedPosition.transform.position, entity.transform.position), 1, 1);
             })
@@ -205,11 +277,22 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
             {
                 entity.transform.localScale = new Vector3(GetDirectionToTarget(transform.position, entity.transform.position), 1, 1);
                 entityRigidbody.bodyType = RigidbodyType2D.Dynamic;
+                SetSpeed();
+                // Invoke UnityEvent after entity is fully assigned
+                onEntityAssigned?.Invoke(entity);
             })
             ;
+    }
+
+    public void SetSpeed()
+    {
+        if(_dropZone.GetCurrentCapacity() <= 0)
+        {
+            _anim.speed = 0f;
+            return;
+        }
         
-        //CultistAnimator animator = entity.GetComponent<CultistAnimator>();
-        //animator.PlayAnimation()
+        _anim.speed = 0.4f * _dropZone.GetCurrentCapacity(); 
     }
 
     #endregion EntityManagement

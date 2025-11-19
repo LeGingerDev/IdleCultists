@@ -12,7 +12,7 @@ public class AdminTimersTab : AdminTabBase
     {
         if (TimerManager.Instance != null)
         {
-            _activeTimers = TimerManager.Instance.GetActiveTimers();
+            _activeTimers = TimerManager.Instance.GetAllActiveTimers();
         }
     }
 
@@ -57,14 +57,15 @@ public class AdminTimersTab : AdminTabBase
             GUILayout.BeginVertical(BoxStyle);
 
             GUILayout.Label($"Context ID: {timer.contextId}", SubHeaderStyle);
-            GUILayout.Label($"Duration: {timer.duration:F2}s");
-            GUILayout.Label($"Remaining: {timer.GetTimeRemaining():F2}s");
-            GUILayout.Label($"Progress: {(timer.GetProgress() * 100f):F1}%");
-            GUILayout.Label($"Is Complete: {timer.IsComplete()}");
+            GUILayout.Label($"Duration: {timer.maxTime:F2}s");
+            GUILayout.Label($"Remaining: {timer.timeRemaining:F2}s");
+            float progress = timer.maxTime > 0 ? ((timer.maxTime - timer.timeRemaining) / timer.maxTime) : 0f;
+            GUILayout.Label($"Progress: {(progress * 100f):F1}%");
+            GUILayout.Label($"Is Complete: {timer.IsComplete}");
 
             GUILayout.BeginHorizontal();
 
-            if (!timer.IsComplete())
+            if (!timer.IsComplete)
             {
                 if (GUILayout.Button("Complete Now", SmallButtonStyle, GUILayout.Width(120)))
                 {
@@ -93,21 +94,22 @@ public class AdminTimersTab : AdminTabBase
 
     private void CompleteTimer(GameTimer timer)
     {
-        // Set elapsed time to duration to complete it
-        timer.SetElapsedTime(timer.duration);
+        // Set time remaining to 0 to complete it
+        timer.timeRemaining = 0f;
         DebugManager.Log($"[Admin] Completed timer: {timer.contextId}");
     }
 
     private void AddTimeToTimer(GameTimer timer, float seconds)
     {
-        timer.AddTime(seconds);
+        // Add time increases the duration (time remaining increases)
+        timer.timeRemaining += seconds;
         DebugManager.Log($"[Admin] Added {seconds}s to timer: {timer.contextId}");
     }
 
     private void RemoveTimeFromTimer(GameTimer timer, float seconds)
     {
-        float currentElapsed = timer.GetElapsedTime();
-        timer.SetElapsedTime(Mathf.Max(0, currentElapsed + seconds));
+        // Remove time decreases time remaining (speeds up timer)
+        timer.timeRemaining = Mathf.Max(0, timer.timeRemaining - seconds);
         DebugManager.Log($"[Admin] Advanced timer by {seconds}s: {timer.contextId}");
     }
 
@@ -115,9 +117,9 @@ public class AdminTimersTab : AdminTabBase
     {
         foreach (var timer in _activeTimers)
         {
-            if (!timer.IsComplete())
+            if (!timer.IsComplete)
             {
-                timer.SetElapsedTime(timer.duration);
+                timer.timeRemaining = 0f;
             }
         }
         DebugManager.Log("[Admin] Completed all timers");

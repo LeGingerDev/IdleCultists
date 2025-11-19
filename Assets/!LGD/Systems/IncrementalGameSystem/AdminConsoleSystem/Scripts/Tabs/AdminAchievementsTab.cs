@@ -12,7 +12,7 @@ public class AdminAchievementsTab : AdminTabBase
 
     public override void RefreshData()
     {
-        if (AchievementManager.Instance != null && AchievementManager.Instance.IsInitialized())
+        if (AchievementManager.Instance != null)
         {
             _allAchievements = AchievementManager.Instance.GetAllAchievements();
 
@@ -115,7 +115,10 @@ public class AdminAchievementsTab : AdminTabBase
 
     private void UnlockAchievement(AchievementRuntimeData runtime)
     {
-        AchievementManager.Instance.UnlockAchievement(runtime.id);
+        // UnlockAchievement is private, so manually set progress to trigger unlock
+        runtime.progress = runtime.goal;
+        runtime.isUnlocked = true;
+        Console.StartCoroutine(AchievementManager.Instance.ManualSave());
         RefreshData();
         DebugManager.Log($"[Admin] Unlocked achievement: {runtime.id}");
     }
@@ -135,9 +138,12 @@ public class AdminAchievementsTab : AdminTabBase
         {
             if (!achievement.isUnlocked)
             {
-                AchievementManager.Instance.UnlockAchievement(achievement.id);
+                // UnlockAchievement is private, so manually set progress and unlock flag
+                achievement.progress = achievement.goal;
+                achievement.isUnlocked = true;
             }
         }
+        Console.StartCoroutine(AchievementManager.Instance.ManualSave());
         RefreshData();
         DebugManager.Log("[Admin] Unlocked all achievements");
     }

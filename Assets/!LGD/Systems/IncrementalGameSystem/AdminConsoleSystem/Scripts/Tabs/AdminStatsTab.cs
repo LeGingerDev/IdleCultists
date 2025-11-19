@@ -38,10 +38,10 @@ public class AdminStatsTab : AdminTabBase
             // Get breakdown
             StatBreakdown breakdown = StatManager.Instance.GetStatBreakdown(statType);
 
-            GUILayout.Label($"Final Value: {breakdown.FinalValue}");
-            GUILayout.Label($"Base: {breakdown.BaseValue}");
-            GUILayout.Label($"Additive: +{breakdown.AdditiveBonus}");
-            GUILayout.Label($"Multiplicative: x{(1f + breakdown.MultiplicativeBonus):F2} ({(breakdown.MultiplicativeBonus * 100f):F1}%)");
+            GUILayout.Label($"Final Value: {breakdown.finalValue}");
+            GUILayout.Label($"Base: {breakdown.baseValue}");
+            GUILayout.Label($"Additive: +{breakdown.additiveTotal}");
+            GUILayout.Label($"Multiplicative: x{(1f + breakdown.multiplicativeTotal):F2} ({(breakdown.multiplicativeTotal * 100f):F1}%)");
 
             GUILayout.EndVertical();
             GUILayout.Space(5);

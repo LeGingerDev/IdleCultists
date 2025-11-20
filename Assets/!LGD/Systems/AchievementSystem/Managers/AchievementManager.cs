@@ -176,10 +176,107 @@ public class AchievementManager : MonoSingleton<AchievementManager>
             achievement.progress = achievement.goal;
             DebugManager.Log($"[Achievement] <color=yellow>Achievement Unlocked:</color> {achievementId}");
 
+            // Process rewards (resources, achievement points, unlocked purchasables)
+            ProcessAchievementRewards(achievementId);
+
             Publish(AchievementEventIds.ON_ACHIEVEMENT_UNLOCKED, achievement);
 
             StartCoroutine(SaveOnUnlock());
         }
+    }
+
+    /// <summary>
+    /// Process and grant all rewards for an achievement
+    /// </summary>
+    private void ProcessAchievementRewards(string achievementId)
+    {
+        AchievementData achievementData = AchievementUtilities.GetAchievementData(achievementId);
+
+        if (achievementData == null)
+        {
+            DebugManager.Warning($"[Achievement] Could not find achievement data for: {achievementId}");
+            return;
+        }
+
+        // Grant resource rewards
+        if (achievementData.rewards != null && achievementData.rewards.Count > 0)
+        {
+            foreach (var reward in achievementData.rewards)
+            {
+                if (reward.resource != null && ResourceManager.Instance != null)
+                {
+                    ResourceManager.Instance.AddResource(reward);
+                    DebugManager.Log($"[Achievement] <color=green>Granted reward:</color> {reward.amount.FormatWithDecimals()} {reward.resource.displayName}");
+                }
+            }
+        }
+
+        // Grant achievement points (if any)
+        if (achievementData.achievementPointReward > 0)
+        {
+            // Find the achievement points resource
+            Resource achievementPointsResource = FindAchievementPointsResource();
+
+            if (achievementPointsResource != null && ResourceManager.Instance != null)
+            {
+                ResourceAmountPair pointsReward = new ResourceAmountPair(
+                    achievementPointsResource,
+                    new AlphabeticNotation(achievementData.achievementPointReward)
+                );
+
+                ResourceManager.Instance.AddResource(pointsReward);
+                DebugManager.Log($"[Achievement] <color=green>Granted achievement points:</color> {achievementData.achievementPointReward}");
+            }
+            else
+            {
+                DebugManager.Warning("[Achievement] Achievement Points resource not found! Cannot grant points.");
+            }
+        }
+
+        // Unlock purchasables (e.g., boombox tracks, features)
+        if (achievementData.unlockedPurchasables != null && achievementData.unlockedPurchasables.Count > 0)
+        {
+            foreach (var purchasable in achievementData.unlockedPurchasables)
+            {
+                if (purchasable != null && PurchasableManager.Instance != null)
+                {
+                    // Execute the purchasable with no cost (achievement reward)
+                    bool success = purchasable.ExecutePurchase(removeCost: false);
+
+                    if (success)
+                    {
+                        DebugManager.Log($"[Achievement] <color=green>Unlocked purchasable:</color> {purchasable.displayName}");
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Find the Achievement Points resource (looks for resource with "achievement" and "point" in name)
+    /// </summary>
+    private Resource FindAchievementPointsResource()
+    {
+        if (ResourceManager.Instance == null)
+            return null;
+
+        // Try to find a resource with "achievement" and "point" in the name (case insensitive)
+        var allResources = ResourceManager.Instance.GetAllResources();
+
+        foreach (var kvp in allResources)
+        {
+            Resource resource = kvp.Key;
+            if (resource != null && resource.displayName != null)
+            {
+                string name = resource.displayName.ToLower();
+                if (name.Contains("achievement") && name.Contains("point"))
+                {
+                    return resource;
+                }
+            }
+        }
+
+        return null;
     }
 
     #endregion

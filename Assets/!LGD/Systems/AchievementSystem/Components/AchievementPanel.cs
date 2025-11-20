@@ -59,7 +59,6 @@ public class AchievementPanel : SlidePanel
         {
             // Topologically sort within each tracking type group
             List<AchievementRuntimeData> sortedGroup = TopologicalSort(group.ToList());
-            sortedGroup.Reverse();
             orderedAchievements.AddRange(sortedGroup);
         }
 

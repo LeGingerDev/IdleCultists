@@ -8,7 +8,8 @@ using UnityEngine;
 namespace LGD.Gameplay.Polish
 {
     /// <summary>
-    /// Plays a default animation, then periodically triggers random weighted animations for visual polish.
+    /// Plays a default animation, then periodically plays random weighted animations for visual polish.
+    /// Uses Animator.Play() for 2D workflows - transitions back to idle are handled by Animator transitions.
     /// Perfect for idle variations, occasional special animations, or adding life to static objects.
     /// </summary>
     [RequireComponent(typeof(Animator))]
@@ -19,8 +20,8 @@ namespace LGD.Gameplay.Polish
         [Serializable]
         public class WeightedAnimation
         {
-            [Tooltip("The name of the animation trigger parameter in the Animator")]
-            public string triggerName;
+            [Tooltip("The name of the animation state in the Animator")]
+            public string animationName;
 
             [Tooltip("Weight for this animation (higher = more likely to be selected)")]
             [MinValue(0)]
@@ -30,9 +31,9 @@ namespace LGD.Gameplay.Polish
             [MinValue(0)]
             public float overrideDuration = 0f;
 
-            public WeightedAnimation(string trigger, int weight = 1)
+            public WeightedAnimation(string animName, int weight = 1)
             {
-                this.triggerName = trigger;
+                this.animationName = animName;
                 this.weight = weight;
             }
         }
@@ -46,17 +47,17 @@ namespace LGD.Gameplay.Polish
         private Animator _animator;
 
         [SerializeField, FoldoutGroup("Default Animation")]
-        [InfoBox("The animation that plays when the component starts (leave empty to skip)")]
-        [Tooltip("Trigger name for the default/idle animation")]
-        private string _defaultAnimationTrigger = "Idle";
+        [InfoBox("The animation state that plays when the component starts (leave empty to skip)")]
+        [Tooltip("State name for the default/idle animation")]
+        private string _defaultAnimationName = "Idle";
 
         [SerializeField, FoldoutGroup("Default Animation")]
-        [Tooltip("Should the default animation be triggered on Start?")]
+        [Tooltip("Should the default animation be played on Start?")]
         private bool _playDefaultOnStart = true;
 
         [SerializeField, FoldoutGroup("Random Animations")]
-        [InfoBox("List of animations that can be randomly triggered. Higher weight = more likely to play.")]
-        [ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "triggerName")]
+        [InfoBox("List of animations that can be randomly played. Higher weight = more likely to play.\nTransitions back to idle are handled by Animator transitions.")]
+        [ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "animationName")]
         private List<WeightedAnimation> _randomAnimations = new List<WeightedAnimation>()
         {
             new WeightedAnimation("Special1", 5),
@@ -81,16 +82,6 @@ namespace LGD.Gameplay.Polish
         [SerializeField, FoldoutGroup("Timing Settings")]
         [Tooltip("If true, delays the first random animation. If false, plays one immediately.")]
         private bool _delayFirstAnimation = true;
-
-        [SerializeField, FoldoutGroup("Advanced")]
-        [Tooltip("If true, returns to default animation after each random animation")]
-        private bool _returnToDefaultAfterRandom = false;
-
-        [SerializeField, FoldoutGroup("Advanced")]
-        [Tooltip("Delay before returning to default animation (if enabled)")]
-        [ShowIf("_returnToDefaultAfterRandom")]
-        [MinValue(0f)]
-        private float _returnToDefaultDelay = 0.5f;
 
         #endregion
 
@@ -134,7 +125,7 @@ namespace LGD.Gameplay.Polish
         private void Start()
         {
             // Play default animation on start
-            if (_playDefaultOnStart && !string.IsNullOrEmpty(_defaultAnimationTrigger))
+            if (_playDefaultOnStart && !string.IsNullOrEmpty(_defaultAnimationName))
             {
                 PlayDefaultAnimation();
             }
@@ -231,16 +222,16 @@ namespace LGD.Gameplay.Polish
                 return;
             }
 
-            if (string.IsNullOrEmpty(_defaultAnimationTrigger))
+            if (string.IsNullOrEmpty(_defaultAnimationName))
             {
-                Debug.LogWarning($"[RandomAnimationPlayer] No default animation trigger set on {gameObject.name}");
+                Debug.LogWarning($"[RandomAnimationPlayer] No default animation state set on {gameObject.name}");
                 return;
             }
 
-            _animator.SetTrigger(_defaultAnimationTrigger);
-            _lastAnimationPlayed = _defaultAnimationTrigger;
+            _animator.Play(_defaultAnimationName);
+            _lastAnimationPlayed = _defaultAnimationName;
 
-            Debug.Log($"[RandomAnimationPlayer] Playing default animation '{_defaultAnimationTrigger}' on {gameObject.name}");
+            Debug.Log($"[RandomAnimationPlayer] Playing default animation '{_defaultAnimationName}' on {gameObject.name}");
         }
 
         /// <summary>
@@ -263,10 +254,10 @@ namespace LGD.Gameplay.Polish
         }
 
         /// <summary>
-        /// Play a specific animation by trigger name.
+        /// Play a specific animation by state name.
         /// </summary>
-        /// <param name="triggerName">The animation trigger to activate</param>
-        public void PlaySpecificAnimation(string triggerName)
+        /// <param name="animationName">The animation state name to play</param>
+        public void PlaySpecificAnimation(string animationName)
         {
             if (_animator == null)
             {
@@ -274,52 +265,52 @@ namespace LGD.Gameplay.Polish
                 return;
             }
 
-            if (string.IsNullOrEmpty(triggerName))
+            if (string.IsNullOrEmpty(animationName))
             {
-                Debug.LogWarning($"[RandomAnimationPlayer] Attempted to play animation with empty trigger name on {gameObject.name}");
+                Debug.LogWarning($"[RandomAnimationPlayer] Attempted to play animation with empty state name on {gameObject.name}");
                 return;
             }
 
-            _animator.SetTrigger(triggerName);
-            _lastAnimationPlayed = triggerName;
+            _animator.Play(animationName);
+            _lastAnimationPlayed = animationName;
             _totalAnimationsPlayed++;
 
-            Debug.Log($"[RandomAnimationPlayer] Playing specific animation '{triggerName}' on {gameObject.name}");
+            Debug.Log($"[RandomAnimationPlayer] Playing specific animation '{animationName}' on {gameObject.name}");
         }
 
         /// <summary>
         /// Add a new weighted animation at runtime.
         /// </summary>
-        /// <param name="triggerName">Animation trigger name</param>
+        /// <param name="animationName">Animation state name</param>
         /// <param name="weight">Weight for selection</param>
-        public void AddAnimation(string triggerName, int weight = 1)
+        public void AddAnimation(string animationName, int weight = 1)
         {
-            if (string.IsNullOrEmpty(triggerName))
+            if (string.IsNullOrEmpty(animationName))
                 return;
 
             if (_randomAnimations == null)
                 _randomAnimations = new List<WeightedAnimation>();
 
-            _randomAnimations.Add(new WeightedAnimation(triggerName, weight));
+            _randomAnimations.Add(new WeightedAnimation(animationName, weight));
             RecalculateTotalWeight();
 
-            Debug.Log($"[RandomAnimationPlayer] Added animation '{triggerName}' (weight: {weight}) to {gameObject.name}");
+            Debug.Log($"[RandomAnimationPlayer] Added animation '{animationName}' (weight: {weight}) to {gameObject.name}");
         }
 
         /// <summary>
-        /// Remove an animation by trigger name.
+        /// Remove an animation by state name.
         /// </summary>
-        /// <param name="triggerName">Animation trigger name to remove</param>
-        public void RemoveAnimation(string triggerName)
+        /// <param name="animationName">Animation state name to remove</param>
+        public void RemoveAnimation(string animationName)
         {
             if (_randomAnimations == null)
                 return;
 
-            int removed = _randomAnimations.RemoveAll(a => a.triggerName == triggerName);
+            int removed = _randomAnimations.RemoveAll(a => a.animationName == animationName);
             if (removed > 0)
             {
                 RecalculateTotalWeight();
-                Debug.Log($"[RandomAnimationPlayer] Removed {removed} animation(s) with trigger '{triggerName}' from {gameObject.name}");
+                Debug.Log($"[RandomAnimationPlayer] Removed {removed} animation(s) with state '{animationName}' from {gameObject.name}");
             }
         }
 
@@ -360,13 +351,6 @@ namespace LGD.Gameplay.Polish
                 if (selected != null)
                 {
                     PlayAnimation(selected);
-
-                    // Optional: return to default after random animation
-                    if (_returnToDefaultAfterRandom)
-                    {
-                        yield return new WaitForSeconds(_returnToDefaultDelay);
-                        PlayDefaultAnimation();
-                    }
                 }
 
                 // Wait random interval before next animation
@@ -413,11 +397,11 @@ namespace LGD.Gameplay.Polish
             if (_animator == null || animation == null)
                 return;
 
-            _animator.SetTrigger(animation.triggerName);
-            _lastAnimationPlayed = animation.triggerName;
+            _animator.Play(animation.animationName);
+            _lastAnimationPlayed = animation.animationName;
             _totalAnimationsPlayed++;
 
-            Debug.Log($"[RandomAnimationPlayer] Playing animation '{animation.triggerName}' (weight: {animation.weight}) on {gameObject.name}");
+            Debug.Log($"[RandomAnimationPlayer] Playing animation '{animation.animationName}' (weight: {animation.weight}) on {gameObject.name}");
         }
 
         private void RecalculateTotalWeight()
@@ -456,9 +440,9 @@ namespace LGD.Gameplay.Polish
             Debug.Log($"[RandomAnimationPlayer] Testing all {_randomAnimations.Count} animations sequentially...");
 
             // Test default animation first
-            if (!string.IsNullOrEmpty(_defaultAnimationTrigger))
+            if (!string.IsNullOrEmpty(_defaultAnimationName))
             {
-                Debug.Log($"[RandomAnimationPlayer] Testing default: {_defaultAnimationTrigger}");
+                Debug.Log($"[RandomAnimationPlayer] Testing default: {_defaultAnimationName}");
                 PlayDefaultAnimation();
                 yield return new WaitForSeconds(2f);
             }
@@ -466,7 +450,7 @@ namespace LGD.Gameplay.Polish
             // Test each random animation
             foreach (var animation in _randomAnimations)
             {
-                Debug.Log($"[RandomAnimationPlayer] Testing: {animation.triggerName} (weight: {animation.weight})");
+                Debug.Log($"[RandomAnimationPlayer] Testing: {animation.animationName} (weight: {animation.weight})");
                 PlayAnimation(animation);
                 yield return new WaitForSeconds(2f);
             }
@@ -482,7 +466,7 @@ namespace LGD.Gameplay.Polish
         {
             Debug.Log($"=== RANDOM ANIMATION PLAYER STATS ({gameObject.name}) ===");
             Debug.Log($"Is Playing: {_isPlaying}");
-            Debug.Log($"Default Animation: {_defaultAnimationTrigger}");
+            Debug.Log($"Default Animation: {_defaultAnimationName}");
             Debug.Log($"Total Random Animations: {(_randomAnimations != null ? _randomAnimations.Count : 0)}");
             Debug.Log($"Total Weight: {_totalWeightCache}");
             Debug.Log($"Total Animations Played: {_totalAnimationsPlayed}");
@@ -496,7 +480,7 @@ namespace LGD.Gameplay.Polish
                 foreach (var animation in _randomAnimations)
                 {
                     float probability = (_totalWeightCache > 0) ? (animation.weight / (float)_totalWeightCache * 100f) : 0f;
-                    Debug.Log($"  {animation.triggerName}: {probability:F1}% (weight: {animation.weight})");
+                    Debug.Log($"  {animation.animationName}: {probability:F1}% (weight: {animation.weight})");
                 }
             }
         }

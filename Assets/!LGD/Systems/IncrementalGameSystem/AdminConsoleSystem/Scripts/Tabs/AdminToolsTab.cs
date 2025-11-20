@@ -94,9 +94,14 @@ public class AdminToolsTab : AdminTabBase
         var allRooms = RoomManager.Instance.GetAllRooms();
         foreach (var room in allRooms)
         {
+            // Skip room-of-devotion as it's always unlocked
+            if (room.roomId == "room-of-devotion")
+                continue;
+
             if (!room.isUnlocked)
             {
                 room.Unlock();
+                HandleDoorsForRoom(room.roomId, true);
             }
         }
         Console.StartCoroutine(RoomManager.Instance.ManualSave());
@@ -109,6 +114,10 @@ public class AdminToolsTab : AdminTabBase
         var allRooms = RoomManager.Instance.GetAllRooms();
         foreach (var room in allRooms)
         {
+            // Skip room-of-devotion as it's always unlocked
+            if (room.roomId == "room-of-devotion")
+                continue;
+
             room.isUnlocked = false;
 
             RoomController controller = RoomManager.Instance.GetRoomController(room.roomId);
@@ -116,8 +125,37 @@ public class AdminToolsTab : AdminTabBase
             {
                 controller.HideRoom();
             }
+
+            HandleDoorsForRoom(room.roomId, false);
         }
         Console.StartCoroutine(RoomManager.Instance.ManualSave());
         DebugManager.Log("[Admin] Locked all rooms");
+    }
+
+    private void HandleDoorsForRoom(string roomId, bool isUnlocking)
+    {
+        // Find all doors in the scene
+        Door[] allDoors = Object.FindObjectsOfType<Door>();
+
+        foreach (Door door in allDoors)
+        {
+            if (door.ConnectedRoom != null && door.ConnectedRoom.roomId == roomId)
+            {
+                if (isUnlocking)
+                {
+                    // Open the door (disable collider)
+                    door.OpenDoor(0f);
+                }
+                else
+                {
+                    // Re-enable the door's collider when locking
+                    var col = door.GetComponentInChildren<Collider2D>();
+                    if (col != null)
+                    {
+                        col.enabled = true;
+                    }
+                }
+            }
+        }
     }
 }

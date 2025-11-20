@@ -70,6 +70,11 @@ public class AdminPurchasablesTab : AdminTabBase
 
             GUILayout.BeginVertical(BoxStyle);
 
+            GUILayout.BeginHorizontal();
+
+            // Left side - Basic info and buttons
+            GUILayout.BeginVertical(GUILayout.Width(400));
+
             GUILayout.Label($"{blueprint.displayName}", HeaderStyle);
             GUILayout.Label($"ID: {blueprint.purchasableId}");
             GUILayout.Label($"Type: {blueprint.purchaseType}");
@@ -98,6 +103,29 @@ public class AdminPurchasablesTab : AdminTabBase
                 runtimeData.purchaseCount = 0;
                 runtimeData.isActive = false;
                 SavePurchasables();
+            }
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndVertical();
+
+            // Right side - Stat modifiers (if applicable)
+            if (blueprint is StatPurchasable statPurchasable && runtimeData.purchaseCount > 0)
+            {
+                GUILayout.BeginVertical();
+                GUILayout.Label("Current Modifiers:", SubHeaderStyle);
+
+                var modifiers = statPurchasable.GetModifiersAtTier(runtimeData.purchaseCount);
+                foreach (var mod in modifiers)
+                {
+                    string displayValue = mod.modifierType == ModifierType.Multiplicative
+                        ? $"+{mod.multiplicativeValue * 100:F1}%"
+                        : $"+{mod.additiveValue}";
+
+                    GUILayout.Label($"  {mod.statType}: {displayValue}");
+                }
+
+                GUILayout.EndVertical();
             }
 
             GUILayout.EndHorizontal();

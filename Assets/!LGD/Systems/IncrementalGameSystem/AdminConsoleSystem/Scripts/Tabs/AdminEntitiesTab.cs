@@ -107,16 +107,19 @@ public class AdminEntitiesTab : AdminTabBase
             return;
         }
 
+        // Adjust spawn position forward by 0.02 (similar to test spawner)
+        Vector3 adjustedPosition = _spawnPosition + new Vector3(0.02f, 0, 0);
+
         // Create new runtime data
         EntityRuntimeData runtimeData = new EntityRuntimeData();
         runtimeData.Initialise(blueprint);
-        runtimeData.worldPosition = new SerializableVector3(_spawnPosition);
+        runtimeData.worldPosition = new SerializableVector3(adjustedPosition);
 
         // Spawn the GameObject
-        EntityController controller = Object.Instantiate(blueprint.prefab, _spawnPosition, Quaternion.identity);
+        EntityController controller = Object.Instantiate(blueprint.prefab, adjustedPosition, Quaternion.identity);
         controller.Initialise(runtimeData, blueprint);
 
-        DebugManager.Log($"[Admin] Spawned entity: {blueprint.displayName} at {_spawnPosition}");
+        DebugManager.Log($"[Admin] Spawned entity: {blueprint.displayName} at {adjustedPosition}");
     }
 
     private void DestroyAllEntities()

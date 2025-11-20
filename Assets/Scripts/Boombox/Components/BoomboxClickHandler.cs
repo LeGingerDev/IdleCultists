@@ -1,3 +1,5 @@
+using Audio.Managers;
+using Audio.Models;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -8,7 +10,7 @@ using UnityEngine;
 /// </summary>
 public class BoomboxClickHandler : MonoBehaviour
 {
-    [FoldoutGroup("References"), Required]
+   /* [FoldoutGroup("References"), Required]
     [Tooltip("The Boombox UI panel to open when clicked")]
     [SerializeField] private BoomboxUI _boomboxUI;
 
@@ -67,5 +69,7 @@ public class BoomboxClickHandler : MonoBehaviour
 
         OpenBoombox();
     }
-#endif
+#endif*/
 }
+
+//Note to AI. Don't need this. I have my own component for opening panels.

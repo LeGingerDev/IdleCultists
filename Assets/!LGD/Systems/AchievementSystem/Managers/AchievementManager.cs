@@ -5,11 +5,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using LGD.ResourceSystem.Managers;
+using LGD.Extensions;
 
 public class AchievementManager : MonoSingleton<AchievementManager>
 {
     [SerializeField]
     private List<AchievementRuntimeData> _runtimeData = new List<AchievementRuntimeData>();
+
+    [SerializeField]    
+    private Resource _achievementPointsResource;
 
     [SerializeField]
     private bool _autoSave = true;
@@ -215,7 +220,7 @@ public class AchievementManager : MonoSingleton<AchievementManager>
         if (achievementData.achievementPointReward > 0)
         {
             // Find the achievement points resource
-            Resource achievementPointsResource = FindAchievementPointsResource();
+            Resource achievementPointsResource = _achievementPointsResource;
 
             if (achievementPointsResource != null && ResourceManager.Instance != null)
             {
@@ -252,32 +257,6 @@ public class AchievementManager : MonoSingleton<AchievementManager>
         }
     }
 
-    /// <summary>
-    /// Find the Achievement Points resource (looks for resource with "achievement" and "point" in name)
-    /// </summary>
-    private Resource FindAchievementPointsResource()
-    {
-        if (ResourceManager.Instance == null)
-            return null;
-
-        // Try to find a resource with "achievement" and "point" in the name (case insensitive)
-        var allResources = ResourceManager.Instance.GetAllResources();
-
-        foreach (var kvp in allResources)
-        {
-            Resource resource = kvp.Key;
-            if (resource != null && resource.displayName != null)
-            {
-                string name = resource.displayName.ToLower();
-                if (name.Contains("achievement") && name.Contains("point"))
-                {
-                    return resource;
-                }
-            }
-        }
-
-        return null;
-    }
 
     #endregion
 

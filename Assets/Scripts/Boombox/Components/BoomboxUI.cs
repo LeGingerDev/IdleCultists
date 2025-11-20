@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using LGD.ResourceSystem.Managers;
+using LGD.Extensions;
+using LGD.ResourceSystem;
+using LGD.ResourceSystem.Models;
 
 /// <summary>
 /// Main UI panel for the Boombox music player system
@@ -134,7 +138,7 @@ public class BoomboxUI : SlidePanel
         if (ResourceManager.Instance == null)
             return;
 
-        AlphabeticNotation points = ResourceManager.Instance.QueryResource(_achievementPointsResource);
+        AlphabeticNotation points = ResourceManager.Instance.GetResourceAmount(_achievementPointsResource);
         _achievementPointsText.text = $"Achievement Points: {points.FormatWithDecimals()}";
     }
 
@@ -156,7 +160,7 @@ public class BoomboxUI : SlidePanel
             // Update now playing info
             if (_nowPlayingTrackText != null)
             {
-                _nowPlayingTrackText.text = currentTrack.displayName;
+                _nowPlayingTrackText.text = $"Currently Playing\n{currentTrack.displayName}";
             }
 
             if (_nowPlayingArtistText != null)

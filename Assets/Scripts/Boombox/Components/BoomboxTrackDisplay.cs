@@ -1,5 +1,8 @@
 using LGD.Core;
 using LGD.Core.Events;
+using LGD.Extensions;
+using LGD.ResourceSystem;
+using LGD.ResourceSystem.Models;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;

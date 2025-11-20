@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99b958a98cb2174cbdbe57fcb585142, type: 3}
+  m_Name: BoomboxTrack_RetroDungeon
+  m_EditorClassIdentifier: Assembly-CSharp::BoomboxTrackPurchasable
+  purchasableId: retro-dungeon
+  displayName: Retro Dungeon
+  description: A retro inspired track
+  icon: {fileID: 0}
+  purchaseType: 0
+  maxPurchases: -1
+  costScaling:
+    costType: {fileID: 11400000, guid: 238820fcf60b0634785dd99d282256fe, type: 2}
+    baseCost: 1
+    growthType: 0
+    growthRate: 0
+  prerequisitePurchasables: []
+  audioClipSO: {fileID: 11400000, guid: cc6455ffd098abc4a89b751205b299f8, type: 2}
+  artist: LeGingerDev
+  trackDescription: Just you're good ol' Jazzy Beat
+  isDefaultUnlocked: 0

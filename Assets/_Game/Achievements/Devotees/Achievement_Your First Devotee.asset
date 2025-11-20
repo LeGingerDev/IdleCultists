@@ -16,9 +16,14 @@ MonoBehaviour:
   title: Your First Devotee
   description: The beginning of the end!
   icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
+  requiredAchievements: []
   trackingType: 1
   trackingMetric: 2
   trackedResource: {fileID: 0}
   goal:
     coefficient: 1
     magnitude: 0
+  rewards: []
+  achievementPointReward: 1
+  unlockedPurchasables: []
+  hexColor: {r: 1, g: 1, b: 1, a: 1}

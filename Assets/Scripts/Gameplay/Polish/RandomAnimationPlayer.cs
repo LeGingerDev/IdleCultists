@@ -32,15 +32,16 @@ namespace LGD.Gameplay.Polish
             [MinValue(0)]
             public float overrideDuration = 0f;
 
+            [Tooltip("Event triggered when this specific animation plays")]
+            public UnityEvent onAnimationPlayed;
+
             public WeightedAnimation(string animName, int weight = 1)
             {
                 this.animationName = animName;
                 this.weight = weight;
+                this.onAnimationPlayed = new UnityEvent();
             }
         }
-
-        [Serializable]
-        public class AnimationEvent : UnityEvent<string> { }
 
         #endregion
 
@@ -86,37 +87,6 @@ namespace LGD.Gameplay.Polish
         [SerializeField, FoldoutGroup("Timing Settings")]
         [Tooltip("If true, delays the first random animation. If false, plays one immediately.")]
         private bool _delayFirstAnimation = true;
-
-        #endregion
-
-        #region Events
-
-        [SerializeField, FoldoutGroup("Events")]
-        [Tooltip("Invoked whenever ANY animation plays (default or random). Passes the animation name.")]
-        private AnimationEvent _onAnimationPlayed = new AnimationEvent();
-
-        [SerializeField, FoldoutGroup("Events")]
-        [Tooltip("Invoked only when a random weighted animation plays. Passes the animation name.")]
-        private AnimationEvent _onRandomAnimationPlayed = new AnimationEvent();
-
-        [SerializeField, FoldoutGroup("Events")]
-        [Tooltip("Invoked only when the default animation plays. Passes the animation name.")]
-        private AnimationEvent _onDefaultAnimationPlayed = new AnimationEvent();
-
-        /// <summary>
-        /// Event invoked whenever any animation plays (default or random).
-        /// </summary>
-        public AnimationEvent OnAnimationPlayed => _onAnimationPlayed;
-
-        /// <summary>
-        /// Event invoked only when a random weighted animation plays.
-        /// </summary>
-        public AnimationEvent OnRandomAnimationPlayed => _onRandomAnimationPlayed;
-
-        /// <summary>
-        /// Event invoked only when the default animation plays.
-        /// </summary>
-        public AnimationEvent OnDefaultAnimationPlayed => _onDefaultAnimationPlayed;
 
         #endregion
 
@@ -266,10 +236,6 @@ namespace LGD.Gameplay.Polish
             _animator.Play(_defaultAnimationName);
             _lastAnimationPlayed = _defaultAnimationName;
 
-            // Invoke events
-            _onAnimationPlayed?.Invoke(_defaultAnimationName);
-            _onDefaultAnimationPlayed?.Invoke(_defaultAnimationName);
-
             Debug.Log($"[RandomAnimationPlayer] Playing default animation '{_defaultAnimationName}' on {gameObject.name}");
         }
 
@@ -313,9 +279,6 @@ namespace LGD.Gameplay.Polish
             _animator.Play(animationName);
             _lastAnimationPlayed = animationName;
             _totalAnimationsPlayed++;
-
-            // Invoke generic event only (not default or random, this is manual)
-            _onAnimationPlayed?.Invoke(animationName);
 
             Debug.Log($"[RandomAnimationPlayer] Playing specific animation '{animationName}' on {gameObject.name}");
         }
@@ -443,9 +406,8 @@ namespace LGD.Gameplay.Polish
             _lastAnimationPlayed = animation.animationName;
             _totalAnimationsPlayed++;
 
-            // Invoke events
-            _onAnimationPlayed?.Invoke(animation.animationName);
-            _onRandomAnimationPlayed?.Invoke(animation.animationName);
+            // Invoke this animation's specific event
+            animation.onAnimationPlayed?.Invoke();
 
             Debug.Log($"[RandomAnimationPlayer] Playing animation '{animation.animationName}' (weight: {animation.weight}) on {gameObject.name}");
         }

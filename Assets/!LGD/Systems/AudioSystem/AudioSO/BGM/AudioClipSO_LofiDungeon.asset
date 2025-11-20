@@ -15,7 +15,7 @@ MonoBehaviour:
   id: lofi-dungeon
   constName: LOFI_DUNGEON
   audioClips:
-  - {fileID: 8300000, guid: f5f17f5e14a8d1141b60190fde745381, type: 3}
+  - {fileID: 8300000, guid: 22ac1ad097cc58044a9ca667615d6b09, type: 3}
   isLooping: 1
   isRandomPitch: 0
   pitchVariance: 0

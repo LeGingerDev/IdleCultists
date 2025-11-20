@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b99b958a98cb2174cbdbe57fcb585142, type: 3}
   m_Name: BoomboxTrack_LofiDungeon
   m_EditorClassIdentifier: Assembly-CSharp::BoomboxTrackPurchasable
-  purchasableId: slow-jazz-dungeon
-  displayName: Slow Jazz Dungeon
-  description: A jazzy track
+  purchasableId: lofi-dungeon
+  displayName: Lofi Dungeon
+  description: A jchill track
   icon: {fileID: 0}
   purchaseType: 0
   maxPurchases: -1
@@ -24,7 +24,7 @@ MonoBehaviour:
     growthType: 0
     growthRate: 0
   prerequisitePurchasables: []
-  audioClipSO: {fileID: 11400000, guid: d8d5c834feef0c642991f7e6d0b4b15b, type: 2}
+  audioClipSO: {fileID: 11400000, guid: 757c06bad53147d489b319d59d474bae, type: 2}
   artist: LeGingerDev
-  trackDescription: Just you're good ol' Jazzy Beat
+  trackDescription: Just you're good ol' Lofi Jam
   isDefaultUnlocked: 0

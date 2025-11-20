@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public class BoomboxSaveProvider : SaveLoadProviderBase<BoomboxRuntimeData>
 {
+    [SerializeField]
+    private BoomboxTrackPurchasable _defaultTrack;
+
     protected override string GetSaveFileName()
     {
         return "boombox.json";
@@ -16,8 +19,9 @@ public class BoomboxSaveProvider : SaveLoadProviderBase<BoomboxRuntimeData>
     {
         _data.Clear();
 
-        // Create default state (no track playing)
         BoomboxRuntimeData defaultData = new BoomboxRuntimeData();
+        defaultData.lastPlayedTrackId = _defaultTrack.purchasableId;
+        defaultData.wasPlaying = true;
         _data.Add(defaultData);
 
         DebugManager.Log("[Boombox] <color=green>Created default boombox save data</color>");

@@ -21,3 +21,4 @@ MonoBehaviour:
   pitchVariance: 0
   volume: 0.093
   spatialBlend: 0
+  bpm: 85

@@ -136,7 +136,7 @@ public class BeatParticleEffect : BaseBehaviour
     /// <summary>
     /// Enable or disable the effect
     /// </summary>
-    public void SetActive(bool active)
+    public void ToggleSetActive(bool active)
     {
         isActive = active;
 

@@ -4,7 +4,8 @@ namespace Audio.Core
     public static class AudioConstIds
     {
         public const string ACOUSTIC_DUNGEON = "acoustic-dungeon";
-        public const string JAZZY_DUNGEON = "jazzy-dungeon";
+        public const string FUNKY_DUNGEON = "funky-dungeon";
+        public const string LOFI_DUNGEON = "lofi-dungeon";
         public const string MAIN_MENU = "main-menu";
         public const string RETRO_DUNGEON = "retro-dungeon";
         public const string ROCK_DUNGEON = "rock-dungeon";

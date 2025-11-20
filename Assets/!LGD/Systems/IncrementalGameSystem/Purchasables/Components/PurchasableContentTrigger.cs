@@ -1,18 +1,25 @@
+using System.Collections;
 using LGD.Core;
 using LGD.Core.Events;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PurchasableContentTrigger : BaseBehaviour
 {
+    public UnityEvent OnContentActivated;
+    public UnityEvent OnContentDeactivated;
+
     [SerializeField, Tooltip("The Purchasable you want to listen to when it was purchased.")]
     private BasePurchasable _listeningToPurchasable;
 
     [SerializeField]
     private GameObject _contentToToggle;
 
-    void Start()
+    IEnumerator Start()
     {
-        _contentToToggle.SetActive(_listeningToPurchasable.GetPurchaseCount() > 0);
+        yield return new WaitForSeconds(0.1f);
+        ToggleContent(_listeningToPurchasable.GetPurchaseCount() > 0);
     }
 
     [Topic(PurchasableEventIds.ON_PURCHASABLE_PURCHASED)]
@@ -21,14 +28,21 @@ public class PurchasableContentTrigger : BaseBehaviour
         if (blueprint.purchasableId != _listeningToPurchasable.purchasableId)
             return;
 
-        _contentToToggle.SetActive(_listeningToPurchasable.GetPurchaseCount() > 0);
+        ToggleContent(_listeningToPurchasable.GetPurchaseCount() > 0);
     }
+
+[Button]
+    public void DebugTest() => ToggleContent(_listeningToPurchasable.GetPurchaseCount() > 0);
 
     public void ToggleContent(bool isActive)
     {
         if (_contentToToggle != null)
-        {
             _contentToToggle.SetActive(isActive);
-        }
+
+        if (isActive)
+            OnContentActivated?.Invoke();
+        else
+            OnContentDeactivated?.Invoke();
+        
     }
 }

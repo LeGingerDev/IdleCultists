@@ -2,6 +2,7 @@ using Audio.Managers;
 using LGD.Core;
 using LGD.Core.Events;
 using LGD.Core.Singleton;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
 {
     private BoomboxTrackPurchasable _currentTrack = null;
     private PurchasableRegistry _purchasableRegistry;
+    private BoomboxSaveProvider _saveProvider;
     private bool _isInitialized = false;
 
     protected override void Awake()
@@ -23,17 +25,13 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
 
     private void Start()
     {
-        Initialize();
+        StartCoroutine(InitializeAsync());
     }
 
-    private void Initialize()
+    private IEnumerator InitializeAsync()
     {
         // Wait for PurchasableManager to initialize
-        if (PurchasableManager.Instance == null || !PurchasableManager.Instance.IsInitialized())
-        {
-            Invoke(nameof(Initialize), 0.1f);
-            return;
-        }
+        yield return new WaitUntil(() => PurchasableManager.Instance != null && PurchasableManager.Instance.IsInitialized());
 
         // Get the purchasable registry
         _purchasableRegistry = RegistryManager.Instance.GetRegistry<BasePurchasable>() as PurchasableRegistry;
@@ -41,7 +39,21 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
         if (_purchasableRegistry == null)
         {
             DebugManager.Error("[Boombox] Failed to get PurchasableRegistry!");
-            return;
+            yield break;
+        }
+
+        // Get save provider
+        _saveProvider = SaveLoadProviderManager.Instance.GetProvider<BoomboxRuntimeData>() as BoomboxSaveProvider;
+
+        if (_saveProvider != null)
+        {
+            // Load saved boombox state
+            yield return _saveProvider.Load();
+            DebugManager.Log("[Boombox] <color=cyan>Boombox save data loaded</color>");
+        }
+        else
+        {
+            DebugManager.Warning("[Boombox] BoomboxSaveProvider not found! Boombox state will not persist.");
         }
 
         _isInitialized = true;
@@ -137,6 +149,9 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
         // Delegate playback to AudioManager with crossfade
         AudioManager.Instance.PlayBGMTrack(track.audioClipSO, crossfade: true);
 
+        // Save state
+        SaveCurrentState();
+
         // Publish events
         ServiceBus.Publish(BoomboxEventIds.ON_TRACK_STARTED, this, track);
 
@@ -161,6 +176,9 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
 
         // Clear current track
         _currentTrack = null;
+
+        // Save state
+        SaveCurrentState();
 
         // Publish event
         ServiceBus.Publish(BoomboxEventIds.ON_TRACK_STOPPED, this);
@@ -251,6 +269,76 @@ public class BoomboxManager : MonoSingleton<BoomboxManager>
     public bool IsInitialized()
     {
         return _isInitialized;
+    }
+
+    #endregion
+
+    #region Save/Load
+
+    /// <summary>
+    /// Saves the current playback state
+    /// </summary>
+    private void SaveCurrentState()
+    {
+        if (_saveProvider == null)
+            return;
+
+        BoomboxRuntimeData state = new BoomboxRuntimeData(
+            _currentTrack?.purchasableId,
+            _currentTrack != null
+        );
+
+        _saveProvider.SetBoomboxState(state);
+    }
+
+    /// <summary>
+    /// Restores the saved playback state (called by RestoreMusicTask)
+    /// </summary>
+    public IEnumerator RestoreMusic()
+    {
+        if (!_isInitialized)
+        {
+            DebugManager.Warning("[Boombox] Cannot restore music - manager not initialized");
+            yield break;
+        }
+
+        if (_saveProvider == null)
+        {
+            DebugManager.Warning("[Boombox] Cannot restore music - no save provider");
+            yield break;
+        }
+
+        BoomboxRuntimeData savedState = _saveProvider.GetBoomboxState();
+
+        // If there was no track playing, nothing to restore
+        if (string.IsNullOrEmpty(savedState.lastPlayedTrackId) || !savedState.wasPlaying)
+        {
+            DebugManager.Log("[Boombox] <color=cyan>No music to restore</color>");
+            yield break;
+        }
+
+        // Find the track by ID
+        BoomboxTrackPurchasable trackToRestore = GetAllTracks()
+            .FirstOrDefault(t => t.purchasableId == savedState.lastPlayedTrackId);
+
+        if (trackToRestore == null)
+        {
+            DebugManager.Warning($"[Boombox] Could not find saved track: {savedState.lastPlayedTrackId}");
+            yield break;
+        }
+
+        // Check if track is still unlocked
+        if (!trackToRestore.IsUnlocked())
+        {
+            DebugManager.Warning($"[Boombox] Saved track is locked: {trackToRestore.displayName}");
+            yield break;
+        }
+
+        // Restore playback
+        PlayTrack(trackToRestore);
+        DebugManager.Log($"[Boombox] <color=green>Restored music:</color> {trackToRestore.displayName}");
+
+        yield return null;
     }
 
     #endregion

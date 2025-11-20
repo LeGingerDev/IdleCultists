@@ -33,4 +33,17 @@ public static class BoomboxEventIds
     /// Parameters: (object sender)
     /// </summary>
     public const string ON_BOOMBOX_INITIALIZED = "on-boombox-initialized";
+
+    /// <summary>
+    /// Published on every beat of the currently playing track
+    /// Parameters: (object sender, float bpm)
+    /// </summary>
+    public const string ON_BEAT = "on-beat";
+
+    /// <summary>
+    /// Published periodically to allow beat effects to resync with audio
+    /// Helps prevent drift over long playback sessions
+    /// Parameters: (object sender)
+    /// </summary>
+    public const string ON_BEAT_RESYNC = "on-beat-resync";
 }

@@ -135,6 +135,20 @@ public class RoomController : BaseBehaviour
         }
     }
 
+    /// <summary>
+    /// Hide room instantly (used for locking rooms, ascension mechanics)
+    /// </summary>
+    public void HideRoom()
+    {
+        _roomContent?.SetActive(false);
+
+        if (_tilemapRippleEffect != null)
+        {
+            _tilemapRippleEffect.SetLockedState();
+            // Sets tiles back to locked state and shows cover
+        }
+    }
+
     #endregion
 
     #region Debug Helpers

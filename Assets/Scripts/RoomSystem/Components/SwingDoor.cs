@@ -10,10 +10,19 @@ public class SwingDoor : Door
     [SerializeField]
     private Animator _doorAnim;
 
-    public override void OpenDoor(float duration)
+    [SerializeField]
+    private string _idleAnimName = "Idle";
+
+    public override void OpenDoor(float duration, bool playWithAudio = true)
     {
-        base.OpenDoor(duration);
+        base.OpenDoor(duration, playWithAudio);
         _doorAnim.Play("Opening");
+    }
+
+    public override void CloseDoor(float duration, bool playWithAudio = true)
+    {
+        base.CloseDoor(duration, playWithAudio);
+        _doorAnim.Play(_idleAnimName);
     }
 
     public Transform MatchingDoor => _matchingDoor;

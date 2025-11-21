@@ -16,9 +16,14 @@ MonoBehaviour:
   title: Click the Orb once
   description: What does this thing do?
   icon: {fileID: 21300000, guid: fc4ad5592c534c5438d4547dfb73091a, type: 3}
+  requiredAchievements: []
   trackingType: 3
   trackingMetric: 2
   trackedResource: {fileID: 0}
   goal:
     coefficient: 1
     magnitude: 0
+  rewards: []
+  achievementPointReward: 1
+  unlockedPurchasables: []
+  hexColor: {r: 1, g: 1, b: 1, a: 1}

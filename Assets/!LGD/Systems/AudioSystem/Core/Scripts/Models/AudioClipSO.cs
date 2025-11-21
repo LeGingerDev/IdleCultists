@@ -25,6 +25,11 @@ namespace Audio.Models
         [Range(0f, 1f)]
         public float spatialBlend; // 0 = 2D, 1 = 3D
 
+        [Header("Rhythm")]
+        [Tooltip("Beats per minute - used for beat-synced visual effects")]
+        [Range(0f, 300f)]
+        public float bpm = 120f;
+
         public void UpdateConstName()
         {
             constName = constName.Replace(" ","_").ToUpper();

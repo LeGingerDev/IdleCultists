@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b99b958a98cb2174cbdbe57fcb585142, type: 3}
+  m_Name: BoomboxTrack_LofiDungeon
+  m_EditorClassIdentifier: Assembly-CSharp::BoomboxTrackPurchasable
+  purchasableId: lofi-dungeon
+  displayName: Lofi Dungeon
+  description: A jchill track
+  icon: {fileID: 0}
+  purchaseType: 0
+  maxPurchases: -1
+  costScaling:
+    costType: {fileID: 11400000, guid: 238820fcf60b0634785dd99d282256fe, type: 2}
+    baseCost: 1
+    growthType: 0
+    growthRate: 0
+  prerequisitePurchasables: []
+  audioClipSO: {fileID: 11400000, guid: 757c06bad53147d489b319d59d474bae, type: 2}
+  artist: LeGingerDev
+  trackDescription: Just you're good ol' Lofi Jam
+  isDefaultUnlocked: 0

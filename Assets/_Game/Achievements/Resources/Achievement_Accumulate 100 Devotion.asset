@@ -16,9 +16,14 @@ MonoBehaviour:
   title: Accumulate 100 Devotion
   description: Just the early stages, devote more!
   icon: {fileID: -3155132167330789978, guid: ea70a9b34a8b4bb49aaefcba6407aaed, type: 3}
+  requiredAchievements: []
   trackingType: 2
   trackingMetric: 1
   trackedResource: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
   goal:
     coefficient: 100
     magnitude: 0
+  rewards: []
+  achievementPointReward: 1
+  unlockedPurchasables: []
+  hexColor: {r: 1, g: 1, b: 1, a: 1}

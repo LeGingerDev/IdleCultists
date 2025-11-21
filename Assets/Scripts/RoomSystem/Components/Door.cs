@@ -1,3 +1,4 @@
+using Audio.Core;
 using LGD.Core;
 using LGD.Core.Events;
 using LGD.InteractionSystem;
@@ -90,9 +91,16 @@ public class Door : WorldToolTipBase<RoomBlueprint>
     }
 
     [Button]
-    public virtual void OpenDoor(float duration)
+    public virtual void OpenDoor(float duration, bool playWithAudio = true)
     {
         isOpen = true;
         col.enabled = false;
+    }
+
+    //This wouldn't typically be animated. Purely here for resetting and loading stuff.
+    public virtual void CloseDoor(float duration, bool playWithAudio = true)
+    {
+        isOpen = false;
+        col.enabled = true;
     }
 }

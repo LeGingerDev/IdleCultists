@@ -126,16 +126,11 @@ public class AdminRoomsTab : AdminTabBase
                 if (isUnlocking)
                 {
                     // Open the door (disable collider)
-                    door.OpenDoor(0f);
+                    door.OpenDoor(0f, false);
                 }
                 else
                 {
-                    // Re-enable the door's collider when locking
-                    var col = door.GetComponentInChildren<Collider2D>();
-                    if (col != null)
-                    {
-                        col.enabled = true;
-                    }
+                    door.CloseDoor(0, false);
                 }
             }
         }

@@ -176,6 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LGD.ResourceSystem.Managers.ResourceRegistry
   _items:
+  - {fileID: 11400000, guid: 238820fcf60b0634785dd99d282256fe, type: 2}
   - {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
   - {fileID: 11400000, guid: cdcd6bb8d0ffbf24a815ecfde7653d17, type: 2}
 --- !u!1 &392290075509246843
@@ -1615,7 +1616,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 390.9, y: -834}
+  m_AnchoredPosition: {x: 836, y: -834}
   m_SizeDelta: {x: 401.851, y: 237.4428}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1074676054705653155
@@ -2654,6 +2655,7 @@ Transform:
   - {fileID: 2437365454294894656}
   - {fileID: 3285387339389276360}
   - {fileID: 1901020462035996827}
+  - {fileID: 5644791135913520826}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8385439265127119524
@@ -2668,7 +2670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2734b1d7721fbed49a8ef568281d3ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _destroyDuplicates: 1
+  _destroyDuplicates: 0
   _instanceID: global-object
 --- !u!1 &2249624478127821644
 GameObject:
@@ -3129,6 +3131,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _runtimeData: []
+  _achievementPointsResource: {fileID: 11400000, guid: 238820fcf60b0634785dd99d282256fe, type: 2}
   _autoSave: 1
 --- !u!114 &5942399026884935373
 MonoBehaviour:
@@ -4890,6 +4893,52 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!1 &4580985104565715381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9209395602265652252}
+  - component: {fileID: 1531726958213353977}
+  m_Layer: 0
+  m_Name: BoomBoxSaveProvider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9209395602265652252
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4580985104565715381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1901020462035996827}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1531726958213353977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4580985104565715381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dbf0318801bd184985c4ed051f68e2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoomboxSaveProvider
+  _data: []
+  _defaultTrack: {fileID: 11400000, guid: 730b4dfe700cd2a44ae9b7c527e7790d, type: 2}
 --- !u!1 &4614819084581414693
 GameObject:
   m_ObjectHideFlags: 0
@@ -5046,6 +5095,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PurchasableRegistry
   _items:
+  - {fileID: 11400000, guid: ecf6be57bd6bf394c957f9b00e9901c0, type: 2}
+  - {fileID: 11400000, guid: 730b4dfe700cd2a44ae9b7c527e7790d, type: 2}
+  - {fileID: 11400000, guid: ae81c5f2f515fbb4a8106ea7e31230c2, type: 2}
+  - {fileID: 11400000, guid: 2ba1ce79e7a783e42ab38847bda17383, type: 2}
+  - {fileID: 11400000, guid: 17933de3645ad7044953399120182c5c, type: 2}
+  - {fileID: 11400000, guid: 0e4766d46c470784882df6283b03853e, type: 2}
+  - {fileID: 11400000, guid: e1926fee17620944db27d1c4fa050af8, type: 2}
   - {fileID: 11400000, guid: 447bf5f697de891489eaef7a9e5b9c44, type: 2}
   - {fileID: 11400000, guid: da3f8168f4dc6ec46a17812ba3a5718d, type: 2}
   - {fileID: 11400000, guid: a97b5758a550f934da14c7b59557ef38, type: 2}
@@ -6628,6 +6684,7 @@ Transform:
   - {fileID: 3476068985052821258}
   - {fileID: 38820574104714665}
   - {fileID: 6968067489561072000}
+  - {fileID: 9209395602265652252}
   m_Father: {fileID: 447791330784164761}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6759844272432826801
@@ -7606,6 +7663,65 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &6824997462853645486
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5644791135913520826}
+  - component: {fileID: 1381914991971560082}
+  m_Layer: 0
+  m_Name: AdminConsoleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5644791135913520826
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6824997462853645486}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 447791330784164761}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1381914991971560082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6824997462853645486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cca383dba3faf141aaf3c29f7822c1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AdminConsoleManager
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _modifierKey: 304
+  _toggleKey: 99
+  _defaultWindowSize: {x: 900, y: 650}
+  _defaultWindowPosition: {x: 100, y: 100}
+  _isVisible: 0
+  _currentTab: 0
 --- !u!1 &6916546017570382899
 GameObject:
   m_ObjectHideFlags: 0
@@ -8100,6 +8216,7 @@ Transform:
   - {fileID: 3704499632486102877}
   - {fileID: 6236449125952432745}
   - {fileID: 2324017544529870917}
+  - {fileID: 8540849716509947623}
   m_Father: {fileID: 447791330784164761}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7241529388090269988
@@ -8863,7 +8980,6 @@ MonoBehaviour:
   - Fallen
   - Olgie
   - MJ Snow
-  - 
   - Mica
   - Nati
   - Luka
@@ -8871,6 +8987,60 @@ MonoBehaviour:
   - Obito
   - Jotaro
   - Culty McCulterson
+  - Booger
+--- !u!1 &7722766331284737372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8540849716509947623}
+  - component: {fileID: 6128139350771653013}
+  m_Layer: 0
+  m_Name: BoomBoxManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8540849716509947623
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7722766331284737372}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2437365454294894656}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6128139350771653013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7722766331284737372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a56bff797d19e947a991cf405a3e046, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoomboxManager
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
 --- !u!1 &7870085728073890293
 GameObject:
   m_ObjectHideFlags: 0

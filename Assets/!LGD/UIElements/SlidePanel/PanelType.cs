@@ -11,4 +11,6 @@ public enum PanelType
     Settings,
     LifeCrystal,
     TestSkillTree,
+    BoomBox,
+    AccoladeRewards,
 }

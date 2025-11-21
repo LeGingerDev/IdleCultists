@@ -13,7 +13,12 @@ MonoBehaviour:
   m_Name: AudioClipsCollection
   m_EditorClassIdentifier: 
   _audioClipsCollection:
+  - {fileID: 11400000, guid: 4c9e9d70df4abe840abd4a1987af7e16, type: 2}
+  - {fileID: 11400000, guid: 2c6e9d885be89f44dada63946861c97f, type: 2}
   - {fileID: 11400000, guid: ad2af0185fa0a5945b3a9c37971a3d24, type: 2}
+  - {fileID: 11400000, guid: cc6455ffd098abc4a89b751205b299f8, type: 2}
+  - {fileID: 11400000, guid: 77e7a751c71d2e242a49b086893d9c5b, type: 2}
+  - {fileID: 11400000, guid: d8d5c834feef0c642991f7e6d0b4b15b, type: 2}
   - {fileID: 11400000, guid: 1ece0fd2b3a5c2a42be586ab2868a97b, type: 2}
   - {fileID: 11400000, guid: 1594502e91698864ab1d90523d65becd, type: 2}
   - {fileID: 11400000, guid: 26f37f5bb4c65c24aa52f64128811471, type: 2}

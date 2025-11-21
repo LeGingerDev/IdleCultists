@@ -146,7 +146,7 @@ public class RoomManager : MonoSingleton<RoomManager>, IStatProvider
             Door door = FindDoorForRoom(roomData.roomId);
             if (door != null)
             {
-                door.OpenDoor(0f); // Instant snap
+                door.OpenDoor(0f, false); // Instant snap
             }
 
             // Publish restoration event (visual-only, no gameplay logic)

@@ -32,6 +32,14 @@ public class AchievementData : ScriptableObject
     [FoldoutGroup("Rewards")]
     public List<ResourceAmountPair> rewards = new List<ResourceAmountPair>();
 
+    [FoldoutGroup("Rewards")]
+    [Tooltip("Achievement points granted when this achievement is unlocked")]
+    public int achievementPointReward = 0;
+
+    [FoldoutGroup("Rewards")]
+    [Tooltip("Purchasables that are unlocked when this achievement is completed (e.g., boombox tracks, features)")]
+    public List<BasePurchasable> unlockedPurchasables = new List<BasePurchasable>();
+
     [FoldoutGroup("Visual")]
     public Color hexColor = Color.white;
 

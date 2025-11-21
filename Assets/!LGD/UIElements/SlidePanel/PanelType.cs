@@ -12,4 +12,5 @@ public enum PanelType
     LifeCrystal,
     TestSkillTree,
     BoomBox,
+    AccoladeRewards,
 }

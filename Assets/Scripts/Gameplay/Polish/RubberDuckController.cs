@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace LGD.Gameplay.Polish
@@ -10,7 +11,6 @@ namespace LGD.Gameplay.Polish
     /// Jump direction is determined via animation events.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
-    [RequireComponent(typeof(Animator))]
     public class RubberDuckController : SerializedMonoBehaviour
     {
         #region Inspector Fields
@@ -88,7 +88,7 @@ namespace LGD.Gameplay.Polish
         {
             // Auto-assign components if not set
             if (_animator == null)
-                _animator = GetComponent<Animator>();
+                _animator = GetComponentInChildren<Animator>();
 
             if (_rb == null)
                 _rb = GetComponent<Rigidbody2D>();
@@ -226,7 +226,7 @@ namespace LGD.Gameplay.Polish
             }
             else
             {
-                _rb.velocity = jumpVector;
+                _rb.linearVelocity = jumpVector;
             }
 
             // Flip sprite if needed

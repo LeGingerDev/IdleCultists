@@ -11,5 +11,11 @@ namespace LGD.ResourceSystem.Models
         [PreviewField] public Sprite icon;
         public Color colorAssociation = Color.white;
         public PhysicalResource physicalResourceAssociation;
+        public string resourceSpriteName;
+
+        public string GetResourceSpriteText()
+        {
+            return $"<sprite name={resourceSpriteName}>";
+        }
     }
 }

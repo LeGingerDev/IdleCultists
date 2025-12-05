@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267d33ad8716fec46874595e75fc65a3, type: 3}
+  m_Name: StatPurchasable_Ooo a pretty orb
+  m_EditorClassIdentifier: Assembly-CSharp::StatPurchasable
+  purchasableId: pretty-orb
+  displayName: Ooo a pretty orb
+  description: Ooo shiny orb particles.
+  icon: {fileID: -3155132167330789978, guid: ea70a9b34a8b4bb49aaefcba6407aaed, type: 3}
+  purchaseType: 0
+  maxPurchases: -1
+  costScaling:
+    costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
+    baseCost: 5000
+    growthType: 1
+    growthRate: 1.7
+  prerequisitePurchasables:
+  - {fileID: 11400000, guid: 3304a2f2ae3545f49b26c8e03fe6be49, type: 2}
+  modifierScaling: []

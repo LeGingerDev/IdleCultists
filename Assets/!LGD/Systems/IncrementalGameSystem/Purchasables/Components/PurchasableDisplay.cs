@@ -1,14 +1,5 @@
-using LargeNumbers;
-using LGD.Core;
-using LGD.Core.Events;
-using LGD.Extensions;
-using LGD.ResourceSystem.Managers;
-using LGD.ResourceSystem.Models;
 using Sirenix.OdinInspector;
-using System.Collections;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PurchasableDisplay : BasePurchasableDisplay
 {
@@ -74,7 +65,7 @@ public class PurchasableDisplay : BasePurchasableDisplay
         return _purchasableBlueprint != null && _purchasableBlueprint.CanAfford();
     }
 
-    
+
 
     public int GetTimesPurchased()
     {

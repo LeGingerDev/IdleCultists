@@ -244,4 +244,31 @@ public static class PurchasableExtensions
         return statPurchasable.GetModifiersAtTier(nextCount);
     }
     #endregion
+
+    #region Stat Formatting
+    /// <summary>
+    /// Formats a StatType into a display-friendly string with sprites or custom formatting
+    /// Customize this method to control how stat names appear in UI
+    /// </summary>
+    public static string FormatStatName(StatType statType)
+    {
+        return statType switch
+        {
+            StatType.DevotionPerClick => "<sprite name=\"devotion\"> Per Click",
+            StatType.DevotionPerSecond => "Cultist <sprite name=\"devotion\"> Per Second",
+            StatType.LifeEssenceChargePerSecond => "<sprite name=\"lifeessence\"> Charge Per Second",
+            StatType.LifeEssenceGain => "<sprite name=\"lifeessence\"> Gain",
+            StatType.LifeEssenceMaxCapacity => "<sprite name=\"lifeessence\"> Max Capacity",
+            StatType.LifeEssenceMaxCharge => "<sprite name=\"lifeessence\"> Max Charge",
+            StatType.MaxCapacity => "Max Cultist Capacity",
+            StatType.DoubleDevotionChance => "2x <sprite name=\"devotion\"> Chance",
+            StatType.TripleDevotionChance => "3x <sprite name=\"devotion\"> Chance",
+            StatType.SummoningTime => "Cultist Summoning Time",
+
+            // Add more custom formatting here as needed
+            // For stats without custom formatting, return the enum name with spaces
+            _ => System.Text.RegularExpressions.Regex.Replace(statType.ToString(), "([a-z])([A-Z])", "$1 $2")
+        };
+    }
+    #endregion
 }

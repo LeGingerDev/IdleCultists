@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Audio.Core;
+using Audio.Managers;
+using UnityEngine;
 
 public class SwingDoor : Door
 {
@@ -16,6 +18,8 @@ public class SwingDoor : Door
     public override void OpenDoor(float duration, bool playWithAudio = true)
     {
         base.OpenDoor(duration, playWithAudio);
+        if (playWithAudio)
+            AudioManager.Instance.PlaySFX(AudioConstIds.SLDING_DOOR_OPEN, true, transform.position);
         _doorAnim.Play("Opening");
     }
 

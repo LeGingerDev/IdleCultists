@@ -247,7 +247,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
         if (_physicalSpawned.Count == 0)
             return;
 
-        if(_physicalSpawned.Count < (int)maxSpawnCapacity)
+        if (_physicalSpawned.Count < (int)maxSpawnCapacity)
             return;
 
         PhysicalResource oldest = _physicalSpawned[0];
@@ -267,15 +267,16 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
         Rigidbody2D entityRigidbody = entity.GetComponent<Rigidbody2D>();
         entityRigidbody.bodyType = RigidbodyType2D.Kinematic;
+        CultistAnimator cultistAnim = entity.GetComponent<CultistAnimator>();
         dockedPosition.Assign(entity);
         entity.transform.DOJump(dockedPosition.transform.position, _jumpPower, 1, _jumpDuration)
             .OnStart(() =>
             {
-                entity.transform.localScale = new Vector3(GetDirectionToTarget(dockedPosition.transform.position, entity.transform.position), 1, 1);
+                cultistAnim.Flip(GetDirectionToTarget(dockedPosition.transform.position, entity.transform.position) > 0);
             })
             .OnComplete(() =>
             {
-                entity.transform.localScale = new Vector3(GetDirectionToTarget(transform.position, entity.transform.position), 1, 1);
+                cultistAnim.Flip(GetDirectionToTarget(transform.position, entity.transform.position) > 0);
                 entityRigidbody.bodyType = RigidbodyType2D.Dynamic;
                 SetSpeed();
                 // Invoke UnityEvent after entity is fully assigned
@@ -286,13 +287,13 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
     public void SetSpeed()
     {
-        if(_dropZone.GetCurrentCapacity() <= 0)
+        if (_dropZone.GetCurrentCapacity() <= 0)
         {
             _anim.speed = 0f;
             return;
         }
-        
-        _anim.speed = 0.4f * _dropZone.GetCurrentCapacity(); 
+
+        _anim.speed = 0.4f * _dropZone.GetCurrentCapacity();
     }
 
     #endregion EntityManagement
@@ -329,7 +330,7 @@ public class LifeCrystalBehaviour : ZoneBehaviorBase
 
     public bool GetFreePosition(out EntityDockedPosition dockedPosition)
     {
-        if(AreAnyDocksFree())
+        if (AreAnyDocksFree())
         {
             dockedPosition = _dockedPositions.First(d => !d.IsOccupied());
             return true;

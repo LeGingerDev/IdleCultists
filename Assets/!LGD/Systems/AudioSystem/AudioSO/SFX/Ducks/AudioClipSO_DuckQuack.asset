@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0221bfccbadb8cb4b9c6611c40b76636, type: 3}
+  m_Name: AudioClipSO_DuckQuack
+  m_EditorClassIdentifier: Assembly-CSharp::Audio.Models.AudioClipSO
+  id: duck-quacks
+  constName: DUCK_QUACKS
+  audioClips:
+  - {fileID: 8300000, guid: 87ce06e1348ea214facea74e3e2b9bcb, type: 3}
+  - {fileID: 8300000, guid: d8a90c510fc38354cb29b9bb74ed993a, type: 3}
+  - {fileID: 8300000, guid: 9413224cd9da2c6499d4fa7d265fe5c4, type: 3}
+  isLooping: 0
+  isRandomPitch: 1
+  pitchVariance: 0.1
+  volume: 0.592
+  spatialBlend: 1
+  bpm: 120

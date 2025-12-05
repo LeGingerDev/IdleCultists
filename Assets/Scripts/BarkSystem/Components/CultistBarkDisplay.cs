@@ -1,3 +1,5 @@
+using Audio.Core;
+using Audio.Managers;
 using DG.Tweening;
 using LGD.Core;
 using LGD.Core.Events;
@@ -89,6 +91,8 @@ public class CultistBarkDisplay : BaseBehaviour
 
         // Start hide timer
         _displayCoroutine = StartCoroutine(HideAfterDelay());
+
+        AudioManager.Instance.PlaySFX(AudioConstIds.CULTIST_MUMBLINGS, true, transform.position);
 
         Debug.Log($"[CultistBarkDisplay] Showing bark: \"{text}\"");
     }

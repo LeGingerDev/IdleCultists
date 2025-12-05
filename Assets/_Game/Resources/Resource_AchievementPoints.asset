@@ -15,6 +15,7 @@ MonoBehaviour:
   id: achievement-points
   displayName: Achievement Points
   description: Wow. this is cool. Points. For playing!
-  icon: {fileID: 0}
+  icon: {fileID: -2138534889620764463, guid: 6f3f4033e97400746a0e9b967d8b1cda, type: 3}
   colorAssociation: {r: 1, g: 1, b: 1, a: 1}
   physicalResourceAssociation: {fileID: 0}
+  resourceSpriteName: achievement

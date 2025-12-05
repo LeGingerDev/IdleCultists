@@ -178,7 +178,7 @@ public class BoomboxTrackDisplay : BaseBehaviour
             var cost = _track.GetCurrentCostSafe();
             if (cost.resource != null)
             {
-                _costText.text = $"{cost.amount.FormatWithDecimals()} {cost.resource.displayName}";
+                _costText.text = $"{cost.resource.GetResourceSpriteText()}{cost.amount.FormatWithDecimals()}";
             }
         }
 

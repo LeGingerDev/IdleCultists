@@ -23,7 +23,7 @@ public class DoorToolTip : ToolTip<RoomBlueprint>
         _currentRoomData = data;
 
         _resourcesDisplay.Initialise(data.GetUnlockCost());
-        _roomNameText.text = data.displayName;
+        _roomNameText.text = $"<wave>{data.displayName}";
         _descriptionText.text = data.description;
 
         _checkLoopCoroutine = StartCoroutine(CheckLoop());
@@ -33,7 +33,7 @@ public class DoorToolTip : ToolTip<RoomBlueprint>
     {
         base.HideInternal();
 
-        if(_checkLoopCoroutine != null)
+        if (_checkLoopCoroutine != null)
         {
             StopCoroutine(_checkLoopCoroutine);
             _checkLoopCoroutine = null;
@@ -44,7 +44,7 @@ public class DoorToolTip : ToolTip<RoomBlueprint>
 
     private IEnumerator CheckLoop()
     {
-        while(true)
+        while (true)
         {
             _cantAffordText.SetActive(!_currentRoomData.CanAfford());
             yield return new WaitForSeconds(0.2f);

@@ -19,3 +19,4 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 47a7655157228c54f915de42962542b5, type: 3}
   colorAssociation: {r: 1, g: 1, b: 1, a: 1}
   physicalResourceAssociation: {fileID: 2455745395000518532, guid: 8143b0af8b17eb048a5701a40acef415, type: 3}
+  resourceSpriteName: lifeessence

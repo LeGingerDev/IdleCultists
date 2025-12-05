@@ -86,7 +86,7 @@ namespace LGD.UIElements.ConfirmPopup
         {
             _currentPopupData = confirmData;
 
-            _titleText.text = _currentPopupData.title;
+            _titleText.text = $"<wave>{_currentPopupData.title}";
             _messageText.text = _currentPopupData.message;
             _confirmButtonText.text = _currentPopupData.confirmButtonText;
             _cancelButtonText.text = _currentPopupData.cancelButtonText;

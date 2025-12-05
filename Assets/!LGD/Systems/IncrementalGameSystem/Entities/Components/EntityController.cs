@@ -89,4 +89,6 @@ public class EntityController : BaseBehaviour
             Publish(EntityEventIds.ON_ENTITY_DESTROYED, _runtimeData);
         }
     }
+
+
 }

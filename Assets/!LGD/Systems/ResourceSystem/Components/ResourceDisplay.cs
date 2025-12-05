@@ -23,9 +23,8 @@ namespace LGD.ResourceSystem.Components
         [SerializeField, FoldoutGroup("UI References")] private Image _resourceIcon;
         [SerializeField, FoldoutGroup("UI References")] private TextMeshProUGUI _resourceAmount;
 
-        private AlphabeticNotation _currentAmount;
         private Tween _amountTween;
-
+        private bool _hasHadAny;
         private void Awake()
         {
             _resourceAmount = GetComponentInChildren<TextMeshProUGUI>();
@@ -59,10 +58,8 @@ namespace LGD.ResourceSystem.Components
                 _amountTween.Kill();
             }
 
-            _currentAmount = amount;
-
             // Use automatic formatting: 2 decimals under 1K, 1 decimal at K+
-            _resourceAmount.text = amount.FormatWithDecimals();
+            _resourceAmount.text = amount.FormatWithDecimals(2);
         }
 
         public void CheckToShow()
@@ -75,8 +72,11 @@ namespace LGD.ResourceSystem.Components
             }
 
             if (_resource.HasAny()) // Use extension method
+            {
                 _fadeGroup.DOFade(1, 0.5f).OnStart(() => _layoutElement.ignoreLayout = false);
-            else
+                _hasHadAny = true;
+            }
+            else if (!_resource.HasAny() && !_hasHadAny) // Use extension method
                 _fadeGroup.DOFade(0, 0).OnComplete(() => _layoutElement.ignoreLayout = true);
         }
 

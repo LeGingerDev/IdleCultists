@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using DG.Tweening;
+using Audio.Managers;
+using Audio.Core;
 
 public class TilemapRippleEffect : MonoBehaviour
 {
@@ -141,6 +143,8 @@ public class TilemapRippleEffect : MonoBehaviour
 
     private void AnimateRing(List<Vector3Int> ring)
     {
+        AudioManager.Instance.PlaySFX(AudioConstIds.CHECKERED_TILE_SOUND, true);
+
         // Animate all tiles in this ring simultaneously
         foreach (Vector3Int tilePos in ring)
         {
@@ -152,6 +156,7 @@ public class TilemapRippleEffect : MonoBehaviour
     {
         float startRotation = 0f;
         float endRotation = _flipAngle;
+
 
         DOTween.To(() => startRotation,
                    x => ApplyRotationToTile(tilePosition, x),
@@ -218,6 +223,8 @@ public class TilemapRippleEffect : MonoBehaviour
 
         Matrix4x4 rotationMatrix = Matrix4x4.Rotate(rotation);
         _tilemap.SetTransformMatrix(tilePosition, rotationMatrix);
+
+
     }
 
     #endregion

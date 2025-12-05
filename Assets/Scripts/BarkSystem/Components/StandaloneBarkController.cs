@@ -86,6 +86,26 @@ public class StandaloneBarkController : SerializedMonoBehaviour
 
     #endregion
 
+    #region Scale Animation
+
+    [SerializeField, FoldoutGroup("Scale Animation")]
+    [Tooltip("If true, bubble will scale up with a bounce when appearing")]
+    private bool _enableScaleAnimation = true;
+
+    [SerializeField, FoldoutGroup("Scale Animation")]
+    [ShowIf("_enableScaleAnimation")]
+    [Tooltip("Duration of the scale animation (in seconds)")]
+    [MinValue(0.1f)]
+    private float _scaleDuration = 0.4f;
+
+    [SerializeField, FoldoutGroup("Scale Animation")]
+    [ShowIf("_enableScaleAnimation")]
+    [Tooltip("Target scale value (1 = normal size)")]
+    [MinValue(0.1f)]
+    private float _targetScale = 1f;
+
+    #endregion
+
     #region Runtime State
 
     [SerializeField, ReadOnly, FoldoutGroup("Debug")]
@@ -103,6 +123,7 @@ public class StandaloneBarkController : SerializedMonoBehaviour
     private Coroutine _periodicBarkCoroutine;
     private Coroutine _displayCoroutine;
     private Tween _fadeTween;
+    private Tween _scaleTween;
 
     #endregion
 
@@ -133,6 +154,7 @@ public class StandaloneBarkController : SerializedMonoBehaviour
     private void OnDestroy()
     {
         KillFadeTween();
+        KillScaleTween();
     }
 
     private void OnValidate()
@@ -322,6 +344,7 @@ public class StandaloneBarkController : SerializedMonoBehaviour
             StopCoroutine(_displayCoroutine);
 
         KillFadeTween();
+        KillScaleTween();
 
         // Update bark text
         _barkText.text = text;
@@ -333,6 +356,14 @@ public class StandaloneBarkController : SerializedMonoBehaviour
 
         // Fade in animation
         _fadeTween = _canvasGroup.DOFade(1f, _fadeInDuration).From(0f);
+
+        // Scale animation with bounce
+        if (_enableScaleAnimation)
+        {
+            _scaleTween = _bubbleContainer.transform.DOScale(_targetScale, _scaleDuration)
+                .From(0f)
+                .SetEase(Ease.OutBack);
+        }
 
         // Start hide timer
         _displayCoroutine = StartCoroutine(HideAfterDelay());
@@ -346,12 +377,18 @@ public class StandaloneBarkController : SerializedMonoBehaviour
             return;
 
         KillFadeTween();
+        KillScaleTween();
 
         // Fade out animation
         _fadeTween = _canvasGroup.DOFade(0f, _fadeOutDuration).OnComplete(() =>
         {
             if (_bubbleContainer != null)
+            {
                 _bubbleContainer.SetActive(false);
+                // Reset scale for next time
+                if (_enableScaleAnimation)
+                    _bubbleContainer.transform.localScale = Vector3.zero;
+            }
         });
     }
 
@@ -361,7 +398,11 @@ public class StandaloneBarkController : SerializedMonoBehaviour
             _canvasGroup.alpha = 0f;
 
         if (_bubbleContainer != null)
+        {
             _bubbleContainer.SetActive(false);
+            if (_enableScaleAnimation)
+                _bubbleContainer.transform.localScale = Vector3.zero;
+        }
     }
 
     private void KillFadeTween()
@@ -369,6 +410,14 @@ public class StandaloneBarkController : SerializedMonoBehaviour
         if (_fadeTween != null && _fadeTween.IsActive())
         {
             _fadeTween.Kill();
+        }
+    }
+
+    private void KillScaleTween()
+    {
+        if (_scaleTween != null && _scaleTween.IsActive())
+        {
+            _scaleTween.Kill();
         }
     }
 

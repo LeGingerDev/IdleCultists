@@ -17,3 +17,5 @@ MonoBehaviour:
   description: Crystallized prayers. Side effects may include enlightenment and zealotry.
   icon: {fileID: 21300000, guid: c3fa978ddcfa3a444a69e25395121326, type: 3}
   colorAssociation: {r: 1, g: 1, b: 1, a: 1}
+  physicalResourceAssociation: {fileID: 0}
+  resourceSpriteName: devotion

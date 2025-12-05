@@ -21,7 +21,14 @@ public class CameraController2D : MonoSingleton<CameraController2D>
     [SerializeField] private float _maxOrthographicSize = 10f;
     [FoldoutGroup("Zoom Settings")]
     [SerializeField] private float _zoomSmoothTime = 0.2f;
-
+    [FoldoutGroup("Audio Settings")]
+    [SerializeField] private Transform _audioListenerTransform;
+    [FoldoutGroup("Audio Settings")]
+    [SerializeField] private bool _useAudioZoomEffect = true;
+    [FoldoutGroup("Audio Settings")]
+    [SerializeField] private float _audioListenerMinZ = -5f;  // Closest position (zoomed in)
+    [FoldoutGroup("Audio Settings")]
+    [SerializeField] private float _audioListenerMaxZ = -20f; // Farthest position (zoomed out)
     [FoldoutGroup("Boundary Settings")]
     [SerializeField] private bool _useBoundaries = true;
     [FoldoutGroup("Boundary Settings")]
@@ -97,6 +104,12 @@ public class CameraController2D : MonoSingleton<CameraController2D>
         {
             DebugManager.Warning("[Core] CameraController2D: Camera is not orthographic. Setting to orthographic mode.");
             _camera.orthographic = true;
+        }
+
+        // Initialize AudioListener if assigned
+        if (_audioListenerTransform != null && _useAudioZoomEffect)
+        {
+            UpdateAudioListenerPosition();
         }
     }
 
@@ -258,6 +271,9 @@ public class CameraController2D : MonoSingleton<CameraController2D>
         );
 
         _camera.orthographicSize = _currentOrthographicSize;
+
+        // Update audio listener position based on zoom
+        UpdateAudioListenerPosition();
     }
 
     private Vector3 ClampPosition(Vector3 position)
@@ -332,7 +348,25 @@ public class CameraController2D : MonoSingleton<CameraController2D>
     }
 
     #endregion
+    /// <summary>
+    /// Updates the AudioListener's local Z position based on current zoom level.
+    /// Closer zoom = AudioListener moves forward (smaller Z value)
+    /// Further zoom = AudioListener moves back (larger Z value)
+    /// </summary>
+    private void UpdateAudioListenerPosition()
+    {
+        if (_audioListenerTransform == null || !_useAudioZoomEffect) return;
 
+        // Normalize the current zoom between 0 and 1
+        float normalizedZoom = Mathf.InverseLerp(_minOrthographicSize, _maxOrthographicSize, _currentOrthographicSize);
+
+        // Lerp between min and max Z positions
+        float targetZ = Mathf.Lerp(_audioListenerMinZ, _audioListenerMaxZ, normalizedZoom);
+
+        Vector3 localPosition = _audioListenerTransform.localPosition;
+        localPosition.z = targetZ;
+        _audioListenerTransform.localPosition = localPosition;
+    }
     #region Public Getters and Setters
 
     public float GetCurrentOrthographicSize()
@@ -383,12 +417,12 @@ public class CameraController2D : MonoSingleton<CameraController2D>
     [Button]
     public void ZoomToSize(float targetSize, bool animate = true, bool canDoAnySize = false, float customDuration = 0f)
     {
-        if(canDoAnySize == false)
+        if (canDoAnySize == false)
             targetSize = Mathf.Clamp(targetSize, _minOrthographicSize, _maxOrthographicSize);
 
         if (animate)
         {
-            ZoomToSizeAnimated(targetSize, customDuration,canDoAnySize);
+            ZoomToSizeAnimated(targetSize, customDuration, canDoAnySize);
         }
         else
         {
@@ -402,27 +436,28 @@ public class CameraController2D : MonoSingleton<CameraController2D>
 
         _zoomTween?.Kill();
         float clampedSize = targetSize;
-        if(canDoAnySize == false)
+        if (canDoAnySize == false)
             clampedSize = Mathf.Clamp(targetSize, _minOrthographicSize, _maxOrthographicSize);
 
         _zoomTween = DOTween.To(
             () => _currentOrthographicSize,
-            x => {
+            x =>
+            {
                 _currentOrthographicSize = x;
                 _targetOrthographicSize = x;
                 if (_camera != null)
                     _camera.orthographicSize = x;
+                UpdateAudioListenerPosition(); // Add this line
             },
             clampedSize,
             duration
         ).SetEase(_zoomEaseType);
     }
-
     public void ZoomToSizeInstant(float targetSize, bool canGoAnySize = false)
     {
         _zoomTween?.Kill();
         float clampedSize = targetSize;
-        if(canGoAnySize == false)
+        if (canGoAnySize == false)
             clampedSize = Mathf.Clamp(targetSize, _minOrthographicSize, _maxOrthographicSize);
 
         _currentOrthographicSize = clampedSize;

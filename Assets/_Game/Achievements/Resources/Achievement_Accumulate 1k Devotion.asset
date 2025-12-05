@@ -24,6 +24,6 @@ MonoBehaviour:
     coefficient: 1
     magnitude: 1
   rewards: []
-  achievementPointReward: 1
+  achievementPointReward: 4
   unlockedPurchasables: []
   hexColor: {r: 1, g: 1, b: 1, a: 1}

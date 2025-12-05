@@ -1,7 +1,11 @@
+using Audio.Core;
+using Audio.Managers;
+using LGD.Utilities.Extensions;
 using Sirenix.OdinInspector;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 namespace LGD.Gameplay.Polish
 {
@@ -47,8 +51,8 @@ namespace LGD.Gameplay.Polish
 
         [SerializeField, FoldoutGroup("Jump Physics")]
         [Tooltip("Force applied when jumping")]
-        [MinValue(0f)]
-        private float _jumpForce = 5f;
+        [MinValue(0f), MinMaxSlider(2f, 10f)]
+        private Vector2 _jumpForce;
 
         [SerializeField, FoldoutGroup("Jump Physics")]
         [Tooltip("Whether to apply jump force relative to current velocity or replace it")]
@@ -61,6 +65,8 @@ namespace LGD.Gameplay.Polish
         [SerializeField, FoldoutGroup("Settings")]
         [Tooltip("Play idle animation on start")]
         private bool _playIdleOnStart = true;
+        [SerializeField, FoldoutGroup("Settings")]
+        private bool playAudioOnJump = true;
 
         #endregion
 
@@ -217,7 +223,7 @@ namespace LGD.Gameplay.Polish
             float normalizedDirection = direction > 0 ? 1f : (direction < 0 ? -1f : 0f);
 
             // Create jump vector (horizontal component based on direction, vertical is always up)
-            Vector2 jumpVector = new Vector2(normalizedDirection, 1f).normalized * _jumpForce;
+            Vector2 jumpVector = new Vector2(normalizedDirection, Random.Range(1f, 3f)) * _jumpForce.GetRandom();
 
             // Apply force
             if (_additive)
@@ -235,6 +241,8 @@ namespace LGD.Gameplay.Polish
                 _spriteRenderer.flipX = normalizedDirection < 0f;
             }
 
+            if (playAudioOnJump)
+                AudioManager.Instance.PlaySFX(AudioConstIds.DUCK_JUMP, true, transform.position);
             // Store debug info
             _lastJumpDirection = jumpVector;
             _totalJumps++;
@@ -248,7 +256,7 @@ namespace LGD.Gameplay.Polish
         [Button("Jump Random Direction"), FoldoutGroup("Debug")]
         public void JumpRandomDirection()
         {
-            float randomDir = Random.Range(-1, 2); // -1, 0, or 1
+            float randomDir = Random.Range(-3f, 3f); // -1, 0, or 1
             Jump(randomDir);
         }
 

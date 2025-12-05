@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Summon Devotee
   description: A lost soul joins the cult
   icon: {fileID: 21300000, guid: 30f29fd8c137d05429110b727d05b2e1, type: 3}
-  purchaseType: 1
+  purchaseType: 2
   maxPurchases: 5
   costScaling:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}

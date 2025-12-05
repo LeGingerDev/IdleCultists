@@ -18,6 +18,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 1b09c3739513b2e43b631438b3cb93d3, type: 3}
   isLooping: 0
   isRandomPitch: 1
-  pitchVariance: -0.03
-  volume: 0.237
+  pitchVariance: 0.06
+  volume: 0.178
   spatialBlend: 0
+  bpm: 120

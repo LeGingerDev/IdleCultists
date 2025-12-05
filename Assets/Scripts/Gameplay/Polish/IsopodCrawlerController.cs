@@ -8,7 +8,6 @@ namespace LGD.Gameplay.Polish
     /// Simple isopod crawler that alternates between idle and crawling left/right.
     /// No jumping, no complexity - just cute crawling action.
     /// </summary>
-    [RequireComponent(typeof(Animator))]
     public class IsopodCrawlerController : SerializedMonoBehaviour
     {
         #region State Enum
@@ -101,7 +100,7 @@ namespace LGD.Gameplay.Polish
         {
             // Auto-assign components if not set
             if (_animator == null)
-                _animator = GetComponent<Animator>();
+                _animator = GetComponentInChildren<Animator>();
 
             if (_spriteRenderer == null)
                 _spriteRenderer = GetComponent<SpriteRenderer>();

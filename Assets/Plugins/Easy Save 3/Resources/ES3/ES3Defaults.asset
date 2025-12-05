@@ -38,9 +38,19 @@ MonoBehaviour:
     - AllIn1SpriteShaderAssembly
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
+    - Febucci.Attributes.Runtime
+    - Febucci.TextAnimator.Demo.Runtime
+    - Febucci.TextAnimator.Demo.Sounds.Runtime
+    - Febucci.TextAnimatorForUnity.Runtime
+    - Febucci.TextAnimatorForUnity.TMP.Runtime
     - IngameDebugConsole.Runtime
+    - Klak.Spout.Runtime
     - LeTai.TrueShadow
     - LeTai.TrueShadow.Demo
+    - StreamLinked
+    - StreamLinked.Editor
+    - StreamLinked.VisualScripting
+    - StreamLinked.VisualScripting.Editor
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1

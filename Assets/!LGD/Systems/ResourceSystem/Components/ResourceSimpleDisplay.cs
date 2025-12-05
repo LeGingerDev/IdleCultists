@@ -12,7 +12,8 @@ public class ResourceSimpleDisplay : MonoBehaviour
 
     public void Initialise(ResourceAmountPair resourcePair)
     {
+        _icon.gameObject.SetActive(false);
         _icon.sprite = resourcePair.resource.icon;
-        _amountText.text = $"({resourcePair.amount})";
+        _amountText.text = $"{resourcePair.resource.GetResourceSpriteText()} {resourcePair.amount}";
     }
 }

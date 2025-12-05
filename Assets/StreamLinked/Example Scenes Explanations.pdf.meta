@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d9ee1123fd3f4e74bb512a5b050e302d
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/Example Scenes Explanations.pdf
+  uploadId: 806970

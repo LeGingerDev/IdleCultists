@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2788800d9ac0cb44e9cae2a1449df4f5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/TwitchIRC/TwitchMessages/ParsedClasses/PONG.cs
+  uploadId: 806970

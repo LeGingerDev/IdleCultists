@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatPurchasable
   purchasableId: boombox-unlock
   displayName: Unlock BoomBox
-  description: Wait, we can change the music?!
-  icon: {fileID: 0}
+  description: Ooo different jams to listen to!
+  icon: {fileID: 21300000, guid: e86fd08640ce0ea449e31d388cda0d88, type: 3}
   purchaseType: 0
   maxPurchases: -1
   costScaling:

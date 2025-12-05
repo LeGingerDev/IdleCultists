@@ -23,7 +23,11 @@ namespace LGD.Extensions
 
             // Decide decimal places based on magnitude
             int decimalPlaces = value.magnitude == 0 ? 2 : 1;
-            string coefficientStr = value.coefficient.ToString($"F{decimalPlaces}");
+
+            double rounded = System.Math.Round(value.coefficient, decimalPlaces);
+            bool isWhole = rounded % 1 == 0;
+
+            string coefficientStr = isWhole ? rounded.ToString("F0") : value.coefficient.ToString($"F{decimalPlaces}");
             _stringBuilder.Append(coefficientStr);
 
             if (value.magnitude > 0)
@@ -46,7 +50,10 @@ namespace LGD.Extensions
             if (value.isZero)
                 return "0";
 
-            string coefficientStr = value.coefficient.ToString($"F{decimalPlaces}");
+            double rounded = System.Math.Round(value.coefficient, decimalPlaces);
+            bool isWhole = rounded % 1 == 0;
+
+            string coefficientStr = isWhole ? rounded.ToString("F0") : value.coefficient.ToString($"F{decimalPlaces}");
             _stringBuilder.Append(coefficientStr);
 
             if (value.magnitude > 0)
@@ -58,6 +65,8 @@ namespace LGD.Extensions
             return _stringBuilder.ToString();
         }
 
+
+
         /// <summary>
         /// Formats as percentage for multiplicative stats
         /// Example: 0.5 -> "50%", 1.25 -> "125%"
@@ -65,6 +74,21 @@ namespace LGD.Extensions
         public static string FormatAsPercentage(this float value, int decimalPlaces = 1)
         {
             return (value * 100).ToString($"F{decimalPlaces}") + "%";
+        }
+
+        /// <summary>
+        /// Formats as percentage with automatic decimal removal for whole numbers
+        /// Example: 0.5 -> "50%", 1.25 -> "125.0%", 0.15 -> "15%"
+        /// </summary>
+        public static string FormatAsPercentageCompact(this float value)
+        {
+            float percentage = value * 100f;
+            bool isWhole = Mathf.Approximately(percentage % 1f, 0f);
+
+            if (isWhole)
+                return $"{Mathf.RoundToInt(percentage)}%";
+            else
+                return $"{percentage:F1}%";
         }
 
         /// <summary>
@@ -136,5 +160,28 @@ namespace LGD.Extensions
 
             return _stringBuilder.ToString();
         }
+        /// <summary>
+        /// Formats AlphabeticNotation as integer values without decimal places
+        /// Example: "123K", "45M", "1aa"
+        /// </summary>
+        public static string FormatAsInteger(this AlphabeticNotation value)
+        {
+            _stringBuilder.Clear();
+
+            if (value.isZero)
+                return "0";
+
+            int roundedCoefficient = Mathf.RoundToInt((float)value.coefficient);
+            _stringBuilder.Append(roundedCoefficient.ToString());
+
+            if (value.magnitude > 0)
+            {
+                string magnitudeName = AlphabeticNotation.GetAlphabeticMagnitudeName(value.magnitude);
+                _stringBuilder.Append(magnitudeName);
+            }
+
+            return _stringBuilder.ToString();
+        }
     }
+
 }

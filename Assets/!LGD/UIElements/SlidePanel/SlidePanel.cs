@@ -1,9 +1,12 @@
+using Audio.Core;
+using Audio.Managers;
 using DG.Tweening;
 using LGD.Core;
 using LGD.Core.Events;
 using Sirenix.OdinInspector;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace LGD.UIelements.Panels
 {
@@ -33,6 +36,11 @@ namespace LGD.UIelements.Panels
         protected Ease _easeType = Ease.OutCubic;
         [SerializeField, FoldoutGroup("Panel/Animation Settings")]
         protected float _offscreenMargin = 50f;
+
+        [SerializeField, FoldoutGroup("Panel/Events")]
+        private UnityEvent _onPanelOpened;
+        [SerializeField, FoldoutGroup("Panel/Events")]
+        private UnityEvent _onPanelClosed;
 
         protected Vector2 _originalPosition;
         protected float _calculatedMoveDistance;
@@ -91,14 +99,19 @@ namespace LGD.UIelements.Panels
 
         protected void ShowPanel(float? durationOverride = null)
         {
+            AudioManager.Instance.PlaySFX(AudioConstIds.UI_POPUP);
+
             StopCloseCoroutine();
             SetPanelVisible(true, durationOverride);
             _isOpen = true;
             OnOpen();
+
         }
 
         protected void HidePanel(float? durationOverride = null)
         {
+            AudioManager.Instance.PlaySFX(AudioConstIds.UI_POPUP_CLOSE);
+
             StopCloseCoroutine();
             SetPanelVisible(false, durationOverride);
             _isOpen = false;
@@ -138,9 +151,15 @@ namespace LGD.UIelements.Panels
                 .OnComplete(() =>
                 {
                     if (visible)
+                    {
                         EnableInteraction();
+                        _onPanelOpened?.Invoke();
+                    }
                     else
+                    {
+                        _onPanelClosed?.Invoke();
                         DisableInteraction();
+                    }
                 });
         }
 

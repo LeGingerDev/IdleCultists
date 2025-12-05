@@ -202,7 +202,7 @@ public class EntityManager : MonoSingleton<EntityManager>
     #region Topic Listeners
 
     [Topic(EntityEventIds.ON_ENTITY_SPAWNED)]
-    public void OnEntitySpawned(object sender, EntityRuntimeData runtimeData)
+    public void OnEntitySpawned(object sender, EntityRuntimeData runtimeData, bool fromLoading)
     {
         RegisterEntityRuntimeData(runtimeData);
     }

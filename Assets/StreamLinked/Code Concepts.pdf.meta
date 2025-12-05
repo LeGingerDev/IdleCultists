@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e92035f1384e5504f98ad60bdc4f2afe
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/Code Concepts.pdf
+  uploadId: 806970

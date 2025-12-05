@@ -1,5 +1,6 @@
 using Audio.Managers;
 using Audio.Models;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Audio.Components
@@ -33,7 +34,7 @@ namespace Audio.Components
                 PlaySFX();
             }
         }
-
+        [Button("Test Audio")]
         public void PlaySFX()
         {
             if (_useSpawnDelay && !HasSpawnDelayPassed())

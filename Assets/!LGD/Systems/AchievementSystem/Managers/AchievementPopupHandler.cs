@@ -1,4 +1,6 @@
-﻿using LGD.Core;
+﻿using Audio.Core;
+using Audio.Managers;
+using LGD.Core;
 using LGD.Core.Events;
 using LGD.UIElements.ToastSystem;
 
@@ -16,6 +18,8 @@ public class AchievementPopupHandler : BaseBehaviour
             message = $"Achievement Unlocked:\n{data.title}",
             icon = data.icon,
         };
+
+        AudioManager.Instance.PlaySFX(AudioConstIds.ACHIEVEMENT_UNLOCKED, true);
 
         ToastManager.Instance.SpawnToast(toastData);
     }

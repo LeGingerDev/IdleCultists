@@ -3,8 +3,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using LGD.Core;
+using System.Collections.Generic;
 using LargeNumbers;
+using LGD.Core;
 using LGD.ResourceSystem.Models;
 using LGD.Extensions;
 using LGD.Core.Events;
@@ -34,10 +35,39 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     [SerializeField, FoldoutGroup("UI Options")]
     protected bool _showCost = true;
 
+    [SerializeField, FoldoutGroup("UI Options")]
+    protected bool _showModifierGain = true;
+
     [SerializeField, FoldoutGroup("Refresh Settings")]
     [Tooltip("How often to refresh UI state (in seconds). Set to 0 to disable periodic refresh.")]
     [Range(0f, 1f)]
     protected float _refreshInterval = 0.2f;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Should this display fade out when prerequisites aren't met?")]
+    protected bool _fadeWhenLocked = true;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Should this display ignore layout when prerequisites aren't met? (Makes it take no space)")]
+    protected bool _ignoreLayoutWhenLocked = true;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Alpha value when faded (0 = invisible, 1 = fully visible)")]
+    [Range(0f, 1f)]
+    protected float _fadedAlpha = 0f;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Alpha value when visible")]
+    [Range(0f, 1f)]
+    protected float _visibleAlpha = 1f;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Canvas Group component for fading (will be automatically added if missing)")]
+    protected CanvasGroup _canvasGroup;
+
+    [SerializeField, FoldoutGroup("Fade Controls")]
+    [Tooltip("Layout Element component for ignoring layout (will be automatically added if missing)")]
+    protected LayoutElement _layoutElement;
 
     [SerializeField, FoldoutGroup("UI References"), ShowIf(nameof(_showIcon))]
     protected Image _iconImage;
@@ -59,6 +89,13 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     [SerializeField, FoldoutGroup("UI References"), ShowIf(nameof(_showCost))]
     protected TextMeshProUGUI _costText;
+
+    [SerializeField, FoldoutGroup("UI References"), ShowIf(nameof(_showModifierGain))]
+    protected TextMeshProUGUI _modifierGainText;
+
+    [SerializeField, FoldoutGroup("UI References")]
+    [Tooltip("Optional: Container GameObject for the modifier text (will be toggled based on _showModifierGain)")]
+    protected GameObject _modifierGainContainer;
 
     private Coroutine _canPurchaseLoopCoroutine;
     private Coroutine _periodicRefreshCoroutine;
@@ -82,6 +119,8 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
     public virtual void Initialise()
     {
         DebugManager.Log($"[IncrementalGame] Initialising BasePurchasableDisplay on {gameObject.name}");
+
+        SetupFadeComponents();
         ApplyUiToggles();
         SetupStaticUI();
 
@@ -95,6 +134,8 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         else
         {
             DebugManager.Log($"[IncrementalGame] Waiting for PurchasableManager to initialize...");
+            // Apply initial visibility state even before data is loaded
+            ApplyPrerequisiteVisibility();
         }
 
         HookUpButton();
@@ -122,6 +163,63 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
         if (_costText != null)
             _costText.gameObject.SetActive(_showCost);
+
+        if (_modifierGainText != null)
+            _modifierGainText.gameObject.SetActive(_showModifierGain);
+
+        if (_modifierGainContainer != null)
+            _modifierGainContainer.SetActive(_showModifierGain);
+    }
+
+    /// <summary>
+    /// Ensures CanvasGroup and LayoutElement components exist if fade controls are enabled
+    /// </summary>
+    protected void SetupFadeComponents()
+    {
+        if (_fadeWhenLocked && _canvasGroup == null)
+        {
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup == null)
+            {
+                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        if (_ignoreLayoutWhenLocked && _layoutElement == null)
+        {
+            _layoutElement = GetComponent<LayoutElement>();
+            if (_layoutElement == null)
+            {
+                _layoutElement = gameObject.AddComponent<LayoutElement>();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies fade and layout visibility based on whether prerequisites are met
+    /// </summary>
+    protected void ApplyPrerequisiteVisibility()
+    {
+        var blueprint = GetDisplayedBlueprint();
+
+        if (blueprint == null)
+        {
+            return;
+        }
+
+        bool prerequisitesMet = blueprint.ArePrerequisitesMet();
+
+        // Apply fade if enabled
+        if (_fadeWhenLocked && _canvasGroup != null)
+        {
+            _canvasGroup.alpha = prerequisitesMet ? _visibleAlpha : _fadedAlpha;
+        }
+
+        // Apply layout ignore if enabled
+        if (_ignoreLayoutWhenLocked && _layoutElement != null)
+        {
+            _layoutElement.ignoreLayout = !prerequisitesMet;
+        }
     }
 
     protected virtual void SetupStaticUI()
@@ -149,7 +247,6 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     protected virtual void RefreshDynamicUI()
     {
-
         // Base dynamic UI updates: times purchased and cost text
         var blueprint = GetDisplayedBlueprint();
 
@@ -157,6 +254,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         {
             return;
         }
+
+        // Apply prerequisite-based visibility first
+        ApplyPrerequisiteVisibility();
 
         int timesPurchased = blueprint.GetPurchaseCount();
 
@@ -166,16 +266,36 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
             _timesPurchasedText.text = timesText;
         }
 
-        if (_showCost)
+        bool isMaxed = blueprint.IsMaxedOut();
+
+        if (_showCost && _costText != null)
         {
-            ResourceAmountPair cost = blueprint.GetCurrentCostSafe();
-            string costString = GetCostDisplayText(cost);
-            if (_costText != null)
+            _costText.gameObject.SetActive(!isMaxed);
+
+            if (!isMaxed)
             {
+                ResourceAmountPair cost = blueprint.GetCurrentCostSafe();
+                string costString = GetCostDisplayText(cost);
                 _costText.text = costString;
             }
-            else
+        }
+
+        // Update modifier gain text (visible for all StatPurchasables, showing progression or final state)
+        if (_showModifierGain && _modifierGainText != null)
+        {
+            bool shouldShowModifier = blueprint is StatPurchasable;
+
+            _modifierGainText.gameObject.SetActive(shouldShowModifier);
+
+            if (_modifierGainContainer != null)
             {
+                _modifierGainContainer.SetActive(shouldShowModifier);
+            }
+
+            if (shouldShowModifier)
+            {
+                string modifierText = GetModifierGainDisplayText(isMaxed);
+                _modifierGainText.text = modifierText;
             }
         }
 
@@ -229,8 +349,11 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
 
     public virtual void CanPurchaseSet()
     {
+        var blueprint = GetDisplayedBlueprint();
+        bool canPurchase = blueprint != null && !blueprint.IsMaxedOut() && CanPurchase();
+
         if (_showButton && _purchaseButton != null)
-            _purchaseButton.interactable = CanPurchase();
+            _purchaseButton.interactable = canPurchase;
 
         if (_showButton && _buttonPurchaseText != null)
             _buttonPurchaseText.text = GetButtonText();
@@ -325,6 +448,9 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         }
         else
         {
+            // Also refresh visibility when ANY purchasable is purchased
+            // This ensures displays update when their prerequisites are met
+            ApplyPrerequisiteVisibility();
         }
     }
 
@@ -340,20 +466,115 @@ public abstract class BasePurchasableDisplay : BaseBehaviour
         if (cost == null || cost.amount.isZero)
             return "Free";
 
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.Append("Cost\n");
-        sb.Append($"{cost.amount.FormatWithDecimals()} {cost.resource.displayName}");
-        return sb.ToString();
+        return $"{cost.resource.GetResourceSpriteText()} {cost.amount.FormatWithDecimals()}";
+    }
+
+    protected string GetModifierGainDisplayText(bool isMaxed)
+    {
+        BasePurchasable blueprint = GetDisplayedBlueprint();
+
+        // Only StatPurchasables provide modifiers
+        if (blueprint is StatPurchasable statPurchasable)
+        {
+            if (isMaxed)
+            {
+                // Show current (max) modifiers when maxed
+                List<StatModifier> currentModifiers = statPurchasable.GetCurrentModifiers();
+
+                if (currentModifiers == null || currentModifiers.Count == 0)
+                {
+                    return string.Empty;
+                }
+
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                foreach (var modifier in currentModifiers)
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\n");
+                    }
+
+                    string statName = PurchasableExtensions.FormatStatName(modifier.statType);
+                    string valueText;
+
+                    if (modifier.modifierType == ModifierType.Multiplicative)
+                    {
+                        valueText = $"+{modifier.multiplicativeValue.FormatAsPercentageCompact()}";
+                    }
+                    else // Additive
+                    {
+                        valueText = modifier.additiveValue.ToCompactString();
+                    }
+
+                    sb.Append($"{statName}: {valueText}");
+                }
+
+                return sb.ToString();
+            }
+            else
+            {
+                // Get current and next tier modifiers for progression display
+                List<StatModifier> currentModifiers = statPurchasable.GetCurrentModifiers();
+                List<StatModifier> nextModifiers = statPurchasable.GetNextModifiers();
+
+                if (nextModifiers == null || nextModifiers.Count == 0)
+                {
+                    return string.Empty;
+                }
+
+                // Format each modifier as progression
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+                foreach (var nextModifier in nextModifiers)
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\n");
+                    }
+
+                    // Find the corresponding current modifier for this stat type
+                    StatModifier currentModifier = currentModifiers?.Find(m => m.statType == nextModifier.statType);
+
+                    string statName = PurchasableExtensions.FormatStatName(nextModifier.statType);
+                    string currentValueText;
+                    string nextValueText;
+
+                    if (nextModifier.modifierType == ModifierType.Multiplicative)
+                    {
+                        float currentValue = currentModifier != null ? currentModifier.multiplicativeValue : 0f;
+                        currentValueText = $"+{currentValue.FormatAsPercentageCompact()}";
+                        nextValueText = $"+{nextModifier.multiplicativeValue.FormatAsPercentageCompact()}";
+                    }
+                    else // Additive
+                    {
+                        AlphabeticNotation currentValue = currentModifier != null ? currentModifier.additiveValue : AlphabeticNotation.zero;
+                        currentValueText = currentValue.ToCompactString();
+                        nextValueText = nextModifier.additiveValue.ToCompactString();
+                    }
+
+                    sb.Append($"{statName}: {currentValueText} -> {nextValueText}");
+                }
+
+                return sb.ToString();
+            }
+        }
+
+        // EventPurchasables don't have modifiers
+        return string.Empty;
     }
 
     protected string GetTimesPurchasedDisplayText(int timesPurchased)
     {
         BasePurchasable blueprint = GetDisplayedBlueprint();
 
-        if(blueprint.IsMaxedOut())
+        if (blueprint.IsMaxedOut())
             return "Maxxed";
-        
-        if(blueprint.purchaseType == PurchaseType.Infinite)
+
+        if (blueprint.purchaseType == PurchaseType.OneTime)
+            return timesPurchased == 0 ? "Not Purchased" : "Purchased";
+
+        if (blueprint.purchaseType == PurchaseType.Infinite)
             return $"Lv.{timesPurchased}";
 
         return $"Lv.{timesPurchased}/{blueprint.maxPurchases}";

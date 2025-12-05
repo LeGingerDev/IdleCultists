@@ -163,7 +163,7 @@ public class BarkManager : MonoSingleton<BarkManager>
     }
 
     [Topic(EntityEventIds.ON_ENTITY_SPAWNED)]
-    public void OnEntitySpawned(object sender, EntityRuntimeData runtimeData)
+    public void OnEntitySpawned(object sender, EntityRuntimeData runtimeData, bool fromLoading)
     {
         RequestBark(runtimeData, BarkContext.Spawned);
     }

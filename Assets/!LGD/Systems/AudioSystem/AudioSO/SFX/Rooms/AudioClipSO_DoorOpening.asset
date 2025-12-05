@@ -19,5 +19,6 @@ MonoBehaviour:
   isLooping: 0
   isRandomPitch: 0
   pitchVariance: -8.16
-  volume: 1.02
+  volume: 0.563
   spatialBlend: 1
+  bpm: 120

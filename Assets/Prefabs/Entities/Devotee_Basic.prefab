@@ -249,6 +249,57 @@ Transform:
   - {fileID: 4812984995303489019}
   m_Father: {fileID: 8660607035944706663}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2779693618013103652
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7874746911997321533}
+  - component: {fileID: 2035299450550593012}
+  m_Layer: 7
+  m_Name: PickupAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7874746911997321533
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779693618013103652}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8660607035944706663}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2035299450550593012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779693618013103652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc659d92eca87e940b509bee7f274ebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Audio.Components.AudioClipPlayer
+  _playOnStart: 0
+  _audioPlayerData:
+    clipId: cultist-pickup
+    isOneShot: 1
+    positionBased: 1
+  _useSpawnDelay: 0
+  _spawnDelayDuration: 0.5
 --- !u!1 &3818941102456022761
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,6 +870,7 @@ Transform:
   m_Children:
   - {fileID: 578964419836620591}
   - {fileID: 7425984819962012451}
+  - {fileID: 7874746911997321533}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6820384022231393681
@@ -849,6 +901,14 @@ MonoBehaviour:
     blueprintId: 
     currentState: 0
     currentZoneId: 
+    worldPosition:
+      x: 0
+      y: 0
+      z: 0
+    eulerAngles:
+      x: 0
+      y: 0
+      z: 0
     runtimeStats: []
 --- !u!114 &3004768726760653258
 MonoBehaviour:
@@ -907,6 +967,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.CapsuleCollider2D, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2035299450550593012}
+        m_TargetAssemblyTypeName: Audio.Components.AudioClipPlayer, Assembly-CSharp
+        m_MethodName: PlaySFX
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1184,6 +1256,7 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  _spriteRenderer: {fileID: 3531790524735128280}
 --- !u!1 &7920724729079406542
 GameObject:
   m_ObjectHideFlags: 0

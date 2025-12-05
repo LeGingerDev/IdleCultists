@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0221bfccbadb8cb4b9c6611c40b76636, type: 3}
+  m_Name: AudioClipSO_CultistMumblings
+  m_EditorClassIdentifier: Assembly-CSharp::Audio.Models.AudioClipSO
+  id: cultist-mumblings
+  constName: CULTIST_MUMBLINGS
+  audioClips:
+  - {fileID: 8300000, guid: f5ae6c034f3a6c44c88ec24b71886be7, type: 3}
+  - {fileID: 8300000, guid: bdf9fdd80335aa5498a3329301f20c31, type: 3}
+  - {fileID: 8300000, guid: 32aeb177e5aa15347b83c4acb641df4d, type: 3}
+  - {fileID: 8300000, guid: 3d815c65429a58c418d0be493174ea71, type: 3}
+  - {fileID: 8300000, guid: 7e32700dbae93e044a7400b1fae06261, type: 3}
+  - {fileID: 8300000, guid: 11cec1a589ebcc745ac9fb2d73bccfa1, type: 3}
+  - {fileID: 8300000, guid: 3d4b93245fcb09849a66ea7838ebe571, type: 3}
+  - {fileID: 8300000, guid: 1d33addbf0517814b82bd3f635de819e, type: 3}
+  - {fileID: 8300000, guid: bcd07bf03562fc34a937552aa97d55aa, type: 3}
+  - {fileID: 8300000, guid: d841c730ae129f043941191b8e96b636, type: 3}
+  isLooping: 0
+  isRandomPitch: 1
+  pitchVariance: 0.05
+  volume: 0.845
+  spatialBlend: 1
+  bpm: 120

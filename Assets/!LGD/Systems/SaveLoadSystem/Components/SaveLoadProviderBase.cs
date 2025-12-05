@@ -41,6 +41,13 @@ public abstract class SaveLoadProviderBase<T> : MonoBehaviour, ISaveLoadProvider
         SaveLoadProviderManager.Instance.RegisterProvider(this);
     }
 
+    public IEnumerator SetAndSave(List<T> data)
+    {
+        _data = new List<T>(data);
+        MarkDirty();
+        yield return Save();
+    }
+
     public IEnumerator SetData(List<T> data)
     {
         _data = new List<T>(data);
@@ -115,7 +122,7 @@ public abstract class SaveLoadProviderBase<T> : MonoBehaviour, ISaveLoadProvider
     public void DeleteFileAndData()
     {
         string path = GetFilePath();
-        if(File.Exists(path))
+        if (File.Exists(path))
         {
             File.Delete(path);
             DebugManager.Log($"[SaveLoad] <color=red>Deleted save file:</color> {path}");
@@ -143,5 +150,10 @@ public abstract class SaveLoadProviderBase<T> : MonoBehaviour, ISaveLoadProvider
     public string GetFilePathDebug()
     {
         return GetFilePath();
+    }
+
+    public bool HasData()
+    {
+        return _data.Count > 0;
     }
 }

@@ -66,7 +66,7 @@ public class SkillNodeTooltip : ToolTip<SkillNodeData>
     private void UpdateHeader(SkillNodeData data)
     {
         if (_skillNameText != null)
-            _skillNameText.text = data.skillName;
+            _skillNameText.text = $"<wave>{data.skillName}";
 
         if (_descriptionText != null)
             _descriptionText.text = data.description;

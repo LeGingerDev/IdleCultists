@@ -189,6 +189,15 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.postprocessing": {
+      "version": "3.5.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.physics": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.render-pipelines.core": {
       "version": "17.2.0",
       "depth": 1,
@@ -316,6 +325,15 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "jp.keijiro.klak.spout": {
+      "version": "https://github.com/witalosk/KlakSpout.git?path=Packages/jp.keijiro.klak.spout",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.screencapture": "1.0.0"
+      },
+      "hash": "639cbdb8a9fc62ced4f4dd9f9a524d2bb352eaca"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

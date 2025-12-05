@@ -1,7 +1,6 @@
 ﻿using LGD.Core;
 using LGD.Core.Events;
 using LGD.InteractionSystem;
-using UnityEngine;
 
 public class Panel2DClickHandler : BaseBehaviour
 {
@@ -18,7 +17,7 @@ public class Panel2DClickHandler : BaseBehaviour
         }
 
         if (interactionData == null || !interactionData.HasTarget)
-            return; 
+            return;
 
         if (transform != interactionData.Target)
             return;
@@ -28,6 +27,4 @@ public class Panel2DClickHandler : BaseBehaviour
         else
             Publish(PanelEventIds.ON_PANEL_CLOSE_REQUESTED, targetPanelType);
     }
-
-
 }

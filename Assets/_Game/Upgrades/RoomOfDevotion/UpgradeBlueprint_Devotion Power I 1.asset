@@ -22,7 +22,7 @@ MonoBehaviour:
     costType: {fileID: 11400000, guid: 7c7202b2ad5aa8448a49b535fe80f197, type: 2}
     baseCost: 50
     growthType: 1
-    growthRate: 1.7
+    growthRate: 1.75
   prerequisitePurchasables:
   - {fileID: 11400000, guid: d83ec3a3611aa884f91d1ec3447733d1, type: 2}
   modifierScaling:

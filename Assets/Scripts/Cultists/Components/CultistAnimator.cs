@@ -13,6 +13,8 @@ public class CultistAnimator : BaseBehaviour
     private const string CLIMBING_ANIM = "Climbing";
     private const string OOGA_BOOGA_ANIM = "OogaBooga";
 
+    [SerializeField]
+    private SpriteRenderer _spriteRenderer;
     private EntityController _entityController;
     private Animator _animator;
 
@@ -73,5 +75,11 @@ public class CultistAnimator : BaseBehaviour
     {
         if (_animator == null) return;
         _animator.Play(animationName);
+    }
+
+    public void Flip(bool facingRight)
+    {
+        if (_spriteRenderer != null)
+            _spriteRenderer.flipX = !facingRight;
     }
 }

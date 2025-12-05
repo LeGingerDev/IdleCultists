@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4cc0d4f1d2b0a81469fcf3ba16c5b533
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/TwitchSceneFiles/Manual Token.asset
+  uploadId: 806970

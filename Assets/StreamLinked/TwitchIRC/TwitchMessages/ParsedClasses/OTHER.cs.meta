@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 61e5a6757c210d24f95a05a8e63249e0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/TwitchIRC/TwitchMessages/ParsedClasses/OTHER.cs
+  uploadId: 806970

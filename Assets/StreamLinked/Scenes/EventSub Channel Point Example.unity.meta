@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4d8e631f875096845aa720d168563857
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273978
+  packageName: StreamLinked - API, Auth, EventSub and IRC for Twitch
+  packageVersion: V2.4.1
+  assetPath: Assets/StreamLinked/Scenes/EventSub Channel Point Example.unity
+  uploadId: 806970
